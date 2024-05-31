@@ -19,7 +19,6 @@ return new class extends Migration
             $table->float('rating');
             $table->unsignedInteger('sold');
             $table->string('seller');
-            $table->foreignId('province_id')->constrained()->cascadeOnDelete();
             $table->string('location');
             $table->text('link');
             $table->foreignId('marketplace_id')->constrained()->cascadeOnDelete();
