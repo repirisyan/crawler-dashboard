@@ -24,7 +24,7 @@ watch(
 
 const checkStatus = async () => {
     status.value = null;
-    await axios
+    axios
         .get(route("crawler.status", props.marketplace_id))
         .then((response) => {
             status.value = response.data;
@@ -38,7 +38,7 @@ onBeforeMount(() => {
 const crawlerData = async () => {
     if (confirm("Lakukan Crawling Data ?")) {
         loading.value = true;
-        await axios
+        axios
             .post(route("crawler.run"), {
                 marketplace_id: props.marketplace_id,
                 marketplace: props.marketplace,
@@ -47,6 +47,7 @@ const crawlerData = async () => {
             })
             .then((response) => {
                 checkStatus();
+                console.log(status.value)
             })
             .catch((response) => {
                 console.log(response);
