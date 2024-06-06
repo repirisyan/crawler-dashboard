@@ -156,7 +156,7 @@ const showingNavigationDropdown = ref(false);
                             :href="route('crawler.index')"
                             :active="route().current('crawler.index')"
                         >
-                            Dashboard
+                            Crawler
                         </ResponsiveNavLink>
                     </div>
 
