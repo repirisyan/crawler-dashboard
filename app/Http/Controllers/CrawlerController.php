@@ -18,7 +18,9 @@ class CrawlerController extends Controller
     }
 
     public function index(){
-        return Inertia::render('Crawler/Index');
+        return Inertia::render('Crawler/Index',[
+            'crawlers' => $this->crawler->getData()
+        ]);
     }
 
     public function crawlerData(Request $request){

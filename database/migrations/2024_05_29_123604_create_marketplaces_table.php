@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('marketplaces', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('logo');
             $table->boolean('status')->default(false);
+            $table->boolean('maintenance')->default(false);
             $table->timestamps();
         });
     }

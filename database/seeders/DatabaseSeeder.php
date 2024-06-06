@@ -25,7 +25,24 @@ class DatabaseSeeder extends Seeder
             'name' => 'Jawa Tengah'
         ]);
         Marketplace::create([
-            'name' => 'Bukalapak'
+            'name' => 'Bukalapak',
+            'logo' => 'bukalapak.svg',
+            'maintenance' => false
+        ]);
+        Marketplace::create([
+            'name' => 'Shopee',
+            'logo' => 'shopee.webp',
+            'maintenance' => true
+        ]);
+        Marketplace::create([
+            'name' => 'Lazada',
+            'logo' => 'lazada.png',
+            'maintenance' => true
+        ]);
+        Marketplace::create([
+            'name' => 'Tokopedia',
+            'logo' => 'tokopedia.svg',
+            'maintenance' => true
         ]);
         User::create([
             'name' => 'Test User',

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TempItemController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('crawler',[CrawlerController::class,'index'])->name('crawler.index');
     Route::post('crawler',[CrawlerController::class,'crawlerData'])->name('crawler.run');
     Route::get('crawler/{id}/status',[CrawlerController::class,'getStatus'])->name('crawler.status');
+
+    Route::get('temp-item',[TempItemController::class,'tempItemData'])->name('temp-item.data');
+    Route::delete('temp-item/truncate',[TempItemController::class,'truncateData'])->name('temp-item.truncate');
 });
 
 require __DIR__.'/auth.php';

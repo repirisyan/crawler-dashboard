@@ -11,6 +11,9 @@ class Marketplace extends Model
 
     protected $guarded = ['id'];
 
+    public function getData(){
+        return $this->all();
+    }
 
     public function getStatus($id){
         return $this->where('id',$id)->value('status');
