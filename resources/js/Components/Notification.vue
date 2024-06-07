@@ -13,6 +13,8 @@ import Pusher from "pusher-js";
 
 const notifications = ref({});
 
+const loading = ref(false);
+
 const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
 });
@@ -63,6 +65,7 @@ const deleteNotification = async (notification_id) => {
 };
 
 const deleteAllNotification = async () => {
+    loading.value = true;
     axios
         .delete(route("notification.delete_all"))
         .then((response) => {
@@ -70,6 +73,9 @@ const deleteAllNotification = async () => {
         })
         .catch((response) => {
             console.log(response);
+        })
+        .finally(() => {
+            loading.value = false;
         });
 };
 </script>
@@ -90,42 +96,49 @@ const deleteAllNotification = async () => {
         </template>
 
         <template #content>
-            <div v-if="!isNotificationEmpty">
-                <div class="relative p-5">
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-dark absolute top-0 right-1 items-center"
-                        @click="deleteAllNotification"
-                    >
-                        Clear All <TrashIcon class="w-3 h-3" />
-                    </button>
-                </div>
-                <div
-                    v-for="notification in notifications"
-                    :key="notification.id"
-                    class="w-96"
-                >
+            <div v-if="!loading">
+                <div v-if="!isNotificationEmpty">
+                    <div class="relative p-5">
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-dark absolute top-0 right-1 items-center"
+                            @click="deleteAllNotification"
+                        >
+                            Clear All <TrashIcon class="w-3 h-3" />
+                        </button>
+                    </div>
                     <div
-                        class="group flex justify-between items-center cursor-pointer p-2 dark:hover:bg-gray-800 hover:bg-gray-200"
+                        v-for="notification in notifications"
+                        :key="notification.id"
+                        class="w-96"
                     >
-                        <p class="text-base">
-                            {{ notification.message }}<br />
-                            <small class="flex items-center"
-                                ><ClockIcon class="h-3 w-3" />&nbsp;{{
-                                    moment(notification.created_at)
-                                        .locale("id")
-                                        .format("DD MMMM YYYY hh:mm:ss")
-                                }}</small
-                            >
-                        </p>
-                        <div v-if="!notification.status">
-                            <LightBulbIcon class="h-4 w-4 text-yellow-500" />
+                        <div
+                            class="group flex justify-between items-center cursor-pointer p-2 dark:hover:bg-gray-800 hover:bg-gray-200"
+                        >
+                            <p class="text-base">
+                                {{ notification.message }}<br />
+                                <small class="flex items-center"
+                                    ><ClockIcon class="h-3 w-3" />&nbsp;{{
+                                        moment(notification.created_at)
+                                            .locale("id")
+                                            .format("DD MMMM YYYY hh:mm:ss")
+                                    }}</small
+                                >
+                            </p>
+                            <div v-if="!notification.status">
+                                <LightBulbIcon
+                                    class="h-4 w-4 text-yellow-500"
+                                />
+                            </div>
+                            <div v-else></div>
                         </div>
-                        <div v-else></div>
                     </div>
                 </div>
+                <div v-else class="p-2 text-center w-96">No Notification</div>
             </div>
-            <div v-else class="p-2 text-center w-96">No Notification</div>
+            <div v-else class="p-2 text-center w-96">
+                <span class="loading loading-spinner loading-sm"></span>
+            </div>
         </template>
     </Dropdown>
 </template>
