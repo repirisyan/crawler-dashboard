@@ -9,17 +9,17 @@ import {
 import Dropdown from "@/Components/Dropdown.vue";
 import { ref, onMounted, computed } from "vue";
 import moment from "moment";
-import Pusher from 'pusher-js';
+import Pusher from "pusher-js";
 
 const notifications = ref({});
 
 const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER
-})
-const channel = pusher.subscribe('crawler-channel');
-channel.bind('refreshNotification', () =>{
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+});
+const channel = pusher.subscribe("crawler-channel");
+channel.bind("refreshNotification", () => {
     getNotification();
-})
+});
 
 onMounted(() => {
     getNotification();
@@ -106,7 +106,7 @@ const deleteAllNotification = async () => {
                     class="w-96"
                 >
                     <div
-                        class="group flex justify-between items-center cursor-pointer p-2 hover:bg-gray-800"
+                        class="group flex justify-between items-center cursor-pointer p-2 dark:hover:bg-gray-800 hover:bg-gray-200"
                     >
                         <p class="text-base">
                             {{ notification.message }}<br />

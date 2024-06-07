@@ -9,7 +9,7 @@ import {
     ArrowPathIcon,
     TrashIcon,
 } from "@heroicons/vue/24/solid";
-import Pusher from 'pusher-js';
+import Pusher from "pusher-js";
 
 const props = defineProps({
     marketplaces: Object,
@@ -37,12 +37,12 @@ const isTableEmpty = computed(() => {
 });
 
 const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER
-})
-const channel = pusher.subscribe('crawler-channel');
-channel.bind('refreshData', () =>{
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+});
+const channel = pusher.subscribe("crawler-channel");
+channel.bind("refreshData", () => {
     getData();
-})
+});
 
 onMounted(() => {
     getData();
