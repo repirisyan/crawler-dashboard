@@ -6,6 +6,7 @@ import DropdownLink from "@/Components/DropdownLink.vue";
 import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { Link } from "@inertiajs/vue3";
+import Notification from "@/Components/Notification.vue";
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -50,6 +51,9 @@ const showingNavigationDropdown = ref(false);
 
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <!-- Settings Dropdown -->
+                            <div class="ms-3 relative">
+                                <Notification />
+                            </div>
                             <div class="ms-3 relative">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
@@ -96,6 +100,9 @@ const showingNavigationDropdown = ref(false);
 
                         <!-- Hamburger -->
                         <div class="-me-2 flex items-center sm:hidden">
+                            <div class="ms-3 relative">
+                                <Notification />
+                            </div>
                             <button
                                 @click="
                                     showingNavigationDropdown =

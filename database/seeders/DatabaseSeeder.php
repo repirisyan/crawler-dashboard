@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Marketplace;
+use App\Models\Notification;
 use App\Models\Province;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -44,10 +45,16 @@ class DatabaseSeeder extends Seeder
             'logo' => 'tokopedia.svg',
             'maintenance' => true
         ]);
-        User::create([
+        $user_id = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => Hash::make('password')
+        ])->id;
+
+        Notification::create([
+            'message' => 'Started Crawler Using Bukalapak Engine',
+            'status' => false,
+            'user_id' => $user_id
         ]);
     }
 }

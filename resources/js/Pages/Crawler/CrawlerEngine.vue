@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeMount, ref, watch } from "vue";
 import { ArrowPathIcon } from "@heroicons/vue/24/solid";
+import Pusher from 'pusher-js';
 
 const props = defineProps({
     marketplace_id: Number,
@@ -9,6 +10,7 @@ const props = defineProps({
     location: String,
     keyword: String,
     maintenance: Number,
+    user_id: Number,
 });
 
 const status = ref(null);
@@ -21,6 +23,14 @@ watch(
         keyword.value = newVal;
     },
 );
+
+const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER
+})
+const channel = pusher.subscribe('crawler-channel');
+    channel.bind('refreshEngine', function(data) {
+    checkStatus();
+});
 
 const checkStatus = async () => {
     status.value = null;
@@ -44,10 +54,10 @@ const crawlerData = async () => {
                 marketplace: props.marketplace,
                 location: props.location,
                 keyword: props.keyword,
+                user_id: props.user_id,
             })
             .then((response) => {
                 checkStatus();
-                console.log(status.value)
             })
             .catch((response) => {
                 console.log(response);

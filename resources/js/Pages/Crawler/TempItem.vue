@@ -9,6 +9,7 @@ import {
     ArrowPathIcon,
     TrashIcon,
 } from "@heroicons/vue/24/solid";
+import Pusher from 'pusher-js';
 
 const props = defineProps({
     marketplaces: Object,
@@ -34,6 +35,14 @@ const marketplace_id = ref("");
 const isTableEmpty = computed(() => {
     return Object.keys(temp_item.value).length === 0;
 });
+
+const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER
+})
+const channel = pusher.subscribe('crawler-channel');
+channel.bind('refreshData', () =>{
+    getData();
+})
 
 onMounted(() => {
     getData();
@@ -143,6 +152,7 @@ const destroyData = async () => {
         </div>
         <div class="card-body">
             <div
+                v-show="!isTableEmpty"
                 class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between"
             >
                 <div class="flex gap-3 items-center">

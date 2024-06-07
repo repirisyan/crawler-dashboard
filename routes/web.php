@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CrawlerController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TempItemController;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/notification',[NotificationController::class ,'userNotification'])->name('notification.user');
+    Route::patch('/notification/{notification_id}',[NotificationController::class,'readNotification'])->name('notification.read');
+    Route::delete('/notification/delete-all',[NotificationController::class,'deleteAllNotification'])->name('notification.delete_all');
+    Route::delete('/notification/{notification_id}',[NotificationController::class,'deleteNotification'])->name('notification.delete');
 
     Route::get('crawler',[CrawlerController::class,'index'])->name('crawler.index');
     Route::post('crawler',[CrawlerController::class,'crawlerData'])->name('crawler.run');

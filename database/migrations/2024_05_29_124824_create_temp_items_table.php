@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('location');
             $table->text('link');
             $table->foreignId('marketplace_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

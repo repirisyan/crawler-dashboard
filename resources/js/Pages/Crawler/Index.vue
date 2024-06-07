@@ -11,6 +11,7 @@ const location = ref("");
 
 const props = defineProps({
     crawlers: Object,
+    user_id: Number,
 });
 </script>
 
@@ -64,6 +65,7 @@ const props = defineProps({
                         :maintenance="item.maintenance"
                         :icon="item.logo"
                         :location="location"
+                        :user_id="props.user_id"
                     />
                 </div>
                 <div

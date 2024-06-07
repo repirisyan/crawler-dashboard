@@ -24,7 +24,7 @@ class TempItem extends Model
             $query->where('title','like','%'.$request['search'].'%')->orWhere('seller','like','%'.$request['search'].'%')->orWhere('location','like','%'.$request['search'].'%');
         })->when($request['marketplace_id'] != null, function($query) use ($request){
             $query->where('marketplace_id',$request['marketplace_id']);
-        })->paginate($request['entries'] ?? 15);
+        })->where('user_id',auth()->user()->id)->paginate($request['entries'] ?? 15);
     }
 
     public function truncate(){
