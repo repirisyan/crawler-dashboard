@@ -16,37 +16,41 @@ class CrawlerController extends Controller
 
     public function __construct()
     {
-        $this->crawler = new Marketplace(); 
+        $this->crawler = new Marketplace();
     }
 
-    public function index(){
-        return Inertia::render('Crawler/Index',[
+    public function index()
+    {
+        return Inertia::render('Crawler/Index', [
             'crawlers' => $this->crawler->getData(),
-            'user_id' => Auth::user()->id
+            'user_id' => Auth::user()->id,
         ]);
     }
 
-    public function crawlerData(Request $request){
+    public function crawlerData(Request $request)
+    {
         try {
-            if($this->crawler->getStatus($request->marketplace_id)){
-               return response('This Engine is on working',400); 
+            if ($this->crawler->getStatus($request->marketplace_id)) {
+                return response('This Engine is on working', 400);
             }
 
-            $response = Http::post(env('APP_CRAWLER_API').'/crawler',$request);
+            $response = Http::post(env('APP_CRAWLER_API').'/crawler', $request);
             Notification::create([
-                'message' => 'Start crawling '.$request->marketplace. ', keyword : '.$request->keyword,
-                'user_id' => auth()->user()->id
+                'message' => 'Start crawling '.$request->marketplace.', keyword : '.$request->keyword,
+                'user_id' => auth()->user()->id,
             ]);
-            if($response->successful()){
-                $this->crawler->changeStatus($request->marketplace_id,true);
+            if ($response->successful()) {
+                $this->crawler->changeStatus($request->marketplace_id, true);
             }
+
             return response($response->successful());
         } catch (Exception $e) {
             return response($e->getMessage());
         }
     }
 
-    public function getStatus($id){
+    public function getStatus($id)
+    {
         return response()->json($this->crawler->getStatus($id));
     }
 }

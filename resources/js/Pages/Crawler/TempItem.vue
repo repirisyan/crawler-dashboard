@@ -294,6 +294,15 @@ const destroyData = async () => {
                 <button
                     :disabled="loading"
                     type="button"
+                    @click="getData(1)"
+                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                    v-if="current_page > 10"
+                >
+                    1
+                </button>
+                <button
+                    :disabled="loading"
+                    type="button"
                     @click="getData(current_page - 2)"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                     v-if="current_page - 2 > 0"

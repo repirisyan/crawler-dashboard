@@ -20,41 +20,46 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         Province::create([
-            'name' => 'Jawa Barat'
+            'name' => 'Jawa Barat',
         ]);
         Province::create([
-            'name' => 'Jawa Tengah'
+            'name' => 'Jawa Tengah',
         ]);
         Marketplace::create([
             'name' => 'Bukalapak',
             'logo' => 'bukalapak.svg',
-            'maintenance' => false
+            'maintenance' => false,
         ]);
         Marketplace::create([
             'name' => 'Shopee',
             'logo' => 'shopee.webp',
-            'maintenance' => true
+            'maintenance' => true,
         ]);
         Marketplace::create([
             'name' => 'Lazada',
             'logo' => 'lazada.png',
-            'maintenance' => true
+            'maintenance' => false,
         ]);
         Marketplace::create([
             'name' => 'Tokopedia',
             'logo' => 'tokopedia.svg',
-            'maintenance' => true
+            'maintenance' => false,
+        ]);
+        Marketplace::create([
+            'name' => 'Blibli',
+            'logo' => 'blibli.svg',
+            'maintenance' => false,
         ]);
         $user_id = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => Hash::make('password')
+            'password' => Hash::make('password'),
         ])->id;
 
         Notification::create([
             'message' => 'Started Crawler Using Bukalapak Engine',
             'status' => false,
-            'user_id' => $user_id
+            'user_id' => $user_id,
         ]);
     }
 }

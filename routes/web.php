@@ -17,7 +17,7 @@ use Inertia\Inertia;
 //     ]);
 // });
 
-Route::redirect('/','login');
+Route::redirect('/', 'login');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -28,17 +28,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/notification',[NotificationController::class ,'userNotification'])->name('notification.user');
-    Route::patch('/notification/{notification_id}',[NotificationController::class,'readNotification'])->name('notification.read');
-    Route::delete('/notification/delete-all',[NotificationController::class,'deleteAllNotification'])->name('notification.delete_all');
-    Route::delete('/notification/{notification_id}',[NotificationController::class,'deleteNotification'])->name('notification.delete');
+    Route::get('/notification', [NotificationController::class, 'userNotification'])->name('notification.user');
+    Route::patch('/notification/{notification_id}', [NotificationController::class, 'readNotification'])->name('notification.read');
+    Route::delete('/notification/delete-all', [NotificationController::class, 'deleteAllNotification'])->name('notification.delete_all');
+    Route::delete('/notification/{notification_id}', [NotificationController::class, 'deleteNotification'])->name('notification.delete');
 
-    Route::get('crawler',[CrawlerController::class,'index'])->name('crawler.index');
-    Route::post('crawler',[CrawlerController::class,'crawlerData'])->name('crawler.run');
-    Route::get('crawler/{id}/status',[CrawlerController::class,'getStatus'])->name('crawler.status');
+    Route::get('crawler', [CrawlerController::class, 'index'])->name('crawler.index');
+    Route::post('crawler', [CrawlerController::class, 'crawlerData'])->name('crawler.run');
+    Route::get('crawler/{id}/status', [CrawlerController::class, 'getStatus'])->name('crawler.status');
 
-    Route::get('temp-item',[TempItemController::class,'tempItemData'])->name('temp-item.data');
-    Route::delete('temp-item/truncate',[TempItemController::class,'truncateData'])->name('temp-item.truncate');
+    Route::get('temp-item', [TempItemController::class, 'tempItemData'])->name('temp-item.data');
+    Route::delete('temp-item/truncate', [TempItemController::class, 'truncateData'])->name('temp-item.truncate');
 });
 
 require __DIR__.'/auth.php';

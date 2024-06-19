@@ -11,19 +11,22 @@ class TempItemController extends Controller
 {
     protected $temp_item;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->temp_item = new TempItem();
     }
 
-    public function tempItemData(Request $request){
+    public function tempItemData(Request $request)
+    {
         try {
             return response()->json($this->temp_item->getData($request));
         } catch (Exception $e) {
-            return response()->json($e->getMessage(),500);
+            return response()->json($e->getMessage(), 500);
         }
     }
 
-    public function truncateData(){
+    public function truncateData()
+    {
         try {
             return DB::table('temp_items')->truncate();
         } catch (Exception $e) {

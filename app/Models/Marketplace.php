@@ -11,17 +11,20 @@ class Marketplace extends Model
 
     protected $guarded = ['id'];
 
-    public function getData(){
+    public function getData()
+    {
         return $this->all();
     }
 
-    public function getStatus($id){
-        return $this->where('id',$id)->value('status');
+    public function getStatus($id)
+    {
+        return $this->where('id', $id)->value('status');
     }
 
-    public function changeStatus($id,$status){
+    public function changeStatus($id, $status)
+    {
         return $this->find($id)->update([
-            'status' => $status
+            'status' => $status,
         ]);
     }
 }
