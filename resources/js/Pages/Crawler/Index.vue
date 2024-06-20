@@ -41,7 +41,7 @@ const props = defineProps({
                         />
                         <MagnifyingGlassIcon class="h-5 w-5" />
                     </label>
-                    <label
+                    <!-- <label
                         class="input input-bordered flex items-center gap-2 mb-8 w-auto md:w-80 lg:w-80"
                     >
                         <input
@@ -51,7 +51,7 @@ const props = defineProps({
                             placeholder="Filter Lokasi"
                         />
                         <MapPinIcon class="h-5 w-5" />
-                    </label>
+                    </label> -->
                 </div>
                 <div
                     class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4"
