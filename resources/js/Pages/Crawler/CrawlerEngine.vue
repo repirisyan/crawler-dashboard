@@ -74,7 +74,7 @@ const crawlerData = async () => {
         class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg"
     >
         <div class="p-6 text-gray-900 dark:text-gray-100">
-            <img :src="`/assets/img/marketplace/${props.icon}`" />
+            <img :src="`/assets/img/marketplace/${props.icon}`" style="max-height: 40px;" />
             <div class="divider"></div>
             <div class="flex text-xs md:text-base lg:text-base">
                 Engine Status :
