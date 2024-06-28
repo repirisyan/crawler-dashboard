@@ -38,7 +38,7 @@ channel.bind(`refreshEngine${props.marketplace}`, function (data) {
 });
 
 const checkStatus = async () => {
-    loading.value["status"][props.marketplace] = false;
+    loading.value["status"][props.marketplace] = true;
     axios
         .get(route("crawler.status", props.marketplace_id))
         .then((response) => {
