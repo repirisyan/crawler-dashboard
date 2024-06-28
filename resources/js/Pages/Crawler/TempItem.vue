@@ -319,7 +319,7 @@ const destroyData = async () => {
             </div>
             <div class="join mt-2 mx-auto" v-show="!isTableEmpty">
                 <button
-                    :disabled="loading"
+                    :disabled="loading['refresh'][0]"
                     type="button"
                     @click="getData(1)"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
@@ -328,7 +328,7 @@ const destroyData = async () => {
                     1
                 </button>
                 <button
-                    :disabled="loading"
+                    :disabled="loading['refresh'][0]"
                     type="button"
                     @click="getData(current_page - 2)"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
@@ -337,7 +337,7 @@ const destroyData = async () => {
                     {{ current_page - 2 }}
                 </button>
                 <button
-                    :disabled="loading"
+                    :disabled="loading['refresh'][0]"
                     type="button"
                     @click="getData(current_page - 1)"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
@@ -352,7 +352,7 @@ const destroyData = async () => {
                     {{ current_page ?? "" }}
                 </button>
                 <button
-                    :disabled="loading"
+                    :disabled="loading['refresh'][0]"
                     @click="getData(current_page + 1)"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                     v-if="next_page != null"
@@ -360,7 +360,7 @@ const destroyData = async () => {
                     {{ current_page + 1 }}
                 </button>
                 <button
-                    :disabled="loading"
+                    :disabled="loading['refresh'][0]"
                     @click="getData(current_page + 2)"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                     v-show="current_page + 2 <= last_page"
