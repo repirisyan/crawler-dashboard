@@ -55,6 +55,11 @@ class DatabaseSeeder extends Seeder
             'logo' => 'olx.svg',
             'maintenance' => false,
         ]);
+        Marketplace::create([
+            'name' => 'Amazon',
+            'logo' => 'amazon.svg',
+            'maintenance' => false,
+        ]);
         $user_id = User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',

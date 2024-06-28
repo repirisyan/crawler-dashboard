@@ -8,9 +8,11 @@ import { ref } from "vue";
 
 const keyword = ref("");
 const location = ref("");
+const comodity_id = ref("");
 
 const props = defineProps({
     crawlers: Object,
+    comodities: Object,
     user_id: Number,
 });
 </script>
@@ -41,6 +43,19 @@ const props = defineProps({
                         />
                         <MagnifyingGlassIcon class="h-5 w-5" />
                     </label>
+                    <select
+                        v-model="comodity_id"
+                        class="select select-bordered"
+                    >
+                        <option value="">-- List Comodity --</option>
+                        <option
+                            :value="comodity.id"
+                            v-for="comodity in props.comodities"
+                            :key="comodity.id"
+                        >
+                            {{ comodity.name }}
+                        </option>
+                    </select>
                     <!-- <label
                         class="input input-bordered flex items-center gap-2 mb-8 w-auto md:w-80 lg:w-80"
                     >
@@ -62,6 +77,7 @@ const props = defineProps({
                         :marketplace="item.name.toLowerCase()"
                         :keyword="keyword"
                         :marketplace_id="item.id"
+                        :comodity_id="comodity_id"
                         :maintenance="item.maintenance"
                         :icon="item.logo"
                         :location="location"
@@ -75,6 +91,7 @@ const props = defineProps({
                         <TempItem
                             class="mx-auto"
                             :marketplaces="props.crawlers"
+                            :comodities="props.comodities"
                         />
                     </div>
                 </div>

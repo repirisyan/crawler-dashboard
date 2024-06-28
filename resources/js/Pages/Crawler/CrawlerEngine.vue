@@ -5,6 +5,7 @@ import Pusher from "pusher-js";
 
 const props = defineProps({
     marketplace_id: Number,
+    comodity_id: String,
     marketplace: String,
     icon: String,
     location: String,
@@ -13,14 +14,18 @@ const props = defineProps({
     user_id: Number,
 });
 
-const status = ref(null);
-const loading = ref(false);
+const loading = ref({
+    marketplace: {},
+    status: {},
+});
 const keyword = ref(props.keyword);
+const comodity_id = ref(props.comodity_id);
 
 watch(
-    () => props.keyword,
-    (newVal) => {
-        keyword.value = newVal;
+    [() => props.comodity_id, () => props.keyword],
+    ([newComodity, newKeyword]) => {
+        keyword.value = newKeyword;
+        comodity_id.value = newComodity;
     },
 );
 
@@ -28,16 +33,16 @@ const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
 });
 const channel = pusher.subscribe("crawler-channel");
-channel.bind("refreshEngine", function (data) {
+channel.bind(`refreshEngine${props.marketplace}`, function (data) {
     checkStatus();
 });
 
 const checkStatus = async () => {
-    status.value = null;
+    loading.value["status"][props.marketplace] = false;
     axios
         .get(route("crawler.status", props.marketplace_id))
         .then((response) => {
-            status.value = response.data;
+            loading.value["status"][props.marketplace] = response.data;
         });
 };
 
@@ -47,13 +52,14 @@ onBeforeMount(() => {
 
 const crawlerData = async () => {
     if (confirm("Lakukan Crawling Data ?")) {
-        loading.value = true;
+        loading.value["marketplace"][props.marketplace] = true;
         axios
             .post(route("crawler.run"), {
                 marketplace_id: props.marketplace_id,
+                comodity_id: comodity_id.value,
                 marketplace: props.marketplace,
                 location: props.location,
-                keyword: props.keyword,
+                keyword: keyword.value,
                 user_id: props.user_id,
             })
             .then((response) => {
@@ -63,7 +69,7 @@ const crawlerData = async () => {
                 console.log(response);
             })
             .finally(() => {
-                loading.value = false;
+                loading.value["marketplace"][props.marketplace] = false;
             });
     }
 };
@@ -74,22 +80,25 @@ const crawlerData = async () => {
         class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg"
     >
         <div class="p-6 text-gray-900 dark:text-gray-100">
-            <img :src="`/assets/img/marketplace/${props.icon}`" style="max-height: 40px;" />
+            <img
+                :src="`/assets/img/marketplace/${props.icon}`"
+                style="max-height: 40px"
+            />
             <div class="divider"></div>
             <div class="flex text-xs md:text-base lg:text-base">
                 Engine Status :
                 <span
                     :class="
-                        status
+                        loading['status'][props.marketplace]
                             ? 'text-accent'
                             : props.maintenance
                               ? 'text-error'
                               : 'text-info'
                     "
                     class="flex"
-                    v-if="status != null"
+                    v-if="!loading['status'][props.marketplace]"
                     >{{
-                        status
+                        loading["status"][props.marketplace]
                             ? "Working"
                             : props.maintenance
                               ? "Maintenance"
@@ -106,13 +115,18 @@ const crawlerData = async () => {
             <button
                 class="btn btn-xs md:btn-sm lg:btn-sm btn-outline btn-accent mt-5"
                 :disabled="
-                    status || loading || keyword == '' || props.maintenance
+                    loading['status'][props.marketplace] ||
+                    loading['marketplace'][props.marketplace] ||
+                    keyword == '' ||
+                    props.maintenance ||
+                    comodity_id == ''
                 "
-                v-if="status != null"
                 @click="crawlerData"
             >
-                <span v-if="!status">
-                    <span v-if="!loading">Start</span>
+                <span v-if="!loading['status'][props.marketplace]">
+                    <span v-if="!loading['marketplace'][props.marketplace]"
+                        >Start</span
+                    >
                     <span
                         class="loading loading-spinner loading-sm"
                         v-else

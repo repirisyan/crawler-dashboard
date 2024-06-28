@@ -46,6 +46,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Crawler
                                 </NavLink>
+                                <NavLink
+                                    :href="route('comodity.index')"
+                                    :active="route().current('comodity.index')"
+                                >
+                                    Comodity
+                                </NavLink>
                             </div>
                         </div>
 
@@ -164,6 +170,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('crawler.index')"
                         >
                             Crawler
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('comodity.index')"
+                            :active="route().current('comodity.index')"
+                        >
+                            Comodity
                         </ResponsiveNavLink>
                     </div>
 

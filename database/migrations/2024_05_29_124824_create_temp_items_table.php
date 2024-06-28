@@ -14,15 +14,16 @@ return new class extends Migration
         Schema::create('temp_items', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('image')->nullable();
+            $table->text('image')->nullable();
             $table->unsignedInteger('price');
             $table->float('rating');
             $table->unsignedInteger('sold');
             $table->string('seller');
             $table->string('location');
             $table->text('link');
-            $table->foreignId('marketplace_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('comodity_id')->constrained();
+            $table->foreignId('marketplace_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
     }

@@ -13,6 +13,7 @@ import Pusher from "pusher-js";
 
 const props = defineProps({
     marketplaces: Object,
+    comodities: Object,
 });
 
 const temp_item = ref({});
@@ -26,11 +27,15 @@ const to = ref(1);
 const total = ref(1);
 const last_page = ref(0);
 
-const loading = ref(false);
+const loading = ref({
+    refresh: {},
+    truncate: {},
+});
 
 // Filter Data
 const search = ref("");
 const marketplace_id = ref("");
+const comodity_id = ref("");
 
 const isTableEmpty = computed(() => {
     return Object.keys(temp_item.value).length === 0;
@@ -49,13 +54,14 @@ onMounted(() => {
 });
 
 const getData = async (page = null) => {
-    loading.value = true;
+    loading.value["refresh"][0] = true;
     axios
         .get(route("temp-item.data"), {
             params: {
                 page: page,
                 search: search.value,
                 marketplace_id: marketplace_id.value,
+                comodity_id: comodity_id.value,
                 entries: per_page.value,
             },
         })
@@ -72,19 +78,20 @@ const getData = async (page = null) => {
             console.log(response);
         })
         .finally(() => {
-            loading.value = false;
+            loading.value["refresh"][0] = false;
         });
 };
 
 const destroyData = async () => {
     if (confirm("Apa anda yakin ingin menghapus semua data ?")) {
-        loading.value = true;
+        loading.value["truncate"][0] = true;
         await axios
             .delete(route("temp-item.truncate"))
             .catch((response) => {
                 console.log(response);
             })
             .finally(() => {
+                loading.value["truncate"][0] = false;
                 getData();
             });
     }
@@ -97,9 +104,9 @@ const destroyData = async () => {
                 <button
                     @click="getData"
                     class="btn btn-sm btn-outline btn-info"
-                    :disabled="loading"
+                    :disabled="loading['refresh'][0]"
                 >
-                    <span v-if="!loading" class="flex"
+                    <span v-if="!loading['refresh'][0]" class="flex"
                         >Refresh&nbsp;<ArrowPathIcon class="h-3 w-3"
                     /></span>
                     <span
@@ -108,11 +115,12 @@ const destroyData = async () => {
                     ></span>
                 </button>
                 <button
+                    v-show="!isTableEmpty"
                     @click="destroyData"
                     class="btn btn-sm btn-outline btn-error"
-                    :disabled="loading"
+                    :disabled="loading['truncate'][0]"
                 >
-                    <span v-if="!loading" class="flex"
+                    <span v-if="!loading['truncate'][0]" class="flex"
                         >Truncate&nbsp;<TrashIcon class="h-3 w-3"
                     /></span>
                     <span
@@ -124,10 +132,24 @@ const destroyData = async () => {
             <div class="grid grid-cols-1 md:flex lg:flex gap-3">
                 <select
                     class="select select-bordered"
+                    v-model="comodity_id"
+                    @change="getData"
+                >
+                    <option value="">-- Comodity --</option>
+                    <option
+                        :value="comosity.id"
+                        v-for="comosity in props.comodities"
+                        :key="comosity.id"
+                    >
+                        {{ comosity.name }}
+                    </option>
+                </select>
+                <select
+                    class="select select-bordered"
                     v-model="marketplace_id"
                     @change="getData"
                 >
-                    <option value="">Semua</option>
+                    <option value="">-- Marketplace --</option>
                     <option
                         :value="marketplace.id"
                         v-for="marketplace in props.marketplaces"
@@ -188,6 +210,7 @@ const destroyData = async () => {
                                 </label>
                             </th>
                             <th>Name</th>
+                            <th>Comodity</th>
                             <th>Rating</th>
                             <th>Price</th>
                             <th>Marketplace</th>
@@ -233,6 +256,9 @@ const destroyData = async () => {
                                 </div>
                             </td>
                             <td class="whitespace-nowrap">
+                                {{ item.comodity.name }}
+                            </td>
+                            <td class="whitespace-nowrap">
                                 <span class="flex"
                                     ><StarIcon
                                         class="h-4 w-4 text-yellow-500"
@@ -272,7 +298,7 @@ const destroyData = async () => {
                     </tbody>
                     <tbody v-else>
                         <tr>
-                            <td colspan="7" class="text-center">
+                            <td colspan="8" class="text-center">
                                 Tidak ada data
                             </td>
                         </tr>
@@ -281,6 +307,7 @@ const destroyData = async () => {
                         <tr>
                             <th></th>
                             <th>Name</th>
+                            <th>Comodity</th>
                             <th>Rating</th>
                             <th>Price</th>
                             <th>Marketplace</th>
