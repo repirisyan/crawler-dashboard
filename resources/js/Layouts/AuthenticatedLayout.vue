@@ -52,6 +52,18 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Comodity
                                 </NavLink>
+                                <NavLink
+                                    :href="route('keyword.index')"
+                                    :active="route().current('keyword.index')"
+                                >
+                                    Keyword
+                                </NavLink>
+                                <NavLink
+                                    :href="route('search-list.index')"
+                                    :active="route().current('search-list.index')"
+                                >
+                                    Search List
+                                </NavLink>
                             </div>
                         </div>
 
@@ -176,6 +188,18 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('comodity.index')"
                         >
                             Comodity
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('keyword.index')"
+                            :active="route().current('keyword.index')"
+                        >
+                            Keyword
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('search-list.index')"
+                            :active="route().current('search-list.index')"
+                        >
+                            Search List
                         </ResponsiveNavLink>
                     </div>
 

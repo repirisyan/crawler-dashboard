@@ -9,6 +9,8 @@ import axios from "axios";
 
 const props = defineProps({
     comodities: Object,
+    keywords:Object,
+    search_list:Object
 });
 
 const modalCreate = ref(null);
@@ -20,18 +22,20 @@ const loadingStates = ref({
 });
 
 const form = useForm({
-    name: "",
+    comodity_id: "",
+    keyword_id: "",
 });
 const formEdit = useForm({
-    name: "",
+    comodity_id: "",
+    keyword_id: "",
 });
 
 const isTableEmpty = computed(() => {
-    return Object.keys(props.comodities.data).length === 0;
+    return Object.keys(props.search_list.data).length === 0;
 });
 
 const storeData = () => {
-    form.post(route("comodity.store"), {
+    form.post(route("search-list.store"), {
         preserveScroll: true,
         onSuccess: (response) => {
             form.reset();
@@ -50,14 +54,15 @@ const storeData = () => {
 
 const editData = (id) => {
     modalEdit.value.showModal();
-    axios.get(route("comodity.edit", id)).then((response) => {
-        formEdit.name = response.data.name;
+    axios.get(route("search-list.edit", id)).then((response) => {
+        formEdit.keyword_id = response.data.keyword_id;
+        formEdit.comodity_id = response.data.comodity_id;
         formEdit.id = id;
     });
 };
 
 const updateData = () => {
-    formEdit.patch(route("comodity.update", formEdit.id), {
+    formEdit.patch(route("search-list.update", formEdit.id), {
         preserveScroll: true,
         onSuccess: (response) => {
             formEdit.reset();
@@ -74,7 +79,7 @@ const updateData = () => {
 
 const destroy = (id) => {
     if (confirm("Are you sure want to delete this data ?")) {
-        router.delete(route("comodity.destroy", id), {
+        router.delete(route("search-list.destroy", id), {
             preserveScroll: true,
             onBefore: () => {
                 loadingStates.value["delete"][id] = true;
@@ -94,14 +99,14 @@ const destroy = (id) => {
 </script>
 
 <template>
-    <Head title="Comodity" />
+    <Head title="Search List" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Comodity
+                Search List
             </h2>
         </template>
 
@@ -117,7 +122,7 @@ const destroy = (id) => {
                                     class="btn btn-outline btn-success btn-sm"
                                     onclick="modalCreate.showModal()"
                                 >
-                                    Comodity <PlusIcon class="h-3 w-3" />
+                                    Search List <PlusIcon class="h-3 w-3" />
                                 </button>
                             </div>
                             <div class="card-body">
@@ -125,17 +130,19 @@ const destroy = (id) => {
                                     <table class="table">
                                         <thead class="text-info">
                                             <tr>
-                                                <th>Name</th>
+                                                <th>Comodity</th>
+                                                <th>Keyword</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody v-if="!isTableEmpty">
                                             <tr
-                                                v-for="item in props.comodities
+                                                v-for="item in props.search_list
                                                     .data"
                                                 :key="item.id"
                                             >
-                                                <td>{{ item.name }}</td>
+                                                <td>{{ item.comodity.name }}</td>
+                                                <td>{{item.keyword.name}}</td>
                                                 <td class="flex gap-3">
                                                     <button
                                                         @click="
@@ -177,7 +184,7 @@ const destroy = (id) => {
                                         <tbody v-else>
                                             <tr>
                                                 <td
-                                                    colspan="2"
+                                                    colspan="3"
                                                     class="text-center"
                                                 >
                                                     Tidak ada data
@@ -192,20 +199,20 @@ const destroy = (id) => {
                                 >
                                     <Link
                                         class="join-item btn btn-sm"
-                                        v-show="props.comodities.prev_page_url"
+                                        v-show="props.search_list.prev_page_url"
                                         :href="
-                                            props.comodities.prev_page_url ??
+                                            props.search_list.prev_page_url ??
                                             'javascript:;'
                                         "
                                         >«</Link
                                     >
                                     <button class="join-item btn btn-sm">
-                                        Page {{ props.comodities.current_page }}
+                                        Page {{ props.search_list.current_page }}
                                     </button>
                                     <Link
                                         class="join-item btn btn-sm"
-                                        v-show="props.comodities.next_page_url"
-                                        :href="props.comodities.next_page_url ?? 'javascript:;'"
+                                        v-show="props.search_list.next_page_url"
+                                        :href="props.search_list.next_page_url ?? 'javascript:;'"
                                         >»</Link
                                     >
                                 </div>
@@ -223,19 +230,53 @@ const destroy = (id) => {
                 <form @submit.prevent="storeData">
                     <label class="form-control w-full">
                         <div class="label">
-                            <span class="label-text">Name</span>
+                            <span class="label-text">Comodity</span>
                         </div>
-                        <input
-                            type="text"
-                            v-model.lazy="form.name"
+                        <select
+                            class="select select-bordered w-full"
+                            :class="form.errors.comodity_id ? 'input-error' : ''"
                             :readonly="form.processing"
-                            placeholder="Type here"
-                            class="input input-bordered w-full"
-                            :class="form.errors.name ? 'input-error' : ''"
-                        />
-                        <div class="label" v-show="form.errors.name">
+                            required
+                            v-model.lazy="form.comodity_id"
+                        >
+                            <option value="">-- Comodity --</option>
+                            <option
+                                :value="comodity.id"
+                                v-for="comodity in props.comodities"
+                                :key="comodity.id"
+                            >
+                                {{ comodity.name }}
+                            </option>
+                        </select>
+                        <div class="label" v-show="form.errors.comodity_id">
                             <span class="label-text-alt text-error">{{
-                                form.errors.name
+                                form.errors.comodity_id
+                            }}</span>
+                        </div>
+                    </label>
+                    <label class="form-control w-full mt-5">
+                        <div class="label">
+                            <span class="label-text">Keyword</span>
+                        </div>
+                        <select
+                            class="select select-bordered w-full"
+                            :class="form.errors.keyword_id ? 'input-error' : ''"
+                            :readonly="form.processing"
+                            required
+                            v-model.lazy="form.keyword_id"
+                        >
+                            <option value="">-- Comodity --</option>
+                            <option
+                                :value="keyword.id"
+                                v-for="keyword in props.keywords"
+                                :key="keyword.id"
+                            >
+                                {{ keyword.name }}
+                            </option>
+                        </select>
+                        <div class="label" v-show="form.errors.keyword_id">
+                            <span class="label-text-alt text-error">{{
+                                form.errors.keyword_id
                             }}</span>
                         </div>
                     </label>
@@ -276,18 +317,53 @@ const destroy = (id) => {
                 <form @submit.prevent="updateData">
                     <label class="form-control w-full">
                         <div class="label">
-                            <span class="label-text">Name</span>
+                            <span class="label-text">Comodity</span>
                         </div>
-                        <input
-                            type="text"
-                            v-model.lazy="formEdit.name"
+                        <select
+                            class="select select-bordered w-full"
+                            :class="formEdit.errors.comodity_id ? 'input-error' : ''"
                             :readonly="formEdit.processing"
-                            placeholder="Type here"
-                            class="input input-bordered w-full"
-                        />
-                        <div class="label" v-show="formEdit.errors.name">
-                            <span class="label-text-alt text-danger">{{
-                                formEdit.errors.name
+                            required
+                            v-model.lazy="formEdit.comodity_id"
+                        >
+                            <option value="">-- Comodity --</option>
+                            <option
+                                :value="comodity.id"
+                                v-for="comodity in props.comodities"
+                                :key="comodity.id"
+                            >
+                                {{ comodity.name }}
+                            </option>
+                        </select>
+                        <div class="label" v-show="formEdit.errors.comodity_id">
+                            <span class="label-text-alt text-error">{{
+                                formEdit.errors.comodity_id
+                            }}</span>
+                        </div>
+                    </label>
+                    <label class="form-control w-full mt-5">
+                        <div class="label">
+                            <span class="label-text">Keyword</span>
+                        </div>
+                        <select
+                            class="select select-bordered w-full"
+                            :class="formEdit.errors.keyword_id ? 'input-error' : ''"
+                            :readonly="formEdit.processing"
+                            required
+                            v-model.lazy="formEdit.keyword_id"
+                        >
+                            <option value="">-- Comodity --</option>
+                            <option
+                                :value="keyword.id"
+                                v-for="keyword in props.keywords"
+                                :key="keyword.id"
+                            >
+                                {{ keyword.name }}
+                            </option>
+                        </select>
+                        <div class="label" v-show="formEdit.errors.keyword_id">
+                            <span class="label-text-alt text-error">{{
+                                formEdit.errors.keyword_id
                             }}</span>
                         </div>
                     </label>

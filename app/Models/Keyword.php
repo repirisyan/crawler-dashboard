@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Comodity extends Model
+class Keyword extends Model
 {
     use HasFactory;
 
@@ -19,18 +19,18 @@ class Comodity extends Model
         return $this->hasMany(SearchList::class);
     }
 
-    public function getComodities($search = null){
+    public function getKeywords($search = null){
         return $this->when($search != null, function($query) use ($search){
-            $query->where('name','like','%'.$search.'%');
+            $query->where('keyword','like','%'.$search.'%');
         })->simplePaginate(15);
     }
 
-    public function getAllComodity(){
-        return $this->all();
+    public function getKeyword($keyword_id){
+        return $this->where('id',$keyword_id)->first();
     }
 
-    public function getComodity($id){
-        return $this->where('id',$id)->first();
+    public function getAllKeyword(){
+        return $this->select('id','name')->get();
     }
 
     public function storeData($data){
@@ -39,13 +39,14 @@ class Comodity extends Model
         ]);
     }
 
-    public function updateData($id,$data){
-        return $this->find($id)->update([
+    public function updateData($data,$keyword_id){
+        return $this->find($keyword_id)->update([
             'name' => $data['name']
         ]);
     }
 
-    public function destroyData($id){
-        return $this->destroy($id);
+    public function deleteData($keyword_id){
+        return $this->destroy($keyword_id);
     }
+
 }

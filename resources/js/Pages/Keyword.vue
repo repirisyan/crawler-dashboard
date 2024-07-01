@@ -8,7 +8,7 @@ import { PlusIcon, PencilSquareIcon, TrashIcon } from "@heroicons/vue/24/solid";
 import axios from "axios";
 
 const props = defineProps({
-    comodities: Object,
+    keywords: Object,
 });
 
 const modalCreate = ref(null);
@@ -27,11 +27,11 @@ const formEdit = useForm({
 });
 
 const isTableEmpty = computed(() => {
-    return Object.keys(props.comodities.data).length === 0;
+    return Object.keys(props.keywords.data).length === 0;
 });
 
 const storeData = () => {
-    form.post(route("comodity.store"), {
+    form.post(route("keyword.store"), {
         preserveScroll: true,
         onSuccess: (response) => {
             form.reset();
@@ -50,14 +50,14 @@ const storeData = () => {
 
 const editData = (id) => {
     modalEdit.value.showModal();
-    axios.get(route("comodity.edit", id)).then((response) => {
+    axios.get(route("keyword.edit", id)).then((response) => {
         formEdit.name = response.data.name;
         formEdit.id = id;
     });
 };
 
 const updateData = () => {
-    formEdit.patch(route("comodity.update", formEdit.id), {
+    formEdit.patch(route("keyword.update", formEdit.id), {
         preserveScroll: true,
         onSuccess: (response) => {
             formEdit.reset();
@@ -74,7 +74,7 @@ const updateData = () => {
 
 const destroy = (id) => {
     if (confirm("Are you sure want to delete this data ?")) {
-        router.delete(route("comodity.destroy", id), {
+        router.delete(route("keyword.destroy", id), {
             preserveScroll: true,
             onBefore: () => {
                 loadingStates.value["delete"][id] = true;
@@ -94,14 +94,14 @@ const destroy = (id) => {
 </script>
 
 <template>
-    <Head title="Comodity" />
+    <Head title="Keyword" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Comodity
+                Keyword
             </h2>
         </template>
 
@@ -117,7 +117,7 @@ const destroy = (id) => {
                                     class="btn btn-outline btn-success btn-sm"
                                     onclick="modalCreate.showModal()"
                                 >
-                                    Comodity <PlusIcon class="h-3 w-3" />
+                                    Keyword <PlusIcon class="h-3 w-3" />
                                 </button>
                             </div>
                             <div class="card-body">
@@ -131,7 +131,7 @@ const destroy = (id) => {
                                         </thead>
                                         <tbody v-if="!isTableEmpty">
                                             <tr
-                                                v-for="item in props.comodities
+                                                v-for="item in props.keywords
                                                     .data"
                                                 :key="item.id"
                                             >
@@ -192,20 +192,20 @@ const destroy = (id) => {
                                 >
                                     <Link
                                         class="join-item btn btn-sm"
-                                        v-show="props.comodities.prev_page_url"
+                                        v-show="props.keywords.prev_page_url"
                                         :href="
-                                            props.comodities.prev_page_url ??
+                                            props.keywords.prev_page_url ??
                                             'javascript:;'
                                         "
                                         >«</Link
                                     >
                                     <button class="join-item btn btn-sm">
-                                        Page {{ props.comodities.current_page }}
+                                        Page {{ props.keywords.current_page }}
                                     </button>
                                     <Link
                                         class="join-item btn btn-sm"
-                                        v-show="props.comodities.next_page_url"
-                                        :href="props.comodities.next_page_url ?? 'javascript:;'"
+                                        v-show="props.keywords.next_page_url"
+                                        :href="props.keywords.next_page_url ?? 'javascript:;'"
                                         >»</Link
                                     >
                                 </div>

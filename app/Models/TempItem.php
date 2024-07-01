@@ -15,6 +15,10 @@ class TempItem extends Model
         return $this->belongsTo(Comodity::class);
     }
 
+    public function keyword(){
+        return $this->belongsTo(Keyword::class);
+    }
+
     public function marketplace()
     {
         return $this->belongsTo(Marketplace::class);
@@ -35,6 +39,11 @@ class TempItem extends Model
                         $query->where('comodity_id',$request['comodity_id']);
                     });
                 }
+                if($request['date'] != null){
+                    $query->where(function($query) use ($request){
+                        $query->whereDate('created_at',$request['date']);
+                    });
+                }
                 if ($request['marketplace_id'] != null) {
                     $query->where(function ($query) use ($request) {
                         $query->where('marketplace_id', $request['marketplace_id']);
@@ -49,6 +58,14 @@ class TempItem extends Model
             ->when($request['marketplace_id'] != null && $request['search'] == null, function ($query) use ($request) {
                 // If only marketplace_id is provided, add the condition
                 $query->where('marketplace_id', $request['marketplace_id']);
+            })
+            ->when($request['comodity_id'] != null && $request['search'] == null, function ($query) use ($request) {
+                // If only marketplace_id is provided, add the condition
+                $query->where('comodity_id', $request['comodity_id']);
+            })
+            ->when($request['date'] != null && $request['search'] == null, function ($query) use ($request) {
+                // If only marketplace_id is provided, add the condition
+                $query->whereDate('created_at', $request['date']);
             })
             ->where('user_id', auth()->user()->id)
             ->paginate($request['entries'] ?? 15);

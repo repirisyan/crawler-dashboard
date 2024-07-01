@@ -16,6 +16,10 @@ class Marketplace extends Model
         return $this->all();
     }
 
+    public function getActiveMarketplace(){
+        return $this->select('id','name')->where('maintenance',false)->get();
+    }
+
     public function getStatus($id)
     {
         return $this->where('id', $id)->value('status');

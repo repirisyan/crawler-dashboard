@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('crawler_histories', function (Blueprint $table) {
+        Schema::create('search_lists', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('marketplace_id')->constrained();
-            $table->json('option');
-            $table->boolean('status')->nullable();
+            $table->foreignId('comodity_id')->constrained();
+            $table->foreignId('keyword_id')->constrained();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('crawler_histories');
+        Schema::dropIfExists('search_lists');
     }
 };

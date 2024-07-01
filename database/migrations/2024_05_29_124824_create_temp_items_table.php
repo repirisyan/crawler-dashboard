@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('image')->nullable();
-            $table->unsignedInteger('price');
+            $table->unsignedBigInteger('price');
             $table->float('rating');
             $table->unsignedInteger('sold');
             $table->string('seller');
             $table->string('location');
             $table->text('link');
+            $table->foreignId('comodity_id')->constrained();
             $table->foreignId('comodity_id')->constrained();
             $table->foreignId('marketplace_id')->constrained();
             $table->foreignId('user_id')->constrained();

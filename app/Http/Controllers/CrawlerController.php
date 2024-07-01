@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comodity;
+use App\Models\Keyword;
 use App\Models\Marketplace;
 use App\Models\Notification;
 use Exception;
@@ -13,12 +14,13 @@ use Inertia\Inertia;
 
 class CrawlerController extends Controller
 {
-    public $crawler, $comodity;
+    public $crawler, $comodity, $keyword;
 
     public function __construct()
     {
         $this->crawler = new Marketplace();
         $this->comodity = new Comodity();
+        $this->keyword = new Keyword();
     }
 
     public function index()
@@ -26,6 +28,7 @@ class CrawlerController extends Controller
         return Inertia::render('Crawler/Index', [
             'crawlers' => $this->crawler->getData(),
             'comodities' => $this->comodity->getAllComodity(),
+            'keywords' => $this->keyword->getAllKeyword(),
             'user_id' => Auth::user()->id,
         ]);
     }

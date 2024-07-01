@@ -36,6 +36,7 @@ const loading = ref({
 const search = ref("");
 const marketplace_id = ref("");
 const comodity_id = ref("");
+const date = ref(moment().format('YYYY-MM-DD'))
 
 const isTableEmpty = computed(() => {
     return Object.keys(temp_item.value).length === 0;
@@ -62,6 +63,7 @@ const getData = async (page = null) => {
                 search: search.value,
                 marketplace_id: marketplace_id.value,
                 comodity_id: comodity_id.value,
+                date: date.value,
                 entries: per_page.value,
             },
         })
@@ -99,8 +101,8 @@ const destroyData = async () => {
 </script>
 <template>
     <div class="card">
-        <div class="card-header flex justify-between verflow-x-auto">
-            <div class="grid grid-cols-1 md:flex lg:flex lg:gap-5">
+        <div class="card-header block justify-between verflow-x-auto">
+            <div class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5">
                 <button
                     @click="getData"
                     class="btn btn-sm btn-outline btn-info"
@@ -129,7 +131,17 @@ const destroyData = async () => {
                     ></span>
                 </button>
             </div>
-            <div class="grid grid-cols-1 md:flex lg:flex gap-3">
+            <div class="grid grid-cols-1 md:flex lg:flex gap-3 float-end">
+                <label
+                    class="input input-bordered items-center flex gap-2 input-md  w-auto"
+                >
+                    <input
+                        v-model="date"
+                        type="date"
+                        class="grow border-0"
+                        @change="getData"
+                    />
+                </label>
                 <select
                     class="select select-bordered"
                     v-model="comodity_id"
@@ -159,7 +171,7 @@ const destroyData = async () => {
                     </option>
                 </select>
                 <label
-                    class="input input-bordered items-center flex gap-2 input-md mb-8 w-auto md:w-80 lg:w-80"
+                    class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
                 >
                     <input
                         v-model.lazy="search"

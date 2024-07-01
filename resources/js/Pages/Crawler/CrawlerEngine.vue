@@ -10,6 +10,7 @@ const props = defineProps({
     icon: String,
     location: String,
     keyword: String,
+    keyword_id: String,
     maintenance: Number,
     user_id: Number,
 });
@@ -17,15 +18,18 @@ const props = defineProps({
 const loading = ref({
     marketplace: {},
     status: {},
+    check:{}
 });
 const keyword = ref(props.keyword);
 const comodity_id = ref(props.comodity_id);
+const keyword_id = ref(props.keyword_id);
 
 watch(
-    [() => props.comodity_id, () => props.keyword],
-    ([newComodity, newKeyword]) => {
+    [() => props.comodity_id, () => props.keyword, () => props.keyword_id],
+    ([newComodity, newKeyword, newKeywordId]) => {
         keyword.value = newKeyword;
         comodity_id.value = newComodity;
+        keyword_id.value = newKeywordId;
     },
 );
 
@@ -39,10 +43,14 @@ channel.bind(`refreshEngine${props.marketplace}`, function (data) {
 
 const checkStatus = async () => {
     loading.value["status"][props.marketplace] = true;
+    loading.value["check"][props.marketplace] = true;
     axios
         .get(route("crawler.status", props.marketplace_id))
         .then((response) => {
+            console.log(response.data)
             loading.value["status"][props.marketplace] = response.data;
+        }).finally(()=>{
+            loading.value["check"][props.marketplace] = false;
         });
 };
 
@@ -60,6 +68,7 @@ const crawlerData = async () => {
                 marketplace: props.marketplace,
                 location: props.location,
                 keyword: keyword.value,
+                keyword_id: keyword_id.value,
                 user_id: props.user_id,
             })
             .then((response) => {
@@ -96,7 +105,7 @@ const crawlerData = async () => {
                               : 'text-info'
                     "
                     class="flex"
-                    v-if="!loading['status'][props.marketplace]"
+                    v-if="!loading['check'][props.marketplace]"
                     >{{
                         loading["status"][props.marketplace]
                             ? "Working"
