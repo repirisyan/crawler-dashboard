@@ -23,7 +23,7 @@ class SearchListRequest extends FormRequest
     {
         return [
             'comodity_id' => 'required',
-            'keyword_id' => 'required'
+            'keyword_id' => 'required',
         ];
     }
 }

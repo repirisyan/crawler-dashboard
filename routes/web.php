@@ -6,8 +6,8 @@ use App\Http\Controllers\KeywordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchListController;
+use App\Http\Controllers\SupervisionController;
 use App\Http\Controllers\TempItemController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -40,13 +40,22 @@ Route::middleware('auth')->group(function () {
     Route::post('crawler', [CrawlerController::class, 'crawlerData'])->name('crawler.run');
     Route::get('crawler/{id}/status', [CrawlerController::class, 'getStatus'])->name('crawler.status');
 
-    Route::resource('comodity',ComodityController::class)->except('create','show');
+    Route::prefix('supervision')->group(function () {
+        Route::get('/', [SupervisionController::class, 'index'])->name('supervision.index');
+        Route::get('data', [SupervisionController::class, 'data'])->name('supervision.data');
+        Route::post('/', [SupervisionController::class, 'store'])->name('supervision.store');
+        Route::patch('/', [SupervisionController::class, 'solved'])->name('supervision.solved');
+        Route::delete('/', [SupervisionController::class, 'destroy'])->name('supervision.destroy');
+    });
 
-    Route::resource('keyword', KeywordController::class)->except('create','show');
+    Route::resource('comodity', ComodityController::class)->except(['create', 'show']);
 
-    Route::resource('search-list', SearchListController::class)->except('create','show');
+    Route::resource('keyword', KeywordController::class)->except(['create', 'show']);
+
+    Route::resource('search-list', SearchListController::class)->except(['create', 'show']);
 
     Route::get('temp-item', [TempItemController::class, 'tempItemData'])->name('temp-item.data');
+    Route::delete('temp-item/delete-item', [TempItemController::class, 'deleteItem'])->name('temp-item.delete');
     Route::delete('temp-item/truncate', [TempItemController::class, 'truncateData'])->name('temp-item.truncate');
 });
 

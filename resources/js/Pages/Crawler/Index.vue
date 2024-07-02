@@ -5,7 +5,7 @@ import { Head } from "@inertiajs/vue3";
 import CrawlerEngine from "./CrawlerEngine.vue";
 import { MapPinIcon, MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { ref } from "vue";
-import axios from "axios"
+import axios from "axios";
 
 const keyword_id = ref("");
 const keyword = ref("");
@@ -20,12 +20,15 @@ const props = defineProps({
 });
 
 const getKeywordName = (event) => {
-    axios.get(route('keyword.edit',event.target.value)).then((response)=>{
-        keyword.value = response.data.name
-    }).catch((response)=>{
-        console.log(response)
-    })
-}
+    axios
+        .get(route("keyword.edit", event.target.value))
+        .then((response) => {
+            keyword.value = response.data.name;
+        })
+        .catch((response) => {
+            console.log(response);
+        });
+};
 </script>
 
 <template>
@@ -42,7 +45,10 @@ const getKeywordName = (event) => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-                <div class="grid grid-col-1 md:flex lg:flex gap-5 mb-5">
+                <div
+                    class="grid grid-col-1 md:flex lg:flex gap-5 mb-5"
+                    v-show="false"
+                >
                     <select
                         v-model="keyword_id"
                         class="select select-bordered"
@@ -70,7 +76,7 @@ const getKeywordName = (event) => {
                             {{ comodity.name }}
                         </option>
                     </select>
-                    <!-- <label
+                    <label
                         class="input input-bordered flex items-center gap-2 mb-8 w-auto md:w-80 lg:w-80"
                     >
                         <input
@@ -80,7 +86,7 @@ const getKeywordName = (event) => {
                             placeholder="Filter Lokasi"
                         />
                         <MapPinIcon class="h-5 w-5" />
-                    </label> -->
+                    </label>
                 </div>
                 <div
                     class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4"

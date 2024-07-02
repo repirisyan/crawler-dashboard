@@ -205,7 +205,10 @@ const destroy = (id) => {
                                     <Link
                                         class="join-item btn btn-sm"
                                         v-show="props.comodities.next_page_url"
-                                        :href="props.comodities.next_page_url ?? 'javascript:;'"
+                                        :href="
+                                            props.comodities.next_page_url ??
+                                            'javascript:;'
+                                        "
                                         >»</Link
                                     >
                                 </div>

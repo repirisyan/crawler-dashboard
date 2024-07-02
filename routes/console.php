@@ -2,4 +2,4 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('app:daily-crawling')->dailyAt('01:00');
+Schedule::command('app:daily-crawling');

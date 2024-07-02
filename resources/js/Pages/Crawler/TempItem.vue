@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import moment from "moment";
 import { Link } from "@inertiajs/vue3";
 import {
@@ -8,8 +8,11 @@ import {
     MagnifyingGlassIcon,
     ArrowPathIcon,
     TrashIcon,
+    EyeIcon,
 } from "@heroicons/vue/24/solid";
-import Pusher from "pusher-js";
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
+// import Pusher from "pusher-js";
 
 const props = defineProps({
     marketplaces: Object,
@@ -27,27 +30,34 @@ const to = ref(1);
 const total = ref(1);
 const last_page = ref(0);
 
+const checkbox = ref([]);
+const checkAllButton = ref(false);
+const optionMenu = ref(false);
+
 const loading = ref({
     refresh: {},
     truncate: {},
+    delete: {},
+    supervision: {},
 });
+
+// Realtime Data
+// const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
+//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+// });
+// const channel = pusher.subscribe("crawler-channel");
+// channel.bind("refreshData", () => {
+//     getData();
+// });
 
 // Filter Data
 const search = ref("");
 const marketplace_id = ref("");
 const comodity_id = ref("");
-const date = ref(moment().format('YYYY-MM-DD'))
+const date = ref(moment().format("YYYY-MM-DD"));
 
 const isTableEmpty = computed(() => {
     return Object.keys(temp_item.value).length === 0;
-});
-
-const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-});
-const channel = pusher.subscribe("crawler-channel");
-channel.bind("refreshData", () => {
-    getData();
 });
 
 onMounted(() => {
@@ -68,6 +78,14 @@ const getData = async (page = null) => {
             },
         })
         .then((response) => {
+            // Setting Checkbox
+            checkbox.value.length = 0;
+            optionMenu.value = false;
+            checkAllButton.value = false;
+            response.data.data.forEach((element) => {
+                checkbox.value.push({ id: element.id, checked: false });
+            });
+
             temp_item.value = response.data.data;
             current_page.value = response.data.current_page;
             next_page.value = response.data.next_page_url;
@@ -90,7 +108,7 @@ const destroyData = async () => {
         await axios
             .delete(route("temp-item.truncate"))
             .catch((response) => {
-                console.log(response);
+                console.log(response.data);
             })
             .finally(() => {
                 loading.value["truncate"][0] = false;
@@ -98,10 +116,72 @@ const destroyData = async () => {
             });
     }
 };
+
+const deleteItem = () => {
+    if (confirm("Apa anda yakin ingin menghapus data ini ?")) {
+        loading.value["delete"][0] = true;
+        const checkedItems = computed(() => {
+            return checkbox.value
+                .filter((item) => item.checked)
+                .map((item) => item.id);
+        });
+        axios
+            .delete(route("temp-item.delete"), {
+                data: { ids: checkedItems.value },
+            })
+            .catch((response) => {
+                console.log(response.data);
+            })
+            .finally(() => {
+                getData();
+                loading.value["delete"][0] = false;
+            });
+    }
+};
+
+const supervisionItem = () => {
+    if (confirm("Lakukan pengawasan terhadap produk ini ?")) {
+        loading.value["supervision"][0] = true;
+        const checkedItems = computed(() => {
+            return checkbox.value
+                .filter((item) => item.checked)
+                .map((item) => item.id);
+        });
+        axios
+            .post(route("supervision.store"), {
+                ids: checkedItems.value,
+            })
+            .then((response) => {
+                toast.success(response.data);
+            })
+            .catch((response) => {
+                console.log(response);
+            })
+            .finally(() => {
+                getData();
+                loading.value["supervision"][0] = false;
+            });
+    }
+};
+
+const checkOptionMenu = () => {
+    const isAtLeastOneChecked = computed(() => {
+        return checkbox.value.some((item) => item.checked);
+    });
+    optionMenu.value = isAtLeastOneChecked.value;
+};
+
+const checkAll = (event) => {
+    optionMenu.value = event.target.checked;
+    checkAllButton.value = event.target.checked;
+    checkbox.value.forEach((element) => {
+        element.checked = event.target.checked;
+    });
+};
 </script>
 <template>
     <div class="card">
-        <div class="card-header block justify-between verflow-x-auto">
+        <div class="card-header flex justify-between verflow-x-auto">
             <div class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5">
                 <button
                     @click="getData"
@@ -133,7 +213,7 @@ const destroyData = async () => {
             </div>
             <div class="grid grid-cols-1 md:flex lg:flex gap-3 float-end">
                 <label
-                    class="input input-bordered items-center flex gap-2 input-md  w-auto"
+                    class="input input-bordered items-center flex gap-2 input-md w-auto"
                 >
                     <input
                         v-model="date"
@@ -186,6 +266,42 @@ const destroyData = async () => {
         </div>
         <div class="card-body">
             <div
+                class="grid grid-cols-1 md:block md:gap-5 lg:block lg:gap-5 mb-5"
+                v-show="optionMenu"
+            >
+                <span class="text-sm mr-3">
+                    {{ checkbox.filter((item) => item.checked).length }} Item
+                    Selected
+                </span>
+                <button
+                    v-show="false"
+                    class="btn btn-error btn-sm btn-outline mr-3"
+                    :disabled="loading['delete'][0]"
+                    @click="deleteItem"
+                >
+                    <TrashIcon
+                        v-if="!loading['delete'][0]"
+                        class="h-3 w-3"
+                    /><span
+                        v-else
+                        class="loading loading-spinner loading-sm"
+                    ></span>
+                </button>
+                <button
+                    class="btn btn-success btn-sm btn-outline"
+                    :disabled="loading['supervision'][0]"
+                    @click="supervisionItem"
+                >
+                    <EyeIcon
+                        v-if="!loading['supervision'][0]"
+                        class="h-3 w-3"
+                    /><span
+                        v-else
+                        class="loading loading-spinner loading-sm"
+                    ></span>
+                </button>
+            </div>
+            <div
                 v-show="!isTableEmpty"
                 class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between"
             >
@@ -216,6 +332,8 @@ const destroyData = async () => {
                             <th>
                                 <label v-if="!isTableEmpty">
                                     <input
+                                        :checked="checkAllButton"
+                                        @change="checkAll"
                                         type="checkbox"
                                         class="checkbox checkbox-sm"
                                     />
@@ -231,10 +349,16 @@ const destroyData = async () => {
                         </tr>
                     </thead>
                     <tbody v-if="!isTableEmpty">
-                        <tr v-for="item in temp_item" :key="item?.id">
+                        <tr v-for="(item, index) in temp_item" :key="item?.id">
                             <th>
                                 <label>
                                     <input
+                                        v-model="checkbox[index].checked"
+                                        @change="
+                                            checkbox[index].checked =
+                                                $event.target.checked;
+                                            checkOptionMenu();
+                                        "
                                         type="checkbox"
                                         class="checkbox checkbox-sm"
                                     />

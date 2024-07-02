@@ -10,21 +10,22 @@ use Inertia\Inertia;
 
 class KeywordController extends Controller
 {
-public $keyword;
+    public $keyword;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->keyword = new Keyword();
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        return Inertia::render('Keyword',[
-            'keywords' => $this->keyword->getKeywords($request->search)
+        return Inertia::render('Keyword', [
+            'keywords' => $this->keyword->getKeywords($request->search),
         ]);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -33,12 +34,12 @@ public $keyword;
     {
         try {
             $this->keyword->storeData($request->all());
-            return to_route('keyword.index')->with('message',[200,'Data Saved']);
+
+            return to_route('keyword.index')->with('message', [200, 'Data Saved']);
         } catch (Exception $e) {
-            return to_route('keyword.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('keyword.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -58,10 +59,11 @@ public $keyword;
     public function update(KeywordRequest $request, string $id)
     {
         try {
-            $this->keyword->updateData($request->all(),$id);
-            return to_route('keyword.index')->with('message',[200,'Data Updated']);
+            $this->keyword->updateData($request->all(), $id);
+
+            return to_route('keyword.index')->with('message', [200, 'Data Updated']);
         } catch (Exception $e) {
-            return to_route('keyword.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('keyword.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
 
@@ -72,9 +74,10 @@ public $keyword;
     {
         try {
             $this->keyword->deleteData($id);
-            return to_route('keyword.index')->with('message',[200,'Data Deleted']);
+
+            return to_route('keyword.index')->with('message', [200, 'Data Deleted']);
         } catch (Exception $e) {
-            return to_route('keyword.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('keyword.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
 }

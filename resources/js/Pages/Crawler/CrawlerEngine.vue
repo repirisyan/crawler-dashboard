@@ -18,7 +18,7 @@ const props = defineProps({
 const loading = ref({
     marketplace: {},
     status: {},
-    check:{}
+    check: {},
 });
 const keyword = ref(props.keyword);
 const comodity_id = ref(props.comodity_id);
@@ -47,9 +47,9 @@ const checkStatus = async () => {
     axios
         .get(route("crawler.status", props.marketplace_id))
         .then((response) => {
-            console.log(response.data)
             loading.value["status"][props.marketplace] = response.data;
-        }).finally(()=>{
+        })
+        .finally(() => {
             loading.value["check"][props.marketplace] = false;
         });
 };

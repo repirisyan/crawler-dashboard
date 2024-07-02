@@ -14,7 +14,11 @@ use Inertia\Inertia;
 
 class CrawlerController extends Controller
 {
-    public $crawler, $comodity, $keyword;
+    public $crawler;
+
+    public $comodity;
+
+    public $keyword;
 
     public function __construct()
     {
@@ -26,7 +30,7 @@ class CrawlerController extends Controller
     public function index()
     {
         return Inertia::render('Crawler/Index', [
-            'crawlers' => $this->crawler->getData(),
+            'crawlers' => $this->crawler->getAllData(),
             'comodities' => $this->comodity->getAllComodity(),
             'keywords' => $this->keyword->getAllKeyword(),
             'user_id' => Auth::user()->id,

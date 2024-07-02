@@ -11,37 +11,44 @@ use Inertia\Inertia;
 
 class SearchListController extends Controller
 {
-    public $comodity,$keyword,$search_list;
-    public function __construct(){
+    public $comodity;
+
+    public $keyword;
+
+    public $search_list;
+
+    public function __construct()
+    {
         $this->comodity = new Comodity();
         $this->keyword = new Keyword();
         $this->search_list = new SearchList();
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('SearchList',[
+        return Inertia::render('SearchList', [
             'comodities' => $this->comodity->getAllComodity(),
             'keywords' => $this->keyword->getAllKeyword(),
-            'search_list' => $this->search_list->getDatas()
+            'search_list' => $this->search_list->getDatas(),
         ]);
     }
 
-     /**
+    /**
      * Store a newly created resource in storage.
      */
     public function store(SearchListRequest $request)
     {
         try {
             $this->search_list->storeData($request->all());
-            return to_route('search-list.index')->with('message',[200,'Data Saved']);
+
+            return to_route('search-list.index')->with('message', [200, 'Data Saved']);
         } catch (Exception $e) {
-            return to_route('search-list.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('search-list.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -61,10 +68,11 @@ class SearchListController extends Controller
     public function update(SearchListRequest $request, string $id)
     {
         try {
-            $this->search_list->updateData($request->all(),$id);
-            return to_route('search-list.index')->with('message',[200,'Data Updated']);
+            $this->search_list->updateData($request->all(), $id);
+
+            return to_route('search-list.index')->with('message', [200, 'Data Updated']);
         } catch (Exception $e) {
-            return to_route('search-list.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('search-list.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
 
@@ -75,9 +83,10 @@ class SearchListController extends Controller
     {
         try {
             $this->search_list->deleteData($id);
-            return to_route('search-list.index')->with('message',[200,'Data Deleted']);
+
+            return to_route('search-list.index')->with('message', [200, 'Data Deleted']);
         } catch (Exception $e) {
-            return to_route('search-list.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('search-list.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
 }

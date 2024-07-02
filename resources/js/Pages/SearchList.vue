@@ -9,8 +9,8 @@ import axios from "axios";
 
 const props = defineProps({
     comodities: Object,
-    keywords:Object,
-    search_list:Object
+    keywords: Object,
+    search_list: Object,
 });
 
 const modalCreate = ref(null);
@@ -141,8 +141,10 @@ const destroy = (id) => {
                                                     .data"
                                                 :key="item.id"
                                             >
-                                                <td>{{ item.comodity.name }}</td>
-                                                <td>{{item.keyword.name}}</td>
+                                                <td>
+                                                    {{ item.comodity.name }}
+                                                </td>
+                                                <td>{{ item.keyword.name }}</td>
                                                 <td class="flex gap-3">
                                                     <button
                                                         @click="
@@ -207,12 +209,16 @@ const destroy = (id) => {
                                         >«</Link
                                     >
                                     <button class="join-item btn btn-sm">
-                                        Page {{ props.search_list.current_page }}
+                                        Page
+                                        {{ props.search_list.current_page }}
                                     </button>
                                     <Link
                                         class="join-item btn btn-sm"
                                         v-show="props.search_list.next_page_url"
-                                        :href="props.search_list.next_page_url ?? 'javascript:;'"
+                                        :href="
+                                            props.search_list.next_page_url ??
+                                            'javascript:;'
+                                        "
                                         >»</Link
                                     >
                                 </div>
@@ -234,7 +240,9 @@ const destroy = (id) => {
                         </div>
                         <select
                             class="select select-bordered w-full"
-                            :class="form.errors.comodity_id ? 'input-error' : ''"
+                            :class="
+                                form.errors.comodity_id ? 'input-error' : ''
+                            "
                             :readonly="form.processing"
                             required
                             v-model.lazy="form.comodity_id"
@@ -321,7 +329,9 @@ const destroy = (id) => {
                         </div>
                         <select
                             class="select select-bordered w-full"
-                            :class="formEdit.errors.comodity_id ? 'input-error' : ''"
+                            :class="
+                                formEdit.errors.comodity_id ? 'input-error' : ''
+                            "
                             :readonly="formEdit.processing"
                             required
                             v-model.lazy="formEdit.comodity_id"
@@ -347,7 +357,9 @@ const destroy = (id) => {
                         </div>
                         <select
                             class="select select-bordered w-full"
-                            :class="formEdit.errors.keyword_id ? 'input-error' : ''"
+                            :class="
+                                formEdit.errors.keyword_id ? 'input-error' : ''
+                            "
                             :readonly="formEdit.processing"
                             required
                             v-model.lazy="formEdit.keyword_id"

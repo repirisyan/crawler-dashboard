@@ -12,19 +12,20 @@ class ComodityController extends Controller
 {
     public $comodity;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->comodity = new Comodity();
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        return Inertia::render('Comodity',[
-            'comodities' => $this->comodity->getComodities($request->search)
+        return Inertia::render('Comodity', [
+            'comodities' => $this->comodity->getComodities($request->search),
         ]);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -33,12 +34,12 @@ class ComodityController extends Controller
     {
         try {
             $this->comodity->storeData($request->all());
-            return to_route('comodity.index')->with('message',[200,'Data Saved']);
+
+            return to_route('comodity.index')->with('message', [200, 'Data Saved']);
         } catch (Exception $e) {
-            return to_route('comodity.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('comodity.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -54,10 +55,11 @@ class ComodityController extends Controller
     public function update(ComodityRequest $request, string $id)
     {
         try {
-            $this->comodity->updateData($id,$request->all());
-            return to_route('comodity.index')->with('message',[200,'Data Updated']);
+            $this->comodity->updateData($id, $request->all());
+
+            return to_route('comodity.index')->with('message', [200, 'Data Updated']);
         } catch (Exception $e) {
-            return to_route('comodity.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('comodity.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
 
@@ -68,9 +70,10 @@ class ComodityController extends Controller
     {
         try {
             $this->comodity->destroyData($id);
-            return to_route('comodity.index')->with('message',[200,'Data Deleted']);
+
+            return to_route('comodity.index')->with('message', [200, 'Data Deleted']);
         } catch (Exception $e) {
-            return to_route('comodity.index')->with('message',[$e->getCode(),$e->getMessage()]);
+            return to_route('comodity.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
 }

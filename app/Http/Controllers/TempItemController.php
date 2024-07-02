@@ -33,4 +33,15 @@ class TempItemController extends Controller
             return response()->json($e->getMessage());
         }
     }
+
+    public function deleteItem(Request $request)
+    {
+        try {
+            TempItem::whereIn('id', $request->ids)->delete();
+
+            return;
+        } catch (Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
 }

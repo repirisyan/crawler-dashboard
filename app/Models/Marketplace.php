@@ -11,13 +11,24 @@ class Marketplace extends Model
 
     protected $guarded = ['id'];
 
-    public function getData()
+    public function temp_item()
+    {
+        return $this->hasMany(TempItem::class);
+    }
+
+    public function supervision()
+    {
+        return $this->hasMany(Supervision::class);
+    }
+
+    public function getAllData()
     {
         return $this->all();
     }
 
-    public function getActiveMarketplace(){
-        return $this->select('id','name')->where('maintenance',false)->get();
+    public function getActiveMarketplace()
+    {
+        return $this->select('id', 'name')->where('maintenance', false)->get();
     }
 
     public function getStatus($id)

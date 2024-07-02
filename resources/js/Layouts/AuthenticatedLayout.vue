@@ -9,6 +9,12 @@ import { Link } from "@inertiajs/vue3";
 import Notification from "@/Components/Notification.vue";
 
 const showingNavigationDropdown = ref(false);
+
+const master_navigation = [
+    "comodity.index",
+    "keyword.index",
+    "search-list.index",
+];
 </script>
 
 <template>
@@ -46,23 +52,66 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Crawler
                                 </NavLink>
-                                <NavLink
-                                    :href="route('comodity.index')"
-                                    :active="route().current('comodity.index')"
+                                <Dropdown
+                                    width="48"
+                                    class="my-auto px-1 pt-1 leading-5"
                                 >
-                                    Comodity
-                                </NavLink>
+                                    <template #trigger>
+                                        <span class="inline-flex rounded-md">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center border border-transparent text-sm rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
+                                                :class="
+                                                    master_navigation.includes(
+                                                        route().current(),
+                                                    )
+                                                        ? 'text-gray-900 dark:text-white'
+                                                        : ''
+                                                "
+                                            >
+                                                Master Data
+
+                                                <svg
+                                                    class="ms-2 -me-0.5 h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+
+                                    <template #content>
+                                        <DropdownLink
+                                            :href="route('comodity.index')"
+                                        >
+                                            Comodity
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('keyword.index')"
+                                        >
+                                            Keyword
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('search-list.index')"
+                                        >
+                                            Search List
+                                        </DropdownLink>
+                                    </template>
+                                </Dropdown>
                                 <NavLink
-                                    :href="route('keyword.index')"
-                                    :active="route().current('keyword.index')"
+                                    :href="route('supervision.index')"
+                                    :active="
+                                        route().current('supervision.index')
+                                    "
                                 >
-                                    Keyword
-                                </NavLink>
-                                <NavLink
-                                    :href="route('search-list.index')"
-                                    :active="route().current('search-list.index')"
-                                >
-                                    Search List
+                                    Supervision
                                 </NavLink>
                             </div>
                         </div>

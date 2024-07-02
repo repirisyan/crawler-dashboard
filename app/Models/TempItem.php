@@ -11,11 +11,13 @@ class TempItem extends Model
 
     protected $guarded = ['id'];
 
-    public function comodity(){
+    public function comodity()
+    {
         return $this->belongsTo(Comodity::class);
     }
 
-    public function keyword(){
+    public function keyword()
+    {
         return $this->belongsTo(Keyword::class);
     }
 
@@ -31,17 +33,17 @@ class TempItem extends Model
 
     public function getData($request)
     {
-        return $this->with(['marketplace:id,name','comodity:id,name'])
+        return $this->with(['marketplace:id,name', 'comodity:id,name'])
             ->when($request['search'] != null, function ($query) use ($request) {
                 // If both search and marketplace_id are provided, add both conditions
-                if($request['comodity_id'] != null){
-                    $query->where(function($query) use ($request){
-                        $query->where('comodity_id',$request['comodity_id']);
+                if ($request['comodity_id'] != null) {
+                    $query->where(function ($query) use ($request) {
+                        $query->where('comodity_id', $request['comodity_id']);
                     });
                 }
-                if($request['date'] != null){
-                    $query->where(function($query) use ($request){
-                        $query->whereDate('created_at',$request['date']);
+                if ($request['date'] != null) {
+                    $query->where(function ($query) use ($request) {
+                        $query->whereDate('created_at', $request['date']);
                     });
                 }
                 if ($request['marketplace_id'] != null) {
@@ -50,10 +52,10 @@ class TempItem extends Model
                     });
                 }
                 $query->where(function ($query) use ($request) {
-                        $query->where('title', 'like', '%'.$request['search'].'%')
-                            ->orWhere('seller', 'like', '%'.$request['search'].'%')
-                            ->orWhere('location', 'like', '%'.$request['search'].'%');
-                    });
+                    $query->where('title', 'like', '%'.$request['search'].'%')
+                        ->orWhere('seller', 'like', '%'.$request['search'].'%')
+                        ->orWhere('location', 'like', '%'.$request['search'].'%');
+                });
             })
             ->when($request['marketplace_id'] != null && $request['search'] == null, function ($query) use ($request) {
                 // If only marketplace_id is provided, add the condition
