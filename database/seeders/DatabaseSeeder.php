@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Marketplace;
 use App\Models\Notification;
-use App\Models\Province;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,13 +17,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-
-        Province::create([
-            'name' => 'Jawa Barat',
-        ]);
-        Province::create([
-            'name' => 'Jawa Tengah',
-        ]);
         Marketplace::create([
             'name' => 'Bukalapak',
             'logo' => 'bukalapak.svg',
