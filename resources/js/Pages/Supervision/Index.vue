@@ -3,6 +3,8 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Link, Head } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 import {
     MapPinIcon,
     MagnifyingGlassIcon,
@@ -41,7 +43,7 @@ const loading = ref({
 const search = ref("");
 const marketplace_id = ref("");
 const comodity_id = ref("");
-const date = ref(moment().format("YYYY-MM-DD"));
+const date = ref("");
 
 const isTableEmpty = computed(() => {
     return Object.keys(supervisions.value).length === 0;
@@ -98,10 +100,14 @@ const deleteItem = () => {
                 .map((item) => item.id);
         });
         axios
-            .delete(route("supervision.delete"), {
+            .delete(route("supervision.destroy"), {
                 data: { ids: checkedItems.value },
             })
+            .then((response) => {
+                toast.success(response.data);
+            })
             .catch((response) => {
+                toast.error(response.data);
                 console.log(response.data);
             })
             .finally(() => {
@@ -239,26 +245,12 @@ const checkAll = (event) => {
                                         Item Selected
                                     </span>
                                     <button
-                                        v-show="false"
                                         class="btn btn-error btn-sm btn-outline mr-3"
                                         :disabled="loading['delete'][0]"
                                         @click="deleteItem"
                                     >
                                         <TrashIcon
                                             v-if="!loading['delete'][0]"
-                                            class="h-3 w-3"
-                                        /><span
-                                            v-else
-                                            class="loading loading-spinner loading-sm"
-                                        ></span>
-                                    </button>
-                                    <button
-                                        class="btn btn-success btn-sm btn-outline"
-                                        :disabled="loading['supervision'][0]"
-                                        @click="deleteItem"
-                                    >
-                                        <EyeIcon
-                                            v-if="!loading['supervision'][0]"
                                             class="h-3 w-3"
                                         /><span
                                             v-else
@@ -312,11 +304,12 @@ const checkAll = (event) => {
                                                 </th>
                                                 <th>Name</th>
                                                 <th>Comodity</th>
-                                                <th>Sold</th>
                                                 <th>Price</th>
                                                 <th>Marketplace</th>
                                                 <th>Seller</th>
                                                 <th>Date</th>
+                                                <th>Product Check</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody v-if="!isTableEmpty">
@@ -358,7 +351,7 @@ const checkAll = (event) => {
                                                                         item?.image ??
                                                                         '/assets/img/icon/no-image.svg'
                                                                     "
-                                                                    :alt="`Gambar ${item?.title}`"
+                                                                    :alt="`Gambar ${item?.name}`"
                                                                 />
                                                             </div>
                                                         </div>
@@ -373,7 +366,7 @@ const checkAll = (event) => {
                                                                     "
                                                                     target="_blank"
                                                                     >{{
-                                                                        item?.title
+                                                                        item?.name
                                                                     }}</a
                                                                 >
                                                             </div>
@@ -384,6 +377,20 @@ const checkAll = (event) => {
                                                     {{ item.comodity.name }}
                                                 </td>
                                                 <td class="whitespace-nowrap">
+                                                    <p>
+                                                        {{
+                                                            new Intl.NumberFormat(
+                                                                "id-ID",
+                                                                {
+                                                                    style: "currency",
+                                                                    currency:
+                                                                        "IDR",
+                                                                },
+                                                            ).format(
+                                                                item?.price,
+                                                            )
+                                                        }}
+                                                    </p>
                                                     <span
                                                         class="badge badge-ghost badge-sm"
                                                         >{{
@@ -391,17 +398,6 @@ const checkAll = (event) => {
                                                         }}
                                                         Sold</span
                                                     >
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    {{
-                                                        new Intl.NumberFormat(
-                                                            "id-ID",
-                                                            {
-                                                                style: "currency",
-                                                                currency: "IDR",
-                                                            },
-                                                        ).format(item?.price)
-                                                    }}
                                                 </td>
                                                 <td class="whitespace-nowrap">
                                                     {{ item.marketplace.name }}
@@ -427,12 +423,76 @@ const checkAll = (event) => {
                                                             )
                                                     }}
                                                 </td>
+                                                <td class="whitespace-nowrap">
+                                                    <p>
+                                                        <span
+                                                            class="badge badge-sm"
+                                                            :class="
+                                                                item.check
+                                                                    ? 'badge-success'
+                                                                    : 'badge-ghost'
+                                                            "
+                                                        >
+                                                            {{
+                                                                item.check
+                                                                    ? "Takedown"
+                                                                    : "Active"
+                                                            }}
+                                                        </span>
+                                                    </p>
+                                                    <span
+                                                        v-show="item.last_check"
+                                                        class="text-sm"
+                                                    >
+                                                        {{
+                                                            moment(
+                                                                item.last_check,
+                                                            )
+                                                                .locale("id")
+                                                                .format(
+                                                                    "DD MMMM YYYY",
+                                                                )
+                                                        }}
+                                                    </span>
+                                                </td>
+                                                <td class="whitespace-nowrap">
+                                                    <p>
+                                                        <span
+                                                            class="badge badge-sm"
+                                                            :class="
+                                                                item.status
+                                                                    ? 'badge-success'
+                                                                    : 'badge-ghost'
+                                                            "
+                                                        >
+                                                            {{
+                                                                item.status
+                                                                    ? "Solved"
+                                                                    : "Waiting"
+                                                            }}
+                                                        </span>
+                                                    </p>
+                                                    <span
+                                                        v-show="item.solved_at"
+                                                        class="text-sm"
+                                                    >
+                                                        {{
+                                                            moment(
+                                                                item.solved_at,
+                                                            )
+                                                                .locale("id")
+                                                                .format(
+                                                                    "DD MMMM YYYY",
+                                                                )
+                                                        }}
+                                                    </span>
+                                                </td>
                                             </tr>
                                         </tbody>
                                         <tbody v-else>
                                             <tr>
                                                 <td
-                                                    colspan="8"
+                                                    colspan="9"
                                                     class="text-center"
                                                 >
                                                     Tidak ada data
@@ -447,11 +507,12 @@ const checkAll = (event) => {
                                                 <th></th>
                                                 <th>Name</th>
                                                 <th>Comodity</th>
-                                                <th>Rating</th>
                                                 <th>Price</th>
                                                 <th>Marketplace</th>
                                                 <th>Seller</th>
                                                 <th>Date</th>
+                                                <th>Product Check</th>
+                                                <th>Status</th>
                                             </tr>
                                         </tfoot>
                                     </table>

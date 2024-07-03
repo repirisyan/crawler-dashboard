@@ -61,7 +61,7 @@ class Supervision extends Model
         })->when($request['date'] != null && $request['search'] == null, function ($query) use ($request) {
             // If only marketplace_id is provided, add the condition
             $query->whereDate('created_at', $request['date']);
-        })->paginate($request['page'] ?? 15);
+        })->paginate($request['entries'] ?? 15);
     }
 
     public function getData($supervision_id)
