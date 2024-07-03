@@ -23,7 +23,7 @@ class Supervision extends Model
 
     public function getDatas($request)
     {
-        return $this->with(['comodity:id,name','marketplace:id,name'])->when($request['search'] != null, function ($query) use ($request) {
+        return $this->with(['comodity:id,name', 'marketplace:id,name'])->when($request['search'] != null, function ($query) use ($request) {
             // If both search and marketplace_id are provided, add both conditions
             if ($request['comodity_id'] != null) {
                 $query->where(function ($query) use ($request) {

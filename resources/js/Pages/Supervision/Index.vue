@@ -11,6 +11,7 @@ import {
     ArrowPathIcon,
     TrashIcon,
     EyeIcon,
+    CheckIcon,
 } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
@@ -36,7 +37,8 @@ const optionMenu = ref(false);
 const loading = ref({
     refresh: {},
     delete: {},
-    supervision: {},
+    link: {},
+    solved: {},
 });
 
 // Filter Data
@@ -72,7 +74,11 @@ const getData = async (page = null) => {
             optionMenu.value = false;
             checkAllButton.value = false;
             response.data.data.forEach((element) => {
-                checkbox.value.push({ id: element.id, checked: false });
+                checkbox.value.push({
+                    id: element.id,
+                    checked: false,
+                    status: element.status,
+                });
             });
 
             supervisions.value = response.data.data;
@@ -88,6 +94,23 @@ const getData = async (page = null) => {
         })
         .finally(() => {
             loading.value["refresh"][0] = false;
+        });
+};
+
+const checkLink = (id, link_status) => {
+    console.log(link_status);
+    loading.value["link"][id] = true;
+    axios
+        .patch(route("supervision.check_link", id), {
+            status: link_status,
+        })
+        .catch((response) => {
+            console.log(response);
+            toast.error(response.data);
+        })
+        .finally(() => {
+            getData();
+            loading.value["link"][id] = false;
         });
 };
 
@@ -117,6 +140,32 @@ const deleteItem = () => {
     }
 };
 
+const solvedItem = () => {
+    if (confirm("Produk telah selesai diawasi ?")) {
+        loading.value["solved"][0] = true;
+        const checkedItems = computed(() => {
+            return checkbox.value
+                .filter((item) => item.checked)
+                .map((item) => item.id);
+        });
+        axios
+            .patch(route("supervision.solved"), {
+                ids: checkedItems.value,
+            })
+            .then((response) => {
+                toast.success(response.data);
+            })
+            .catch((response) => {
+                toast.error(response.data);
+                console.log(response);
+            })
+            .finally(() => {
+                getData();
+                loading.value["solved"][0] = false;
+            });
+    }
+};
+
 const checkOptionMenu = () => {
     const isAtLeastOneChecked = computed(() => {
         return checkbox.value.some((item) => item.checked);
@@ -128,7 +177,9 @@ const checkAll = (event) => {
     optionMenu.value = event.target.checked;
     checkAllButton.value = event.target.checked;
     checkbox.value.forEach((element) => {
-        element.checked = event.target.checked;
+        if (!element.status) {
+            element.checked = event.target.checked;
+        }
     });
 };
 </script>
@@ -192,7 +243,7 @@ const checkAll = (event) => {
                                         v-model="comodity_id"
                                         @change="getData"
                                     >
-                                        <option value="">-- Comodity --</option>
+                                        <option value="">-- Category --</option>
                                         <option
                                             :value="comosity.id"
                                             v-for="comosity in props.comodities"
@@ -257,6 +308,19 @@ const checkAll = (event) => {
                                             class="loading loading-spinner loading-sm"
                                         ></span>
                                     </button>
+                                    <button
+                                        class="btn btn-success btn-sm btn-outline mr-3"
+                                        :disabled="loading['solved'][0]"
+                                        @click="solvedItem"
+                                    >
+                                        <CheckIcon
+                                            v-if="!loading['solved'][0]"
+                                            class="h-3 w-3"
+                                        /><span
+                                            v-else
+                                            class="loading loading-spinner loading-sm"
+                                        ></span>
+                                    </button>
                                 </div>
                                 <div
                                     v-show="!isTableEmpty"
@@ -291,7 +355,15 @@ const checkAll = (event) => {
                                         <thead class="text-info">
                                             <tr>
                                                 <th>
-                                                    <label v-if="!isTableEmpty">
+                                                    <label
+                                                        v-if="
+                                                            !isTableEmpty &&
+                                                            checkbox.filter(
+                                                                (element) =>
+                                                                    !element.status,
+                                                            ).length > 0
+                                                        "
+                                                    >
                                                         <input
                                                             :checked="
                                                                 checkAllButton
@@ -303,7 +375,7 @@ const checkAll = (event) => {
                                                     </label>
                                                 </th>
                                                 <th>Name</th>
-                                                <th>Comodity</th>
+                                                <th>Category</th>
                                                 <th>Price</th>
                                                 <th>Marketplace</th>
                                                 <th>Seller</th>
@@ -320,7 +392,9 @@ const checkAll = (event) => {
                                                 :key="item?.id"
                                             >
                                                 <th>
-                                                    <label>
+                                                    <label
+                                                        v-show="!item.status"
+                                                    >
                                                         <input
                                                             v-model="
                                                                 checkbox[index]
@@ -424,7 +498,42 @@ const checkAll = (event) => {
                                                     }}
                                                 </td>
                                                 <td class="whitespace-nowrap">
-                                                    <p>
+                                                    <a
+                                                        v-if="!item.status"
+                                                        @click="
+                                                            checkLink(
+                                                                item.id,
+                                                                item.check,
+                                                            )
+                                                        "
+                                                        href="javascript:;"
+                                                        role="button"
+                                                        class="badge badge-sm block"
+                                                        :class="
+                                                            item.check
+                                                                ? 'badge-success'
+                                                                : 'badge-ghost'
+                                                        "
+                                                    >
+                                                        <span
+                                                            v-if="
+                                                                !loading[
+                                                                    'link'
+                                                                ][item.id]
+                                                            "
+                                                        >
+                                                            {{
+                                                                item.check
+                                                                    ? "Takedown"
+                                                                    : "Active"
+                                                            }}
+                                                        </span>
+                                                        <span
+                                                            v-else
+                                                            class="loading loading-spinner loading-sm"
+                                                        ></span>
+                                                    </a>
+                                                    <p v-else>
                                                         <span
                                                             class="badge badge-sm"
                                                             :class="
@@ -440,9 +549,9 @@ const checkAll = (event) => {
                                                             }}
                                                         </span>
                                                     </p>
-                                                    <span
+                                                    <p
                                                         v-show="item.last_check"
-                                                        class="text-sm"
+                                                        class="text-xs mt-2"
                                                     >
                                                         {{
                                                             moment(
@@ -453,7 +562,7 @@ const checkAll = (event) => {
                                                                     "DD MMMM YYYY",
                                                                 )
                                                         }}
-                                                    </span>
+                                                    </p>
                                                 </td>
                                                 <td class="whitespace-nowrap">
                                                     <p>
@@ -472,9 +581,9 @@ const checkAll = (event) => {
                                                             }}
                                                         </span>
                                                     </p>
-                                                    <span
+                                                    <p
                                                         v-show="item.solved_at"
-                                                        class="text-sm"
+                                                        class="text-xs mt-2"
                                                     >
                                                         {{
                                                             moment(
@@ -485,7 +594,7 @@ const checkAll = (event) => {
                                                                     "DD MMMM YYYY",
                                                                 )
                                                         }}
-                                                    </span>
+                                                    </p>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -506,7 +615,7 @@ const checkAll = (event) => {
                                             <tr>
                                                 <th></th>
                                                 <th>Name</th>
-                                                <th>Comodity</th>
+                                                <th>Category</th>
                                                 <th>Price</th>
                                                 <th>Marketplace</th>
                                                 <th>Seller</th>

@@ -30,7 +30,7 @@ class SupervisionController extends Controller
     {
         return Inertia::render('Supervision/Index', [
             'comodities' => $this->comodity->getAllComodity(),
-            'marketplace' => $this->marketplace->getAllData(),
+            'marketplaces' => $this->marketplace->getAllData(),
         ]);
     }
 
@@ -39,17 +39,32 @@ class SupervisionController extends Controller
         return response()->json($this->supervision->getDatas($request));
     }
 
+    public function checkLink(Request $request, $id)
+    {
+        try {
+            Supervision::find($id)->update([
+                'check' => ! $request->status,
+                'last_check' => now(),
+            ]);
+
+            return;
+        } catch (Exception $e) {
+            return response()->json($request);
+        }
+    }
+
     public function store(Request $request)
     {
         try {
             $ids = $request->input('ids');
-            DB::transaction(function() use ($ids){
+            DB::transaction(function () use ($ids) {
                 $products = TempItem::whereIn('id', $ids)->get();
                 foreach ($products as $product) {
                     $this->supervision->storeData($product);
                 }
                 // TempItem::whereIn('id',$ids)->delete();
             });
+
             return response()->json('Data Saved');
         } catch (Exception $e) {
             return response()->json($e->getMessage(), $e->getCode());
@@ -66,7 +81,7 @@ class SupervisionController extends Controller
 
             return response()->json('Data Solved');
         } catch (Exception $e) {
-            return response()->json($e->getMessage(), $e->getCode());
+            return response()->json($e->getMessage());
         }
     }
 

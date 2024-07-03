@@ -227,7 +227,7 @@ const checkAll = (event) => {
                     v-model="comodity_id"
                     @change="getData"
                 >
-                    <option value="">-- Comodity --</option>
+                    <option value="">-- Category --</option>
                     <option
                         :value="comosity.id"
                         v-for="comosity in props.comodities"
@@ -340,7 +340,7 @@ const checkAll = (event) => {
                                 </label>
                             </th>
                             <th>Name</th>
-                            <th>Comodity</th>
+                            <th>Category</th>
                             <th>Rating</th>
                             <th>Price</th>
                             <th>Marketplace</th>
@@ -443,7 +443,7 @@ const checkAll = (event) => {
                         <tr>
                             <th></th>
                             <th>Name</th>
-                            <th>Comodity</th>
+                            <th>Category</th>
                             <th>Rating</th>
                             <th>Price</th>
                             <th>Marketplace</th>

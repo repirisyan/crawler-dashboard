@@ -44,7 +44,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SupervisionController::class, 'index'])->name('supervision.index');
         Route::get('data', [SupervisionController::class, 'data'])->name('supervision.data');
         Route::post('/', [SupervisionController::class, 'store'])->name('supervision.store');
-        Route::patch('/', [SupervisionController::class, 'solved'])->name('supervision.solved');
+        Route::patch('solved', [SupervisionController::class, 'solved'])->name('supervision.solved');
+        Route::patch('check-link/{id}', [SupervisionController::class, 'checkLink'])->name('supervision.check_link');
         Route::delete('/', [SupervisionController::class, 'destroy'])->name('supervision.destroy');
     });
 

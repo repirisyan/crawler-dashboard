@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\TempItem;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class DailyClearCrawling extends Command
 {

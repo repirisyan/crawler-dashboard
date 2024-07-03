@@ -91,7 +91,7 @@ const master_navigation = [
                                         <DropdownLink
                                             :href="route('comodity.index')"
                                         >
-                                            Comodity
+                                            Category
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('keyword.index')"
@@ -236,7 +236,7 @@ const master_navigation = [
                             :href="route('comodity.index')"
                             :active="route().current('comodity.index')"
                         >
-                            Comodity
+                            Category
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('keyword.index')"

@@ -94,14 +94,14 @@ const destroy = (id) => {
 </script>
 
 <template>
-    <Head title="Comodity" />
+    <Head title="Category" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Comodity
+                Category
             </h2>
         </template>
 
@@ -117,7 +117,7 @@ const destroy = (id) => {
                                     class="btn btn-outline btn-success btn-sm"
                                     onclick="modalCreate.showModal()"
                                 >
-                                    Comodity <PlusIcon class="h-3 w-3" />
+                                    Category <PlusIcon class="h-3 w-3" />
                                 </button>
                             </div>
                             <div class="card-body">

@@ -130,7 +130,7 @@ const destroy = (id) => {
                                     <table class="table">
                                         <thead class="text-info">
                                             <tr>
-                                                <th>Comodity</th>
+                                                <th>Category</th>
                                                 <th>Keyword</th>
                                                 <th></th>
                                             </tr>
@@ -236,7 +236,7 @@ const destroy = (id) => {
                 <form @submit.prevent="storeData">
                     <label class="form-control w-full">
                         <div class="label">
-                            <span class="label-text">Comodity</span>
+                            <span class="label-text">Category</span>
                         </div>
                         <select
                             class="select select-bordered w-full"
@@ -247,7 +247,7 @@ const destroy = (id) => {
                             required
                             v-model.lazy="form.comodity_id"
                         >
-                            <option value="">-- Comodity --</option>
+                            <option value="">-- Category --</option>
                             <option
                                 :value="comodity.id"
                                 v-for="comodity in props.comodities"
@@ -273,7 +273,7 @@ const destroy = (id) => {
                             required
                             v-model.lazy="form.keyword_id"
                         >
-                            <option value="">-- Comodity --</option>
+                            <option value="">-- Keyword --</option>
                             <option
                                 :value="keyword.id"
                                 v-for="keyword in props.keywords"
@@ -325,7 +325,7 @@ const destroy = (id) => {
                 <form @submit.prevent="updateData">
                     <label class="form-control w-full">
                         <div class="label">
-                            <span class="label-text">Comodity</span>
+                            <span class="label-text">Category</span>
                         </div>
                         <select
                             class="select select-bordered w-full"
@@ -336,7 +336,7 @@ const destroy = (id) => {
                             required
                             v-model.lazy="formEdit.comodity_id"
                         >
-                            <option value="">-- Comodity --</option>
+                            <option value="">-- Category --</option>
                             <option
                                 :value="comodity.id"
                                 v-for="comodity in props.comodities"
@@ -364,7 +364,7 @@ const destroy = (id) => {
                             required
                             v-model.lazy="formEdit.keyword_id"
                         >
-                            <option value="">-- Comodity --</option>
+                            <option value="">-- Keyword --</option>
                             <option
                                 :value="keyword.id"
                                 v-for="keyword in props.keywords"
