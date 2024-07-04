@@ -121,7 +121,7 @@ const crawlerData = async () => {
                             class="w-3 h-3 md:h-5 lg:h-5 md:w-5 lg:w-5 text-blue-500" /></a></span
                 ><span class="loading loading-spinner loading-sm" v-else></span>
             </div>
-            <button
+            <!-- <button
                 class="btn btn-xs md:btn-sm lg:btn-sm btn-outline btn-accent mt-5"
                 :disabled="
                     loading['status'][props.marketplace] ||
@@ -142,7 +142,7 @@ const crawlerData = async () => {
                     ></span>
                 </span>
                 <span v-else class="loading loading-bars loading-sm"></span>
-            </button>
+            </button> -->
         </div>
     </div>
 </template>

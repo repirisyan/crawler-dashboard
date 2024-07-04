@@ -3,7 +3,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import TempItem from "@/Pages/Crawler/TempItem.vue";
 import { Head } from "@inertiajs/vue3";
 import CrawlerEngine from "./CrawlerEngine.vue";
-import { MapPinIcon, MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { MapPinIcon } from "@heroicons/vue/24/outline";
 import { ref } from "vue";
 import axios from "axios";
 

@@ -36,6 +36,12 @@ class Marketplace extends Model
         return $this->where('id', $id)->value('status');
     }
 
+    public function toggleMaintenance($status,$id){
+        return $this->find($id)->update([
+            'maintenance' => $status
+        ]);
+    }
+
     public function changeStatus($id, $status)
     {
         return $this->find($id)->update([

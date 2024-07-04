@@ -26,11 +26,6 @@ class TempItem extends Model
         return $this->belongsTo(Marketplace::class);
     }
 
-    public function province()
-    {
-        return $this->belongsTo(Province::class);
-    }
-
     public function getData($request)
     {
         return $this->with(['marketplace:id,name', 'comodity:id,name'])
@@ -69,7 +64,6 @@ class TempItem extends Model
                 // If only marketplace_id is provided, add the condition
                 $query->whereDate('created_at', $request['date']);
             })
-            ->where('user_id', auth()->user()->id)
             ->paginate($request['entries'] ?? 15);
     }
 

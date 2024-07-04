@@ -46,6 +46,7 @@ const search = ref("");
 const marketplace_id = ref("");
 const comodity_id = ref("");
 const date = ref("");
+const status = ref("");
 
 const isTableEmpty = computed(() => {
     return Object.keys(supervisions.value).length === 0;
@@ -56,6 +57,7 @@ onMounted(() => {
 });
 
 const getData = async (page = null) => {
+    console.log(page);
     loading.value["refresh"][0] = true;
     axios
         .get(route("supervision.data"), {
@@ -66,6 +68,7 @@ const getData = async (page = null) => {
                 comodity_id: comodity_id.value,
                 date: date.value,
                 entries: per_page.value,
+                status: status.value,
             },
         })
         .then((response) => {
@@ -73,7 +76,7 @@ const getData = async (page = null) => {
             checkbox.value.length = 0;
             optionMenu.value = false;
             checkAllButton.value = false;
-            response.data.data.forEach((element) => {
+            response.data?.data?.forEach((element) => {
                 checkbox.value.push({
                     id: element.id,
                     checked: false,
@@ -81,7 +84,7 @@ const getData = async (page = null) => {
                 });
             });
 
-            supervisions.value = response.data.data;
+            supervisions.value = response.data?.data;
             current_page.value = response.data.current_page;
             next_page.value = response.data.next_page_url;
             from.value = response.data.from;
@@ -268,6 +271,15 @@ const checkAll = (event) => {
                                             {{ marketplace.name }}
                                         </option>
                                     </select>
+                                    <select
+                                        class="select select-bordered"
+                                        v-model="status"
+                                        @change="getData"
+                                    >
+                                        <option value="">-- Status --</option>
+                                        <option value="0">Waiting</option>
+                                        <option value="1">Solved</option>
+                                    </select>
                                     <label
                                         class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
                                     >
@@ -275,7 +287,7 @@ const checkAll = (event) => {
                                             v-model.lazy="search"
                                             type="text"
                                             class="grow border-0"
-                                            @change="getData"
+                                            @change="getData()"
                                             placeholder="Filter Data"
                                         />
                                         <MagnifyingGlassIcon class="h-5 w-5" />

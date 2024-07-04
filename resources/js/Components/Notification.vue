@@ -97,7 +97,7 @@ const deleteAllNotification = async () => {
 
         <template #content>
             <div v-if="!loading">
-                <div v-if="!isNotificationEmpty">
+                <div v-if="!isNotificationEmpty" class="overflow-y-scroll h-96">
                     <div class="relative p-5">
                         <button
                             type="button"

@@ -36,7 +36,11 @@ class SupervisionController extends Controller
 
     public function data(Request $request)
     {
-        return response()->json($this->supervision->getDatas($request));
+        try {
+            return response()->json($this->supervision->getDatas($request));
+        } catch (Exception $e) {
+            return response()->json($e->getMessage());
+        }
     }
 
     public function checkLink(Request $request, $id)

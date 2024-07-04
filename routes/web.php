@@ -3,6 +3,7 @@
 use App\Http\Controllers\ComodityController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\KeywordController;
+use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchListController;
@@ -47,6 +48,11 @@ Route::middleware('auth')->group(function () {
         Route::patch('solved', [SupervisionController::class, 'solved'])->name('supervision.solved');
         Route::patch('check-link/{id}', [SupervisionController::class, 'checkLink'])->name('supervision.check_link');
         Route::delete('/', [SupervisionController::class, 'destroy'])->name('supervision.destroy');
+    });
+
+    Route::prefix('marketplace')->group(function(){
+        Route::get('/',[MarketplaceController::class,'index'])->name('marketplace.index');
+        Route::patch('maintenance/{id}',[MarketplaceController::class,'maintenance'])->name('marketplace.maintenance');
     });
 
     Route::resource('comodity', ComodityController::class)->except(['create', 'show']);

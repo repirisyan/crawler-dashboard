@@ -30,11 +30,7 @@ class Supervision extends Model
                     $query->where('comodity_id', $request['comodity_id']);
                 });
             }
-            if ($request['solved'] != null) {
-                $query->where(function ($query) use ($request) {
-                    $query->where('status', $request['solved']);
-                });
-            }
+            
             if ($request['date'] != null) {
                 $query->where(function ($query) use ($request) {
                     $query->whereDate('created_at', $request['date']);
@@ -45,13 +41,19 @@ class Supervision extends Model
                     $query->where('marketplace_id', $request['marketplace_id']);
                 });
             }
+
+            if ($request['status'] != null) {
+                $query->where(function ($query) use ($request) {
+                    $query->where('status', $request['status']);
+                });
+            }
             $query->where(function ($query) use ($request) {
-                $query->where('title', 'like', '%'.$request['search'].'%')
+                $query->where('name', 'like', '%'.$request['search'].'%')
                     ->orWhere('seller', 'like', '%'.$request['search'].'%')
                     ->orWhere('location', 'like', '%'.$request['search'].'%');
             });
-        })->when($request['solved'] != null && $request['search'] == null, function ($query) use ($request) {
-            $query->where('status', $request['solved']);
+        })->when($request['status'] != null && $request['search'] == null, function ($query) use ($request) {
+            $query->where('status', $request['status']);
         })->when($request['marketplace_id'] != null && $request['search'] == null, function ($query) use ($request) {
             // If only marketplace_id is provided, add the condition
             $query->where('marketplace_id', $request['marketplace_id']);
