@@ -28,6 +28,6 @@ class DailyClearCrawling extends Command
     public function handle()
     {
         $yesterday = Carbon::yesterday()->toDateString();
-        TempItem::whereDate('created_at', $yesterday)->delete();
+        TempItem::where('created_at', '<', now()->startOfDay())->delete();
     }
 }

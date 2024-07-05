@@ -54,7 +54,7 @@ const loading = ref({
 const search = ref("");
 const marketplace_id = ref("");
 const comodity_id = ref("");
-const date = ref(moment().format("YYYY-MM-DD"));
+// const date = ref(moment().format("YYYY-MM-DD"));
 
 const isTableEmpty = computed(() => {
     return Object.keys(temp_item.value).length === 0;
@@ -73,7 +73,7 @@ const getData = async (page = null) => {
                 search: search.value,
                 marketplace_id: marketplace_id.value,
                 comodity_id: comodity_id.value,
-                date: date.value,
+                // date: date.value,
                 entries: per_page.value,
             },
         })
@@ -102,20 +102,20 @@ const getData = async (page = null) => {
         });
 };
 
-const destroyData = async () => {
-    if (confirm("Apa anda yakin ingin menghapus semua data ?")) {
-        loading.value["truncate"][0] = true;
-        await axios
-            .delete(route("temp-item.truncate"))
-            .catch((response) => {
-                console.log(response.data);
-            })
-            .finally(() => {
-                loading.value["truncate"][0] = false;
-                getData();
-            });
-    }
-};
+// const destroyData = async () => {
+//     if (confirm("Apa anda yakin ingin menghapus semua data ?")) {
+//         loading.value["truncate"][0] = true;
+//         await axios
+//             .delete(route("temp-item.truncate"))
+//             .catch((response) => {
+//                 console.log(response.data);
+//             })
+//             .finally(() => {
+//                 loading.value["truncate"][0] = false;
+//                 getData();
+//             });
+//     }
+// };
 
 const deleteItem = () => {
     if (confirm("Apa anda yakin ingin menghapus data ini ?")) {
@@ -196,7 +196,7 @@ const checkAll = (event) => {
                         class="loading loading-spinner loading-sm"
                     ></span>
                 </button>
-                <button
+                <!-- <button
                     v-show="!isTableEmpty"
                     @click="destroyData"
                     class="btn btn-sm btn-outline btn-error"
@@ -209,10 +209,10 @@ const checkAll = (event) => {
                         v-else
                         class="loading loading-spinner loading-sm"
                     ></span>
-                </button>
+                </button> -->
             </div>
             <div class="grid grid-cols-1 md:flex lg:flex gap-3 float-end">
-                <label
+                <!-- <label
                     class="input input-bordered items-center flex gap-2 input-md w-auto"
                 >
                     <input
@@ -221,7 +221,7 @@ const checkAll = (event) => {
                         class="grow border-0"
                         @change="getData"
                     />
-                </label>
+                </label> -->
                 <select
                     class="select select-bordered"
                     v-model="comodity_id"
