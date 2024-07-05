@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('location');
             $table->text('link');
             $table->foreignId('comodity_id')->constrained();
+            $table->foreignId('keyword_id')->constrained();
             $table->foreignId('marketplace_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->timestamps();
