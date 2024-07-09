@@ -164,7 +164,7 @@ const toggleStatus = (id, maintenance) => {
                                                     colspan="2"
                                                     class="text-center"
                                                 >
-                                                    Tidak ada data
+                                                    No Data Available
                                                 </td>
                                             </tr>
                                         </tbody>

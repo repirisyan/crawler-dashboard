@@ -30,7 +30,7 @@ class Supervision extends Model
                     $query->where('comodity_id', $request['comodity_id']);
                 });
             }
-            
+
             if ($request['date'] != null) {
                 $query->where(function ($query) use ($request) {
                     $query->whereDate('created_at', $request['date']);

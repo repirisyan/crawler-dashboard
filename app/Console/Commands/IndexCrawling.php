@@ -26,8 +26,8 @@ class IndexCrawling extends Command
      */
     public function handle()
     {
-                $request = new \stdClass();
-                $request->marketplace = 'indexing';
-                Http::post(env('APP_CRAWLER_API').'/crawler', $request);
+        $request = new \stdClass();
+        $request->engine = 'indexing';
+        Http::post(env('APP_CRAWLER_API').'/crawler', $request);
     }
 }

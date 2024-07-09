@@ -551,7 +551,7 @@ const checkAll = (event) => {
                                                             :class="
                                                                 item.check
                                                                     ? 'badge-success'
-                                                                    : 'badge-ghost'
+                                                                    : 'badge-error'
                                                             "
                                                         >
                                                             {{
@@ -616,7 +616,7 @@ const checkAll = (event) => {
                                                     colspan="9"
                                                     class="text-center"
                                                 >
-                                                    Tidak ada data
+                                                    No Data Available
                                                 </td>
                                             </tr>
                                         </tbody>

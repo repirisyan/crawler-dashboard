@@ -11,19 +11,23 @@ class MarketplaceController extends Controller
 {
     public $marketplace;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->marketplace = new Marketplace();
     }
 
-    public function index(){
-        return Inertia::render('Marketplace',[
-            'marketplaces' => $this->marketplace->getAllData()
+    public function index()
+    {
+        return Inertia::render('Marketplace', [
+            'marketplaces' => $this->marketplace->getAllData(),
         ]);
     }
 
-    public function maintenance(Request $request,$id){
+    public function maintenance(Request $request, $id)
+    {
         try {
-            $this->marketplace->toggleMaintenance(!$request->maintenance,$id);
+            $this->marketplace->toggleMaintenance(! $request->maintenance, $id);
+
             return;
         } catch (Exception $e) {
             return response()->json($e->getMessage());

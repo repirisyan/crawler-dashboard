@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('link');
-            $table->text('image');
+            $table->text('image')->nullable();
             $table->foreignId('comodity_id')->constrained();
             $table->unsignedBigInteger('price');
             $table->unsignedInteger('sold');

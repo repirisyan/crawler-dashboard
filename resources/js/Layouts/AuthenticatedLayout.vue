@@ -108,6 +108,13 @@ const master_navigation = [
                                         >
                                             Search List
                                         </DropdownLink>
+                                        <DropdownLink
+                                            :href="
+                                                route('supervision-list.index')
+                                            "
+                                        >
+                                            Supervision List
+                                        </DropdownLink>
                                     </template>
                                 </Dropdown>
                                 <NavLink
@@ -238,6 +245,12 @@ const master_navigation = [
                             Crawler
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
+                            :href="route('supervision.index')"
+                            :active="route().current('supervision.index')"
+                        >
+                            Supervision
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
                             :href="route('comodity.index')"
                             :active="route().current('comodity.index')"
                         >
@@ -260,6 +273,12 @@ const master_navigation = [
                             :active="route().current('search-list.index')"
                         >
                             Search List
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('supervision-list.index')"
+                            :active="route().current('supervision-list.index')"
+                        >
+                            Supervision List
                         </ResponsiveNavLink>
                     </div>
 

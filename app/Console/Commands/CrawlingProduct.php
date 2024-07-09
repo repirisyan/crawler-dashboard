@@ -8,7 +8,7 @@ use App\Models\SearchList;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
-class DailyCrawling extends Command
+class CrawlingProduct extends Command
 {
     public $marketplace;
 
@@ -19,14 +19,14 @@ class DailyCrawling extends Command
      *
      * @var string
      */
-    protected $signature = 'app:daily-crawling';
+    protected $signature = 'app:crawling-product';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Crawling Product base on search list and loop base on marketplace';
 
     public function __construct()
     {
@@ -48,7 +48,7 @@ class DailyCrawling extends Command
                 $request->marketplace_id = $marketplace->id;
                 $request->comodity_id = $item->comodity_id;
                 $request->keyword_id = $item->keyword_id;
-                $request->marketplace = strtolower($marketplace->name);
+                $request->engine = strtolower($marketplace->name);
                 $request->keyword = $item->keyword->name;
                 $request->user_id = 1;
                 $response = Http::post(env('APP_CRAWLER_API').'/crawler', $request);

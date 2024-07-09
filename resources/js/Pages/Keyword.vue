@@ -180,7 +180,7 @@ const destroy = (id) => {
                                                     colspan="2"
                                                     class="text-center"
                                                 >
-                                                    Tidak ada data
+                                                    No Data Available
                                                 </td>
                                             </tr>
                                         </tbody>

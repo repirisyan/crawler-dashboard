@@ -8,6 +8,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchListController;
 use App\Http\Controllers\SupervisionController;
+use App\Http\Controllers\SupervisionListController;
 use App\Http\Controllers\TempItemController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -50,9 +51,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/', [SupervisionController::class, 'destroy'])->name('supervision.destroy');
     });
 
-    Route::prefix('marketplace')->group(function(){
-        Route::get('/',[MarketplaceController::class,'index'])->name('marketplace.index');
-        Route::patch('maintenance/{id}',[MarketplaceController::class,'maintenance'])->name('marketplace.maintenance');
+    Route::prefix('marketplace')->group(function () {
+        Route::get('/', [MarketplaceController::class, 'index'])->name('marketplace.index');
+        Route::patch('maintenance/{id}', [MarketplaceController::class, 'maintenance'])->name('marketplace.maintenance');
     });
 
     Route::resource('comodity', ComodityController::class)->except(['create', 'show']);
@@ -61,9 +62,10 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('search-list', SearchListController::class)->except(['create', 'show']);
 
+    Route::resource('supervision-list', SupervisionListController::class)->except(['create', 'show']);
+
     Route::get('temp-item', [TempItemController::class, 'tempItemData'])->name('temp-item.data');
     Route::delete('temp-item/delete-item', [TempItemController::class, 'deleteItem'])->name('temp-item.delete');
-    Route::delete('temp-item/truncate', [TempItemController::class, 'truncateData'])->name('temp-item.truncate');
 });
 
 require __DIR__.'/auth.php';

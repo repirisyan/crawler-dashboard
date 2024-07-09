@@ -62,11 +62,13 @@ class SupervisionController extends Controller
         try {
             $ids = $request->input('ids');
             DB::transaction(function () use ($ids) {
-                $products = TempItem::whereIn('id', $ids)->get();
+                $products = TempItem::whereIn('id', $ids)->where('flag', false)->get();
                 foreach ($products as $product) {
                     $this->supervision->storeData($product);
                 }
-                // TempItem::whereIn('id',$ids)->delete();
+                TempItem::whereIn('id', $ids)->update([
+                    'flag' => true,
+                ]);
             });
 
             return response()->json('Data Saved');

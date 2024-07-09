@@ -9,6 +9,7 @@ import {
     ArrowPathIcon,
     TrashIcon,
     EyeIcon,
+    FlagIcon,
 } from "@heroicons/vue/24/solid";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
@@ -102,21 +103,6 @@ const getData = async (page = null) => {
         });
 };
 
-// const destroyData = async () => {
-//     if (confirm("Apa anda yakin ingin menghapus semua data ?")) {
-//         loading.value["truncate"][0] = true;
-//         await axios
-//             .delete(route("temp-item.truncate"))
-//             .catch((response) => {
-//                 console.log(response.data);
-//             })
-//             .finally(() => {
-//                 loading.value["truncate"][0] = false;
-//                 getData();
-//             });
-//     }
-// };
-
 const deleteItem = () => {
     if (confirm("Apa anda yakin ingin menghapus data ini ?")) {
         loading.value["delete"][0] = true;
@@ -196,20 +182,6 @@ const checkAll = (event) => {
                         class="loading loading-spinner loading-sm"
                     ></span>
                 </button>
-                <!-- <button
-                    v-show="!isTableEmpty"
-                    @click="destroyData"
-                    class="btn btn-sm btn-outline btn-error"
-                    :disabled="loading['truncate'][0]"
-                >
-                    <span v-if="!loading['truncate'][0]" class="flex"
-                        >Truncate&nbsp;<TrashIcon class="h-3 w-3"
-                    /></span>
-                    <span
-                        v-else
-                        class="loading loading-spinner loading-sm"
-                    ></span>
-                </button> -->
             </div>
             <div class="grid grid-cols-1 md:flex lg:flex gap-3 float-end">
                 <!-- <label
@@ -381,6 +353,10 @@ const checkAll = (event) => {
                                     </div>
                                     <div>
                                         <div class="font-bold">
+                                            <FlagIcon
+                                                class="h-3 w-3 text-success"
+                                                v-show="item.flag"
+                                            />
                                             <a
                                                 class="hover:link hover:link-info"
                                                 :href="item?.link"
@@ -435,7 +411,7 @@ const checkAll = (event) => {
                     <tbody v-else>
                         <tr>
                             <td colspan="8" class="text-center">
-                                Tidak ada data
+                                No Data Available
                             </td>
                         </tr>
                     </tbody>

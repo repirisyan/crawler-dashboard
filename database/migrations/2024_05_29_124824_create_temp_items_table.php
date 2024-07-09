@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('seller');
             $table->string('location');
             $table->text('link');
+            $table->boolean('flag')->default(false); //Use for flaging item that already add to supervision
             $table->foreignId('comodity_id')->constrained();
             $table->foreignId('keyword_id')->constrained();
             $table->foreignId('marketplace_id')->constrained();
