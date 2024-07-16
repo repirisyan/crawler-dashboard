@@ -28,7 +28,7 @@ class SearchList extends Model
 
     public function getAllData()
     {
-        return $this->with(['keyword:id,name'])->select('id', 'keyword_id', 'comodity_id')->get();
+        return $this->with(['keyword:id,name','comodity:id,name'])->select('id', 'keyword_id', 'comodity_id')->get();
     }
 
     public function storeData($data)

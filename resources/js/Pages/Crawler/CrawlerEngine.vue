@@ -58,30 +58,6 @@ onBeforeMount(() => {
     checkStatus();
 });
 
-const crawlerData = async () => {
-    if (confirm("Lakukan Crawling Data ?")) {
-        loading.value["marketplace"][props.marketplace] = true;
-        axios
-            .post(route("crawler.run"), {
-                marketplace_id: props.marketplace_id,
-                comodity_id: comodity_id.value,
-                marketplace: props.marketplace,
-                location: props.location,
-                keyword: keyword.value,
-                keyword_id: keyword_id.value,
-                user_id: props.user_id,
-            })
-            .then((response) => {
-                checkStatus();
-            })
-            .catch((response) => {
-                console.log(response);
-            })
-            .finally(() => {
-                loading.value["marketplace"][props.marketplace] = false;
-            });
-    }
-};
 </script>
 
 <template>
@@ -121,28 +97,6 @@ const crawlerData = async () => {
                             class="w-3 h-3 md:h-5 lg:h-5 md:w-5 lg:w-5 text-blue-500" /></a></span
                 ><span class="loading loading-spinner loading-sm" v-else></span>
             </div>
-            <!-- <button
-                class="btn btn-xs md:btn-sm lg:btn-sm btn-outline btn-accent mt-5"
-                :disabled="
-                    loading['status'][props.marketplace] ||
-                    loading['marketplace'][props.marketplace] ||
-                    keyword == '' ||
-                    props.maintenance ||
-                    comodity_id == ''
-                "
-                @click="crawlerData"
-            >
-                <span v-if="!loading['status'][props.marketplace]">
-                    <span v-if="!loading['marketplace'][props.marketplace]"
-                        >Start</span
-                    >
-                    <span
-                        class="loading loading-spinner loading-sm"
-                        v-else
-                    ></span>
-                </span>
-                <span v-else class="loading loading-bars loading-sm"></span>
-            </button> -->
         </div>
     </div>
 </template>

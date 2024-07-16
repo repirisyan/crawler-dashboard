@@ -39,7 +39,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notification/{notification_id}', [NotificationController::class, 'deleteNotification'])->name('notification.delete');
 
     Route::get('crawler', [CrawlerController::class, 'index'])->name('crawler.index');
-    Route::post('crawler', [CrawlerController::class, 'crawlerData'])->name('crawler.run');
     Route::get('crawler/{id}/status', [CrawlerController::class, 'getStatus'])->name('crawler.status');
 
     Route::prefix('supervision')->group(function () {

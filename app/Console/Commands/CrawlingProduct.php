@@ -50,6 +50,7 @@ class CrawlingProduct extends Command
                 $request->keyword_id = $item->keyword_id;
                 $request->engine = strtolower($marketplace->name);
                 $request->keyword = $item->keyword->name;
+                $request->comodity = $item->comodity->name;
                 $request->user_id = 1;
                 $response = Http::post(env('APP_CRAWLER_API').'/crawler', $request);
                 Notification::create([
