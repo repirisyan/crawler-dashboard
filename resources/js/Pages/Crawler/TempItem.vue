@@ -201,11 +201,11 @@ const checkAll = (event) => {
                 >
                     <option value="">-- Category --</option>
                     <option
-                        :value="comosity.id"
-                        v-for="comosity in props.comodities"
-                        :key="comosity.id"
+                        :value="comodity.id"
+                        v-for="comodity in props.comodities"
+                        :key="comodity.id"
                     >
-                        {{ comosity.name }}
+                        {{ comodity.name }}
                     </option>
                 </select>
                 <select

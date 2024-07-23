@@ -57,7 +57,6 @@ const checkStatus = async () => {
 onBeforeMount(() => {
     checkStatus();
 });
-
 </script>
 
 <template>

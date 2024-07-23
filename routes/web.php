@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ComodityController;
 use App\Http\Controllers\CrawlerController;
+use App\Http\Controllers\IndexingController;
 use App\Http\Controllers\KeywordController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\NotificationController;
@@ -48,6 +49,10 @@ Route::middleware('auth')->group(function () {
         Route::patch('solved', [SupervisionController::class, 'solved'])->name('supervision.solved');
         Route::patch('check-link/{id}', [SupervisionController::class, 'checkLink'])->name('supervision.check_link');
         Route::delete('/', [SupervisionController::class, 'destroy'])->name('supervision.destroy');
+    });
+
+    Route::prefix('indexing')->group(function(){
+        Route::get('/',[IndexingController::class,'index'])->name('indexing.index');
     });
 
     Route::prefix('marketplace')->group(function () {

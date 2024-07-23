@@ -52,7 +52,7 @@ class CrawlingProduct extends Command
                 $request->keyword = $item->keyword->name;
                 $request->comodity = $item->comodity->name;
                 $request->user_id = 1;
-                $response = Http::post(env('APP_CRAWLER_API').'/crawler', $request);
+                $response = Http::post(env('APP_CRAWLER_GATEWAY').'/crawler', $request);
                 Notification::create([
                     'message' => 'Start crawling '.$marketplace->name.', keyword : '.$item->keyword->name,
                     'user_id' => 1,

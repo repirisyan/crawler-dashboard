@@ -125,6 +125,12 @@ const master_navigation = [
                                 >
                                     Supervision
                                 </NavLink>
+                                <NavLink
+                                    :href="route('indexing.index')"
+                                    :active="route().current('indexing.index')"
+                                >
+                                    Indexing
+                                </NavLink>
                             </div>
                         </div>
 
