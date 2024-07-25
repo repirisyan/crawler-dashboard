@@ -14,7 +14,6 @@ import {
 
 const props = defineProps({
     marketplaces: Object,
-    comodities: Object,
 });
 
 const products = ref({});
@@ -36,7 +35,6 @@ const loading = ref({
 // Filter Data
 const search = ref("");
 const marketplace = ref("");
-const comodity = ref("");
 
 const isTableEmpty = computed(() => {
     return Object.keys(products.value).length === 0;
@@ -49,13 +47,12 @@ onMounted(() => {
 const getData = async (page = null) => {
     loading.value["refresh"][0] = true;
     axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product`, {
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/trending-product`, {
             params: {
                 page: page,
                 search: search.value,
                 limit: limit.value,
                 marketplace: marketplace.value,
-                comodity: comodity.value,
             },
         })
         .then((response) => {
@@ -123,20 +120,6 @@ const getData = async (page = null) => {
                                 >
                                     <select
                                         class="select select-bordered"
-                                        v-model="comodity"
-                                        @change="getData"
-                                    >
-                                        <option value="">-- Category --</option>
-                                        <option
-                                            :value="comodity.name"
-                                            v-for="comodity in props.comodities"
-                                            :key="comodity.id"
-                                        >
-                                            {{ comodity.name }}
-                                        </option>
-                                    </select>
-                                    <select
-                                        class="select select-bordered"
                                         v-model="marketplace"
                                         @change="getData"
                                     >
@@ -196,12 +179,9 @@ const getData = async (page = null) => {
                                     <thead class="text-info">
                                         <tr>
                                             <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Rating</th>
-                                            <th>Price</th>
+                                            <th>Sold</th>
                                             <th>Marketplace</th>
-                                            <th>Seller</th>
-                                            <th>Crawling Date</th>
+                                            <th>Date</th>
                                         </tr>
                                     </thead>
                                     <tbody v-if="!isTableEmpty">
@@ -219,10 +199,10 @@ const getData = async (page = null) => {
                                                         >
                                                             <img
                                                                 :src="
-                                                                    item?.image ??
+                                                                    item?.imageURL ??
                                                                     '/assets/img/icon/no-image.svg'
                                                                 "
-                                                                :alt="`Gambar ${item?.title}`"
+                                                                :alt="`Gambar ${item?.keyword}`"
                                                             />
                                                         </div>
                                                     </div>
@@ -231,11 +211,11 @@ const getData = async (page = null) => {
                                                             <a
                                                                 class="hover:link hover:link-info"
                                                                 :href="
-                                                                    item?.link
+                                                                    item?.url
                                                                 "
                                                                 target="_blank"
                                                                 >{{
-                                                                    item?.title
+                                                                    item?.keyword
                                                                 }}</a
                                                             >
                                                         </div>
@@ -243,44 +223,16 @@ const getData = async (page = null) => {
                                                 </div>
                                             </td>
                                             <td class="whitespace-nowrap">
-                                                {{ item.comodity }}
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                <span class="flex"
-                                                    ><StarIcon
-                                                        class="h-4 w-4 text-yellow-500"
-                                                    />&nbsp;{{
-                                                        item?.rating
-                                                    }}</span
-                                                >
                                                 <span
                                                     class="badge badge-ghost badge-sm"
-                                                    >{{ item?.sold }} Sold</span
+                                                    >{{
+                                                        item?.productCount
+                                                    }}
+                                                    Sold</span
                                                 >
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                {{
-                                                    new Intl.NumberFormat(
-                                                        "id-ID",
-                                                        {
-                                                            style: "currency",
-                                                            currency: "IDR",
-                                                        },
-                                                    ).format(item?.price)
-                                                }}
                                             </td>
                                             <td class="whitespace-nowrap">
                                                 {{ item.marketplace }}
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                <div class="font-bold">
-                                                    {{ item?.seller }}
-                                                </div>
-                                                <div class="flex">
-                                                    <MapPinIcon
-                                                        class="w-5 h-5 text-red-400"
-                                                    />&nbsp;{{ item?.location }}
-                                                </div>
                                             </td>
                                             <td class="whitespace-nowrap">
                                                 {{
@@ -293,7 +245,7 @@ const getData = async (page = null) => {
                                     </tbody>
                                     <tbody v-else>
                                         <tr>
-                                            <td colspan="7" class="text-center">
+                                            <td colspan="4" class="text-center">
                                                 No Data Available
                                             </td>
                                         </tr>
@@ -304,12 +256,9 @@ const getData = async (page = null) => {
                                     >
                                         <tr>
                                             <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Rating</th>
-                                            <th>Price</th>
+                                            <th>Sold</th>
                                             <th>Marketplace</th>
-                                            <th>Seller</th>
-                                            <th>Crawling Date</th>
+                                            <th>Date</th>
                                         </tr>
                                     </tfoot>
                                 </table>

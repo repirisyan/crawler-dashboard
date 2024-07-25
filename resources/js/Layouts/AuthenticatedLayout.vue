@@ -131,6 +131,12 @@ const master_navigation = [
                                 >
                                     Indexing
                                 </NavLink>
+                                <NavLink
+                                    :href="route('trending.index')"
+                                    :active="route().current('trending.index')"
+                                >
+                                    Trending
+                                </NavLink>
                             </div>
                         </div>
 
@@ -285,6 +291,18 @@ const master_navigation = [
                             :active="route().current('supervision-list.index')"
                         >
                             Supervision List
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('indexing.index')"
+                            :active="route().current('indexing.index')"
+                        >
+                            Indexing
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('trending.index')"
+                            :active="route().current('trending.index')"
+                        >
+                            Trending
                         </ResponsiveNavLink>
                     </div>
 

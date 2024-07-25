@@ -11,6 +11,7 @@ use App\Http\Controllers\SearchListController;
 use App\Http\Controllers\SupervisionController;
 use App\Http\Controllers\SupervisionListController;
 use App\Http\Controllers\TempItemController;
+use App\Http\Controllers\TrendingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -53,6 +54,10 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('indexing')->group(function(){
         Route::get('/',[IndexingController::class,'index'])->name('indexing.index');
+    });
+
+    Route::prefix('trending')->group(function(){
+        Route::get('/', [TrendingController::class,'index'])->name('trending.index');
     });
 
     Route::prefix('marketplace')->group(function () {
