@@ -74,14 +74,14 @@ const getData = async (page = null) => {
 };
 </script>
 <template>
-    <Head title="Indexing Data" />
+    <Head title="Trending Data" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Indexing Data
+                Trending Data
             </h2>
         </template>
 
