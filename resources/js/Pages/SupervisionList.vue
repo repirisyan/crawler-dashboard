@@ -15,6 +15,7 @@ const modalCreate = ref(null);
 const modalEdit = ref(null);
 
 const loadingStates = ref({
+    status: {},
     delete: {},
     update: {},
 });
@@ -55,6 +56,19 @@ const editData = (id) => {
         formEdit.id = id;
     });
 };
+
+const toggleStatus = (id, status) =>{
+    loadingStates.value["status"][id] = true
+    axios.patch(route('supervisiion-list.change_status',id),{
+        status: status
+    }).then(()=>{
+        router.reload({ only: ['supervisions'] })
+    }).catch((response)=>{
+        console.log(response)
+    }).finally(()=>{
+        loadingStates.value["status"][id] = false
+    })
+}
 
 const updateData = () => {
     formEdit.patch(route("supervision-list.update", formEdit.id), {
@@ -127,6 +141,7 @@ const destroy = (id) => {
                                         <thead class="text-info">
                                             <tr>
                                                 <th>Name</th>
+                                                <th>Status</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -138,6 +153,42 @@ const destroy = (id) => {
                                             >
                                                 <td>
                                                     {{ item.name }}
+                                                </td>
+                                                <td>
+                                                    <a
+                                                        @click="
+                                                            toggleStatus(
+                                                                item.id,
+                                                                item.status,
+                                                            )
+                                                        "
+                                                        href="javascript:;"
+                                                        role="button"
+                                                        class="badge badge-sm block"
+                                                        :class="
+                                                            item.status
+                                                                ? 'badge-success'
+                                                                : 'badge-error'
+                                                        "
+                                                    >
+                                                        <span
+                                                            v-if="
+                                                                !loadingStates[
+                                                                    'status'
+                                                                ][item.id]
+                                                            "
+                                                        >
+                                                            {{
+                                                                item.status
+                                                                    ? "Active"
+                                                                    : "Non Active"
+                                                            }}
+                                                        </span>
+                                                        <span
+                                                            v-else
+                                                            class="loading loading-spinner loading-xs"
+                                                        ></span>
+                                                    </a>
                                                 </td>
                                                 <td class="flex gap-3">
                                                     <button

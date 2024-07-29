@@ -17,6 +17,7 @@ const modalCreate = ref(null);
 const modalEdit = ref(null);
 
 const loadingStates = ref({
+    status: {},
     delete: {},
     update: {},
 });
@@ -77,6 +78,19 @@ const updateData = () => {
     });
 };
 
+const toggleStatus = (id, status) =>{
+    loadingStates.value["status"][id] = true
+    axios.patch(route('search-list.change_status',id),{
+        status: status
+    }).then(()=>{
+        router.reload({ only: ['search_list'] })
+    }).catch((response)=>{
+        console.log(response)
+    }).finally(()=>{
+        loadingStates.value["status"][id] = false
+    })
+}
+
 const destroy = (id) => {
     if (confirm("Are you sure want to delete this data ?")) {
         router.delete(route("search-list.destroy", id), {
@@ -132,6 +146,7 @@ const destroy = (id) => {
                                             <tr>
                                                 <th>Category</th>
                                                 <th>Keyword</th>
+                                                <th>Status</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -145,6 +160,42 @@ const destroy = (id) => {
                                                     {{ item.comodity.name }}
                                                 </td>
                                                 <td>{{ item.keyword.name }}</td>
+                                                <td>
+                                                    <a
+                                                        @click="
+                                                            toggleStatus(
+                                                                item.id,
+                                                                item.active,
+                                                            )
+                                                        "
+                                                        href="javascript:;"
+                                                        role="button"
+                                                        class="badge badge-sm block"
+                                                        :class="
+                                                            item.active
+                                                                ? 'badge-success'
+                                                                : 'badge-error'
+                                                        "
+                                                    >
+                                                        <span
+                                                            v-if="
+                                                                !loadingStates[
+                                                                    'status'
+                                                                ][item.id]
+                                                            "
+                                                        >
+                                                            {{
+                                                                item.active
+                                                                    ? "Active"
+                                                                    : "Non Active"
+                                                            }}
+                                                        </span>
+                                                        <span
+                                                            v-else
+                                                            class="loading loading-spinner loading-xs"
+                                                        ></span>
+                                                    </a>
+                                                </td>
                                                 <td class="flex gap-3">
                                                     <button
                                                         @click="
@@ -186,7 +237,7 @@ const destroy = (id) => {
                                         <tbody v-else>
                                             <tr>
                                                 <td
-                                                    colspan="3"
+                                                    colspan="4"
                                                     class="text-center"
                                                 >
                                                     No Data Available

@@ -26,9 +26,11 @@ class SearchList extends Model
         return $this->with(['keyword:id,name', 'comodity:id,name'])->simplePaginate(15);
     }
 
-    public function getAllData()
+    public function getAllData($active = false)
     {
-        return $this->with(['keyword:id,name','comodity:id,name'])->select('id', 'keyword_id', 'comodity_id')->get();
+        return $this->with(['keyword:id,name','comodity:id,name'])->select('id', 'keyword_id', 'comodity_id')->when($active, function($query){
+            $query->where('active',true);
+        })->get();
     }
 
     public function storeData($data)
@@ -42,6 +44,12 @@ class SearchList extends Model
     public function getData($id)
     {
         return $this->where('id', $id)->first();
+    }
+
+    public function changeStatus($id,$status){
+        return $this->find($id)->update([
+            'active' => !$status
+        ]);
     }
 
     public function updateData($data, $id)

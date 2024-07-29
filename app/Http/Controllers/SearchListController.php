@@ -7,6 +7,7 @@ use App\Models\Comodity;
 use App\Models\Keyword;
 use App\Models\SearchList;
 use Exception;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class SearchListController extends Controller
@@ -73,6 +74,15 @@ class SearchListController extends Controller
             return to_route('search-list.index')->with('message', [200, 'Data Updated']);
         } catch (Exception $e) {
             return to_route('search-list.index')->with('message', [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    public function changeStatus(Request $request, $id){
+        try {
+            $this->search_list->changeStatus($id, $request->status);
+            return;
+        } catch (Exception $e) {
+            return response()->json($e->getMessage());
         }
     }
 

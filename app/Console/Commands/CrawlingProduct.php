@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Marketplace;
 use App\Models\Notification;
 use App\Models\SearchList;
-use App\Models\TempItem;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -44,7 +43,7 @@ class CrawlingProduct extends Command
     {
         DB::table('temp_items')->truncate();
         $marketplaces = $this->marketplace->getActiveMarketplace();
-        $search_list = $this->search_list->getAllData();
+        $search_list = $this->search_list->getAllData(true);
         foreach ($marketplaces as $marketplace) {
             foreach ($search_list as $item) {
                 $request = new \stdClass();

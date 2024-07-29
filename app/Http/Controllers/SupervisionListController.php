@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SupervisionListRequest;
 use App\Models\SupervisionList;
 use Exception;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class SupervisionListController extends Controller
@@ -47,6 +48,16 @@ class SupervisionListController extends Controller
     {
         return response()->json($this->supervision->getData($id));
     }
+
+    public function changeStatus(Request $request, $id){
+        try {
+            $this->supervision->changeStatus($id, $request->status);
+            return;
+        } catch (Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
+
 
     /**
      * Update the specified resource in storage.

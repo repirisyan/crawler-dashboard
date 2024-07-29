@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('comodity_id')->constrained();
             $table->foreignId('keyword_id')->constrained();
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }

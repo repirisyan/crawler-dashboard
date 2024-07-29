@@ -69,8 +69,10 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('keyword', KeywordController::class)->except(['create', 'show']);
 
+    Route::patch('search-list/change-status/{id}',[SearchListController::class,'changeStatus'])->name('search-list.change_status');
     Route::resource('search-list', SearchListController::class)->except(['create', 'show']);
 
+    Route::patch('supervision-list/change-status/{id}',[SupervisionListController::class,'changeStatus'])->name('search-list.change_status');
     Route::resource('supervision-list', SupervisionListController::class)->except(['create', 'show']);
 
     Route::get('temp-item', [TempItemController::class, 'tempItemData'])->name('temp-item.data');

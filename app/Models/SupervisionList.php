@@ -28,6 +28,12 @@ class SupervisionList extends Model
         ]);
     }
 
+    public function changeStatus($id,$status){
+        return $this->find($id)->update([
+            'status' => !$status
+        ]);
+    }
+
     public function updateData($id, $data)
     {
         return $this->find($id)->update([
