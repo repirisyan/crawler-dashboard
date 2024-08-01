@@ -16,16 +16,27 @@ class Keyword extends Model
         return $this->hasMany(TempItem::class);
     }
 
-    public function search_list()
+    public function comodity()
     {
-        return $this->hasMany(SearchList::class);
+        return $this->belongsTo(Comodity::class);
     }
 
-    public function getKeywords($search = null)
+    public function getKeywords($request)
     {
-        return $this->when($search != null, function ($query) use ($search) {
-            $query->where('keyword', 'like', '%'.$search.'%');
-        })->simplePaginate(15);
+        return $this->with('comodity:id,name')->when(isset($request['search']), function ($query) use ($request) {
+            $query->where('name', 'like', '%'.$request['search'].'%');
+            })->when(isset($request['comodity']), function($query) use ($request){
+                $query->where('comodity_id',$request['comodity']);
+            })->when(isset($request['status']), function($query) use ($request){
+                $query->where('status',$request['status']);
+            })->paginate($request['per_page'] ?? 15);
+    }
+
+    public function changeStatus($id,$status){
+        return $this->find($id)->update([
+            'status' => !$status,
+            'updated_at' => now()
+        ]);
     }
 
     public function getKeyword($keyword_id)
@@ -35,13 +46,14 @@ class Keyword extends Model
 
     public function getAllKeyword()
     {
-        return $this->select('id', 'name')->get();
+        return $this->with('comodity:id,name')->get();
     }
 
     public function storeData($data)
     {
         return $this->create([
             'name' => $data['name'],
+            'comodity_id' => $data['comodity_id']
         ]);
     }
 
@@ -49,6 +61,7 @@ class Keyword extends Model
     {
         return $this->find($keyword_id)->update([
             'name' => $data['name'],
+            'comodity_id' => $data['comodity_id']
         ]);
     }
 

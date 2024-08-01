@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import TempItem from "@/Pages/Crawler/TempItem.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import CrawlerEngine from "./CrawlerEngine.vue";
 import { MapPinIcon } from "@heroicons/vue/24/outline";
 import { ref } from "vue";
@@ -39,7 +39,7 @@ const getKeywordName = (event) => {
             <h2
                 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Crawler Service
+                Crawler
             </h2>
         </template>
 

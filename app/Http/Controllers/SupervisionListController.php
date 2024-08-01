@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SupervisionListRequest;
+use App\Imports\SupervisionListImport;
 use App\Models\SupervisionList;
+use App\Jobs\NotifyUserOfCompletedImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class SupervisionListController extends Controller
@@ -20,10 +24,11 @@ class SupervisionListController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('SupervisionList', [
-            'supervisions' => $this->supervision->getAllData(),
+            'supervisions' => $this->supervision->getSupervisionList($request->all()),
+            'params' => $request->all()
         ]);
     }
 
@@ -84,6 +89,29 @@ class SupervisionListController extends Controller
             return to_route('supervision-list.index')->with('message', [200, 'Data Deleted']);
         } catch (Exception $e) {
             return to_route('supervision-list.index')->with('message', [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    public function import(Request $request){
+        try {
+            // Check if the file is uploaded
+            if (!$request->hasFile('file')) {
+                throw new Exception("No Supervision List File Uploaded", 400);
+            }
+
+            // Check if the file is of correct type
+            if ($request->file('file')->getClientOriginalExtension() != 'xlsx') {
+                throw new Exception("Supervision List File Incorrect", 400);
+            }
+        
+            $message = 'Supervision List Import Completed';
+            $user_id = Auth::user()->id;
+            Excel::import(new SupervisionListImport($user_id), $request->file('file'))->chain([
+                new NotifyUserOfCompletedImport($user_id,$message),
+            ]);
+            return to_route('supervision-list.index')->with('message', [200, 'File Uploaded']);
+        } catch (Exception $e) {
+            return to_route('supervision-list.index')->with('message', [$e->getCode(), $e->getMessage()]);   
         }
     }
 }

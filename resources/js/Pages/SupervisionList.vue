@@ -4,17 +4,35 @@ import { Head, useForm, router, Link } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-import { PlusIcon, PencilSquareIcon, TrashIcon } from "@heroicons/vue/24/solid";
+import {
+    PlusIcon,
+    PencilSquareIcon,
+    TrashIcon,
+    MagnifyingGlassIcon,
+    ArrowUpTrayIcon,
+    ArrowDownTrayIcon,
+} from "@heroicons/vue/24/solid";
 import axios from "axios";
+import moment from "moment";
 
 const props = defineProps({
     supervisions: Object,
+    params: Object,
 });
 
 const modalCreate = ref(null);
 const modalEdit = ref(null);
 
+// Import File Var
+const fileInput = ref(null);
+
+// Filter Variable
+const search = ref(props.params?.search ?? "");
+const filter_status = ref(props.params?.status ?? "");
+const per_page = ref(props.params?.per_page ?? 15);
+
 const loadingStates = ref({
+    import: {},
     status: {},
     delete: {},
     update: {},
@@ -30,6 +48,60 @@ const formEdit = useForm({
 const isTableEmpty = computed(() => {
     return Object.keys(props.supervisions.data).length === 0;
 });
+
+const triggerFileInput = () => {
+    fileInput.value.click();
+};
+
+const handleFileUpload = (event) => {
+    fileInput.value = event.target.files[0];
+    importData();
+};
+
+const importData = () => {
+    router.post(
+        route("supervision-list.import"),
+        {
+            file: fileInput.value,
+        },
+        {
+            forceFormData: true,
+            onBefore: () => {
+                loadingStates.value["import"][0] = true;
+            },
+            onSuccess: (response) => {
+                if (response.props.flash.message[0] == 400) {
+                    toast.error(response.props.flash.message[1]);
+                } else {
+                    toast.success(response.props.flash.message[1]);
+                }
+            },
+            onError: (response) => {
+                if (response.props?.flash.message[1]) {
+                    toast.error(response.props?.flash.message[1]);
+                }
+            },
+            onFinish: () => {
+                loadingStates.value["import"][0] = false;
+                fileInput.value = null;
+            },
+        },
+    );
+};
+
+const filterData = () => {
+    router.visit(
+        route("supervision-list.index", {
+            search: search.value,
+            status: filter_status.value,
+            page: 1,
+        }),
+        {
+            preserveScroll: true,
+            only: ["supervisions", "params"],
+        },
+    );
+};
 
 const storeData = () => {
     form.post(route("supervision-list.store"), {
@@ -57,18 +129,22 @@ const editData = (id) => {
     });
 };
 
-const toggleStatus = (id, status) =>{
-    loadingStates.value["status"][id] = true
-    axios.patch(route('supervisiion-list.change_status',id),{
-        status: status
-    }).then(()=>{
-        router.reload({ only: ['supervisions'] })
-    }).catch((response)=>{
-        console.log(response)
-    }).finally(()=>{
-        loadingStates.value["status"][id] = false
-    })
-}
+const toggleStatus = (id, status) => {
+    loadingStates.value["status"][id] = true;
+    axios
+        .patch(route("supervision-list.change_status", id), {
+            status: status,
+        })
+        .then(() => {
+            router.reload({ only: ["supervisions"] });
+        })
+        .catch((response) => {
+            console.log(response);
+        })
+        .finally(() => {
+            loadingStates.value["status"][id] = false;
+        });
+};
 
 const updateData = () => {
     formEdit.patch(route("supervision-list.update", formEdit.id), {
@@ -112,11 +188,14 @@ const destroy = (id) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2
-                class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
+            <div
+                class="breadcrumbs font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Supervision List
-            </h2>
+                <ul>
+                    <li>Master Data</li>
+                    <li>Supervision List</li>
+                </ul>
+            </div>
         </template>
 
         <div class="py-12">
@@ -127,22 +206,105 @@ const destroy = (id) => {
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="card mx-auto">
                             <div class="card-header flex justify-between">
-                                <button
-                                    class="btn btn-outline btn-success btn-sm"
-                                    onclick="modalCreate.showModal()"
-                                >
-                                    Supervision List
-                                    <PlusIcon class="h-3 w-3" />
-                                </button>
+                                <div class="flex gap-3">
+                                    <button
+                                        class="btn btn-outline btn-success btn-sm"
+                                        onclick="modalCreate.showModal()"
+                                    >
+                                        Supervision List
+                                        <PlusIcon class="h-3 w-3" />
+                                    </button>
+                                    <button
+                                        class="btn btn-outline btn-info btn-sm"
+                                        @click="triggerFileInput"
+                                        :disabled="loadingStates['import'][0]"
+                                    >
+                                        Import
+                                        <span
+                                            class="loading loading-spinner loading-sm"
+                                            v-if="loadingStates['import'][0]"
+                                        ></span
+                                        ><ArrowUpTrayIcon
+                                            v-else
+                                            class="h-3 w-3"
+                                        />
+                                    </button>
+                                    <input
+                                        type="file"
+                                        ref="fileInput"
+                                        @change="handleFileUpload"
+                                        style="display: none"
+                                    />
+                                    <a
+                                        class="btn btn-outline btn-info btn-sm"
+                                        href="/assets/file/supervision_list_import_sample.xlsx"
+                                        target="_blank"
+                                    >
+                                        Sample File
+                                        <ArrowDownTrayIcon class="h-3 w-3" />
+                                    </a>
+                                </div>
+                                <div class="flex gap-3">
+                                    <select
+                                        class="select select-bordered"
+                                        v-model.lazy="filter_status"
+                                        @change="filterData"
+                                    >
+                                        <option value="">-- Status --</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Non Active</option>
+                                    </select>
+                                    <label
+                                        class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
+                                    >
+                                        <input
+                                            v-model.lazy="search"
+                                            type="text"
+                                            class="grow border-0"
+                                            @change="filterData"
+                                            placeholder="Search Name"
+                                        />
+                                        <MagnifyingGlassIcon class="h-5 w-5" />
+                                    </label>
+                                </div>
                             </div>
                             <div class="card-body">
+                                <div
+                                    v-show="!isTableEmpty"
+                                    class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between"
+                                >
+                                    <div class="flex gap-3 items-center">
+                                        <select
+                                            @change="filterData"
+                                            v-model.lazy="per_page"
+                                            class="select select-bordered select-sm max-w-xs text-xs"
+                                        >
+                                            <option value="15">15</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <label
+                                            class="text-xs md:text-base lg:text-base"
+                                            >entries per page</label
+                                        >
+                                    </div>
+                                    <div
+                                        class="text-xs md:text-base lg:text-base"
+                                    >
+                                        Showing {{ props.supervisions.from }} to
+                                        {{ props.supervisions.to }} from
+                                        {{ props.supervisions.total }} Entries
+                                    </div>
+                                </div>
                                 <div class="overflow-x-auto">
                                     <table class="table">
                                         <thead class="text-info">
                                             <tr>
                                                 <th>Name</th>
                                                 <th>Status</th>
-                                                <th></th>
+                                                <th>Last Update</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody v-if="!isTableEmpty">
@@ -190,6 +352,15 @@ const destroy = (id) => {
                                                         ></span>
                                                     </a>
                                                 </td>
+                                                <td>
+                                                    {{
+                                                        moment(item.updated_at)
+                                                            .locale("id")
+                                                            .format(
+                                                                "DD MMMM YYYY HH:mm",
+                                                            )
+                                                    }}
+                                                </td>
                                                 <td class="flex gap-3">
                                                     <button
                                                         @click="
@@ -231,7 +402,7 @@ const destroy = (id) => {
                                         <tbody v-else>
                                             <tr>
                                                 <td
-                                                    colspan="2"
+                                                    colspan="4"
                                                     class="text-center"
                                                 >
                                                     No Data Available
@@ -241,35 +412,106 @@ const destroy = (id) => {
                                     </table>
                                 </div>
                                 <div
-                                    class="join mx-auto"
+                                    class="join mt-2 mx-auto"
                                     v-show="!isTableEmpty"
                                 >
                                     <Link
-                                        class="join-item btn btn-sm"
+                                        :href="`${route('supervision-list.index')}?page=1&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
-                                            props.supervisions.prev_page_url
+                                            props.supervisions.current_page > 10
                                         "
-                                        :href="
-                                            props.supervisions.prev_page_url ??
-                                            'javascript:;'
-                                        "
-                                        >«</Link
                                     >
-                                    <button class="join-item btn btn-sm">
-                                        Page
-                                        {{ props.supervisions.current_page }}
+                                        1
+                                    </Link>
+                                    <Link
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 2}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.supervisions.current_page -
+                                                2 >
+                                            0
+                                        "
+                                    >
+                                        {{
+                                            props.supervisions.current_page - 2
+                                        }}
+                                    </Link>
+                                    <Link
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.supervisions.current_page -
+                                                1 >
+                                            0
+                                        "
+                                    >
+                                        {{
+                                            props.supervisions.current_page - 1
+                                        }}
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
+                                    >
+                                        {{
+                                            props.supervisions.current_page ??
+                                            ""
+                                        }}
                                     </button>
                                     <Link
-                                        class="join-item btn btn-sm"
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 1}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
-                                            props.supervisions.next_page_url
+                                            props.supervisions.next_page != null
                                         "
-                                        :href="
-                                            props.supervisions.next_page_url ??
-                                            'javascript:;'
-                                        "
-                                        >»</Link
                                     >
+                                        {{
+                                            props.supervisions.current_page + 1
+                                        }}
+                                    </Link>
+                                    <Link
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 2}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.supervisions.current_page +
+                                                2 <=
+                                            props.supervisions.last_page
+                                        "
+                                    >
+                                        {{
+                                            props.supervisions.current_page + 2
+                                        }}
+                                    </Link>
+                                    <button
+                                        v-show="
+                                            props.supervisions.current_page <
+                                            props.supervisions.last_page - 2
+                                        "
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
+                                    >
+                                        ...
+                                    </button>
+                                    <Link
+                                        v-show="
+                                            props.supervisions.current_page <
+                                            props.supervisions.last_page - 3
+                                        "
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                    >
+                                        {{ props.supervisions.last_page - 1 }}
+                                    </Link>
+                                    <Link
+                                        v-show="
+                                            props.supervisions.current_page <
+                                            props.supervisions.last_page - 2
+                                        "
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                    >
+                                        {{ props.supervisions.last_page }}
+                                    </Link>
                                 </div>
                             </div>
                         </div>

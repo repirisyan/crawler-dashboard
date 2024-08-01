@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ComodityRequest;
+use App\Imports\ComoditiesImport;
+use App\Jobs\NotifyUserOfCompletedImport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Comodity;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ComodityController extends Controller
@@ -23,7 +27,8 @@ class ComodityController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('Comodity', [
-            'comodities' => $this->comodity->getComodities($request->search),
+            'comodities' => $this->comodity->getComodities($request->all()),
+            'params' => $request->all()
         ]);
     }
 
@@ -74,6 +79,32 @@ class ComodityController extends Controller
             return to_route('comodity.index')->with('message', [200, 'Data Deleted']);
         } catch (Exception $e) {
             return to_route('comodity.index')->with('message', [$e->getCode(), $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Import Comodity Data from Excel.
+     */
+    public function import(Request $request){
+        try {
+            // Check if the file is uploaded
+            if (!$request->hasFile('file')) {
+                throw new Exception("No Category File Uploaded", 400);
+            }
+
+            // Check if the file is of correct type
+            if ($request->file('file')->getClientOriginalExtension() != 'xlsx') {
+                throw new Exception("Category File Incorrect", 400);
+            }
+
+            $message = 'Category Import Completed';
+            $user_id = Auth::user()->id;
+            Excel::import(new ComoditiesImport($user_id), $request->file('file'))->chain([
+                new NotifyUserOfCompletedImport($user_id,$message),
+            ]);
+            return to_route('comodity.index')->with('message', [200, 'File Uploaded']);
+        } catch (Exception $e) {
+            return to_route('comodity.index')->with('message', [$e->getCode(), $e->getMessage()]);   
         }
     }
 }

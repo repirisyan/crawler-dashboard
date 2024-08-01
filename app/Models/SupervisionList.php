@@ -11,9 +11,13 @@ class SupervisionList extends Model
 
     protected $guarded = ['id'];
 
-    public function getAllData()
+    public function getSupervisionList($request)
     {
-        return $this->simplePaginate(15);
+        return $this->when(isset($request['search']), function ($query) use ($request) {
+                $query->where('name', 'like', '%'.$request['search'].'%');
+            })->when(isset($request['status']), function($query) use ($request){
+                $query->where('status', $request['status']);
+            })->paginate($request['per_page'] ?? 15);
     }
 
     public function getData($id)
@@ -30,7 +34,8 @@ class SupervisionList extends Model
 
     public function changeStatus($id,$status){
         return $this->find($id)->update([
-            'status' => !$status
+            'status' => !$status,
+            'updated_at' => now()
         ]);
     }
 

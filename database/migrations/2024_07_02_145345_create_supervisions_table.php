@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('link');
             $table->text('image')->nullable();
+            $table->foreignId('violation_id')->nullable()->constrained();
             $table->foreignId('comodity_id')->constrained();
             $table->unsignedBigInteger('price');
             $table->unsignedInteger('sold');

@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('search_lists', function (Blueprint $table) {
+        Schema::create('violations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('comodity_id')->constrained();
-            $table->foreignId('keyword_id')->constrained();
-            $table->boolean('active')->default(true);
+            $table->string('name');
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('search_lists');
+        Schema::dropIfExists('violation_lists');
     }
 };

@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('keywords', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('comodity_id');
             $table->string('name');
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

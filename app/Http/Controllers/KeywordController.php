@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\KeywordRequest;
+use App\Models\Comodity;
 use App\Models\Keyword;
 use Exception;
 use Illuminate\Http\Request;
@@ -10,11 +11,12 @@ use Inertia\Inertia;
 
 class KeywordController extends Controller
 {
-    public $keyword;
+    public $keyword, $comodity;
 
     public function __construct()
     {
         $this->keyword = new Keyword();
+        $this->comodity = new Comodity();
     }
 
     /**
@@ -23,7 +25,9 @@ class KeywordController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('Keyword', [
-            'keywords' => $this->keyword->getKeywords($request->search),
+            'keywords' => $this->keyword->getKeywords($request->all()),
+            'comodities' => $this->comodity->getAllComodity(),
+            'params' => $request->all()
         ]);
     }
 

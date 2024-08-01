@@ -21,16 +21,11 @@ class Comodity extends Model
         return $this->hasMany(Supervision::class);
     }
 
-    public function search_list()
+    public function getComodities($request)
     {
-        return $this->hasMany(SearchList::class);
-    }
-
-    public function getComodities($search = null)
-    {
-        return $this->when($search != null, function ($query) use ($search) {
-            $query->where('name', 'like', '%'.$search.'%');
-        })->simplePaginate(15);
+        return $this->when(isset($request['search']), function ($query) use ($request) {
+            $query->where('name', 'like', '%'.$request['search'].'%');
+        })->paginate($request['per_page'] ?? 15);
     }
 
     public function getAllComodity()

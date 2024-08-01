@@ -1,114 +1,61 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, useForm, router, Link } from "@inertiajs/vue3";
+import { Head, router, Link } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
-import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-import { PlusIcon, PencilSquareIcon, TrashIcon } from "@heroicons/vue/24/solid";
 import axios from "axios";
+import moment from "moment";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
-    comodities: Object,
     keywords: Object,
-    search_list: Object,
+    comodities: Object,
+    params: Object,
 });
 
-const modalCreate = ref(null);
-const modalEdit = ref(null);
+const filter_comodity = ref(props.params?.comodity ?? "");
+const search = ref(props.params?.search ?? "");
+const filter_status = ref(props.params?.status ?? "");
+const per_page = ref(props.params?.per_page ?? 15);
 
 const loadingStates = ref({
     status: {},
-    delete: {},
-    update: {},
-});
-
-const form = useForm({
-    comodity_id: "",
-    keyword_id: "",
-});
-const formEdit = useForm({
-    comodity_id: "",
-    keyword_id: "",
 });
 
 const isTableEmpty = computed(() => {
-    return Object.keys(props.search_list.data).length === 0;
+    return Object.keys(props.keywords.data).length === 0;
 });
 
-const storeData = () => {
-    form.post(route("search-list.store"), {
-        preserveScroll: true,
-        onSuccess: (response) => {
-            form.reset();
-            form.clearErrors();
-            modalCreate.value.close();
-            toast.success(response.props.flash.message[1]);
-        },
-        onError: (response) => {
-            formEdit.reset();
-            if (response.props?.flash.message[1]) {
-                toast.error(response.props?.flash.message[1]);
-            }
-        },
-    });
-};
-
-const editData = (id) => {
-    modalEdit.value.showModal();
-    axios.get(route("search-list.edit", id)).then((response) => {
-        formEdit.keyword_id = response.data.keyword_id;
-        formEdit.comodity_id = response.data.comodity_id;
-        formEdit.id = id;
-    });
-};
-
-const updateData = () => {
-    formEdit.patch(route("search-list.update", formEdit.id), {
-        preserveScroll: true,
-        onSuccess: (response) => {
-            formEdit.reset();
-            formEdit.clearErrors();
-            modalEdit.value.close();
-            toast.success(response.props.flash.message[1]);
-        },
-        onError: (response) => {
-            formEdit.reset();
-            toast.error(response.props.flash.message[1]);
-        },
-    });
-};
-
-const toggleStatus = (id, status) =>{
-    loadingStates.value["status"][id] = true
-    axios.patch(route('search-list.change_status',id),{
-        status: status
-    }).then(()=>{
-        router.reload({ only: ['search_list'] })
-    }).catch((response)=>{
-        console.log(response)
-    }).finally(()=>{
-        loadingStates.value["status"][id] = false
-    })
-}
-
-const destroy = (id) => {
-    if (confirm("Are you sure want to delete this data ?")) {
-        router.delete(route("search-list.destroy", id), {
+const filterData = () => {
+    router.visit(
+        route("search-list.index", {
+            comodity: filter_comodity.value,
+            search: search.value,
+            status: filter_status.value,
+            page: 1,
+        }),
+        {
             preserveScroll: true,
-            onBefore: () => {
-                loadingStates.value["delete"][id] = true;
-            },
-            onSuccess: (response) => {
-                toast.success(response.props.flash.message[1]);
-            },
-            onError: (response) => {
-                toast.error(response.props.flash.message[1]);
-            },
-            onFinish: () => {
-                loadingStates.value["delete"][id] = false;
-            },
+            only: ["keywords", "params"],
+        },
+    );
+};
+
+const toggleStatus = (id, status) => {
+    loadingStates.value["status"][id] = true;
+    axios
+        .patch(route("search-list.change_status", id), {
+            status: status,
+        })
+        .then(() => {
+            router.reload({ only: ["keywords"] });
+        })
+        .catch((response) => {
+            console.log(response);
+        })
+        .finally(() => {
+            loadingStates.value["status"][id] = false;
         });
-    }
 };
 </script>
 
@@ -117,11 +64,14 @@ const destroy = (id) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2
-                class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
+            <div
+                class="breadcrumbs font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Search List
-            </h2>
+                <ul>
+                    <li>Master Data</li>
+                    <li>Search List</li>
+                </ul>
+            </div>
         </template>
 
         <div class="py-12">
@@ -132,14 +82,74 @@ const destroy = (id) => {
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="card mx-auto">
                             <div class="card-header flex justify-between">
-                                <button
-                                    class="btn btn-outline btn-success btn-sm"
-                                    onclick="modalCreate.showModal()"
-                                >
-                                    Search List <PlusIcon class="h-3 w-3" />
-                                </button>
+                                <div></div>
+                                <div class="flex gap-3">
+                                    <select
+                                        class="select select-bordered"
+                                        v-model.lazy="filter_status"
+                                        @change="filterData"
+                                    >
+                                        <option value="">-- Status --</option>
+                                        <option value="1">Active</option>
+                                        <option value="0">Non Active</option>
+                                    </select>
+                                    <select
+                                        class="select select-bordered"
+                                        v-model.lazy="filter_comodity"
+                                        @change="filterData"
+                                    >
+                                        <option value="">-- Category --</option>
+                                        <option
+                                            :value="comodity.id"
+                                            v-for="comodity in props.comodities"
+                                            :key="comodity.id"
+                                        >
+                                            {{ comodity.name }}
+                                        </option>
+                                    </select>
+                                    <label
+                                        class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
+                                    >
+                                        <input
+                                            v-model.lazy="search"
+                                            type="text"
+                                            class="grow border-0"
+                                            @change="filterData"
+                                            placeholder="Search Keyword"
+                                        />
+                                        <MagnifyingGlassIcon class="h-5 w-5" />
+                                    </label>
+                                </div>
                             </div>
                             <div class="card-body">
+                                <div
+                                    v-show="!isTableEmpty"
+                                    class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between"
+                                >
+                                    <div class="flex gap-3 items-center">
+                                        <select
+                                            @change="filterData"
+                                            v-model.lazy="per_page"
+                                            class="select select-bordered select-sm max-w-xs text-xs"
+                                        >
+                                            <option value="15">15</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <label
+                                            class="text-xs md:text-base lg:text-base"
+                                            >entries per page</label
+                                        >
+                                    </div>
+                                    <div
+                                        class="text-xs md:text-base lg:text-base"
+                                    >
+                                        Showing {{ props.keywords.from }} to
+                                        {{ props.keywords.to }} from
+                                        {{ props.keywords.total }} Entries
+                                    </div>
+                                </div>
                                 <div class="overflow-x-auto">
                                     <table class="table">
                                         <thead class="text-info">
@@ -147,32 +157,32 @@ const destroy = (id) => {
                                                 <th>Category</th>
                                                 <th>Keyword</th>
                                                 <th>Status</th>
-                                                <th></th>
+                                                <th>Last Update</th>
                                             </tr>
                                         </thead>
                                         <tbody v-if="!isTableEmpty">
                                             <tr
-                                                v-for="item in props.search_list
+                                                v-for="item in props.keywords
                                                     .data"
                                                 :key="item.id"
                                             >
                                                 <td>
                                                     {{ item.comodity.name }}
                                                 </td>
-                                                <td>{{ item.keyword.name }}</td>
+                                                <td>{{ item.name }}</td>
                                                 <td>
                                                     <a
                                                         @click="
                                                             toggleStatus(
                                                                 item.id,
-                                                                item.active,
+                                                                item.status,
                                                             )
                                                         "
                                                         href="javascript:;"
                                                         role="button"
                                                         class="badge badge-sm block"
                                                         :class="
-                                                            item.active
+                                                            item.status
                                                                 ? 'badge-success'
                                                                 : 'badge-error'
                                                         "
@@ -185,7 +195,7 @@ const destroy = (id) => {
                                                             "
                                                         >
                                                             {{
-                                                                item.active
+                                                                item.status
                                                                     ? "Active"
                                                                     : "Non Active"
                                                             }}
@@ -196,41 +206,14 @@ const destroy = (id) => {
                                                         ></span>
                                                     </a>
                                                 </td>
-                                                <td class="flex gap-3">
-                                                    <button
-                                                        @click="
-                                                            editData(item.id)
-                                                        "
-                                                        class="btn btn-warning btn-sm"
-                                                    >
-                                                        <PencilSquareIcon
-                                                            class="h-3 w-3"
-                                                        />
-                                                    </button>
-                                                    <button
-                                                        @click="
-                                                            destroy(item.id)
-                                                        "
-                                                        :disabled="
-                                                            loadingStates[
-                                                                'delete'
-                                                            ][item.id]
-                                                        "
-                                                        class="btn btn-error btn-sm"
-                                                    >
-                                                        <span
-                                                            class="loading loading-spinner loading-sm"
-                                                            v-if="
-                                                                loadingStates[
-                                                                    'delete'
-                                                                ][item.id]
-                                                            "
-                                                        ></span>
-                                                        <TrashIcon
-                                                            class="h-3 w-3"
-                                                            v-else
-                                                        />
-                                                    </button>
+                                                <td>
+                                                    {{
+                                                        moment(item.updated_at)
+                                                            .locale("id")
+                                                            .format(
+                                                                "DD MMMM YYYY HH:mm",
+                                                            )
+                                                    }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -247,31 +230,90 @@ const destroy = (id) => {
                                     </table>
                                 </div>
                                 <div
-                                    class="join mx-auto"
+                                    class="join mt-2 mx-auto"
                                     v-show="!isTableEmpty"
                                 >
                                     <Link
-                                        class="join-item btn btn-sm"
-                                        v-show="props.search_list.prev_page_url"
-                                        :href="
-                                            props.search_list.prev_page_url ??
-                                            'javascript:;'
+                                        :href="`${route('search-list.index')}?page=1&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.keywords.current_page > 10
                                         "
-                                        >«</Link
                                     >
-                                    <button class="join-item btn btn-sm">
-                                        Page
-                                        {{ props.search_list.current_page }}
+                                        1
+                                    </Link>
+                                    <Link
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page - 2}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.keywords.current_page - 2 > 0
+                                        "
+                                    >
+                                        {{ props.keywords.current_page - 2 }}
+                                    </Link>
+                                    <Link
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.keywords.current_page - 1 > 0
+                                        "
+                                    >
+                                        {{ props.keywords.current_page - 1 }}
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
+                                    >
+                                        {{ props.keywords.current_page ?? "" }}
                                     </button>
                                     <Link
-                                        class="join-item btn btn-sm"
-                                        v-show="props.search_list.next_page_url"
-                                        :href="
-                                            props.search_list.next_page_url ??
-                                            'javascript:;'
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page + 1}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.keywords.next_page != null
                                         "
-                                        >»</Link
                                     >
+                                        {{ props.keywords.current_page + 1 }}
+                                    </Link>
+                                    <Link
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page + 2}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="
+                                            props.keywords.current_page + 2 <=
+                                            props.keywords.last_page
+                                        "
+                                    >
+                                        {{ props.keywords.current_page + 2 }}
+                                    </Link>
+                                    <button
+                                        v-show="
+                                            props.keywords.current_page <
+                                            props.keywords.last_page - 2
+                                        "
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
+                                    >
+                                        ...
+                                    </button>
+                                    <Link
+                                        v-show="
+                                            props.keywords.current_page <
+                                            props.keywords.last_page - 3
+                                        "
+                                        :href="`${route('search-list.index')}?page=${props.keywords.last_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                    >
+                                        {{ props.keywords.last_page - 1 }}
+                                    </Link>
+                                    <Link
+                                        v-show="
+                                            props.keywords.current_page <
+                                            props.keywords.last_page - 2
+                                        "
+                                        :href="`${route('search-list.index')}?page=${props.keywords.last_page}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                    >
+                                        {{ props.keywords.last_page }}
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -279,187 +321,5 @@ const destroy = (id) => {
                 </div>
             </div>
         </div>
-
-        <dialog id="modalCreate" ref="modalCreate" class="modal">
-            <div class="modal-box">
-                <h3 class="text-lg font-bold">Form Add Data</h3>
-                <div class="divider"></div>
-                <form @submit.prevent="storeData">
-                    <label class="form-control w-full">
-                        <div class="label">
-                            <span class="label-text">Category</span>
-                        </div>
-                        <select
-                            class="select select-bordered w-full"
-                            :class="
-                                form.errors.comodity_id ? 'input-error' : ''
-                            "
-                            :readonly="form.processing"
-                            required
-                            v-model.lazy="form.comodity_id"
-                        >
-                            <option value="">-- Category --</option>
-                            <option
-                                :value="comodity.id"
-                                v-for="comodity in props.comodities"
-                                :key="comodity.id"
-                            >
-                                {{ comodity.name }}
-                            </option>
-                        </select>
-                        <div class="label" v-show="form.errors.comodity_id">
-                            <span class="label-text-alt text-error">{{
-                                form.errors.comodity_id
-                            }}</span>
-                        </div>
-                    </label>
-                    <label class="form-control w-full mt-5">
-                        <div class="label">
-                            <span class="label-text">Keyword</span>
-                        </div>
-                        <select
-                            class="select select-bordered w-full"
-                            :class="form.errors.keyword_id ? 'input-error' : ''"
-                            :readonly="form.processing"
-                            required
-                            v-model.lazy="form.keyword_id"
-                        >
-                            <option value="">-- Keyword --</option>
-                            <option
-                                :value="keyword.id"
-                                v-for="keyword in props.keywords"
-                                :key="keyword.id"
-                            >
-                                {{ keyword.name }}
-                            </option>
-                        </select>
-                        <div class="label" v-show="form.errors.keyword_id">
-                            <span class="label-text-alt text-error">{{
-                                form.errors.keyword_id
-                            }}</span>
-                        </div>
-                    </label>
-                    <div class="divider"></div>
-                    <div class="modal-action flex justify-between">
-                        <form method="dialog">
-                            <!-- if there is a button in form, it will close the modal -->
-                            <button
-                                :disabled="form.processing"
-                                @click="
-                                    {
-                                        form.reset(), form.clearErrors();
-                                    }
-                                "
-                                class="btn btn-sm"
-                            >
-                                Cancel
-                            </button>
-                        </form>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="btn btn-sm btn-success"
-                        >
-                            Save&nbsp;<span
-                                class="loading loading-spinner loading-sm"
-                                v-show="form.processing"
-                            ></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </dialog>
-        <dialog id="modalEdit" ref="modalEdit" class="modal">
-            <div class="modal-box">
-                <h3 class="text-lg font-bold">Form Edit Data</h3>
-                <div class="divider"></div>
-                <form @submit.prevent="updateData">
-                    <label class="form-control w-full">
-                        <div class="label">
-                            <span class="label-text">Category</span>
-                        </div>
-                        <select
-                            class="select select-bordered w-full"
-                            :class="
-                                formEdit.errors.comodity_id ? 'input-error' : ''
-                            "
-                            :readonly="formEdit.processing"
-                            required
-                            v-model.lazy="formEdit.comodity_id"
-                        >
-                            <option value="">-- Category --</option>
-                            <option
-                                :value="comodity.id"
-                                v-for="comodity in props.comodities"
-                                :key="comodity.id"
-                            >
-                                {{ comodity.name }}
-                            </option>
-                        </select>
-                        <div class="label" v-show="formEdit.errors.comodity_id">
-                            <span class="label-text-alt text-error">{{
-                                formEdit.errors.comodity_id
-                            }}</span>
-                        </div>
-                    </label>
-                    <label class="form-control w-full mt-5">
-                        <div class="label">
-                            <span class="label-text">Keyword</span>
-                        </div>
-                        <select
-                            class="select select-bordered w-full"
-                            :class="
-                                formEdit.errors.keyword_id ? 'input-error' : ''
-                            "
-                            :readonly="formEdit.processing"
-                            required
-                            v-model.lazy="formEdit.keyword_id"
-                        >
-                            <option value="">-- Keyword --</option>
-                            <option
-                                :value="keyword.id"
-                                v-for="keyword in props.keywords"
-                                :key="keyword.id"
-                            >
-                                {{ keyword.name }}
-                            </option>
-                        </select>
-                        <div class="label" v-show="formEdit.errors.keyword_id">
-                            <span class="label-text-alt text-error">{{
-                                formEdit.errors.keyword_id
-                            }}</span>
-                        </div>
-                    </label>
-                    <div class="divider"></div>
-                    <div class="modal-action flex justify-between">
-                        <form method="dialog">
-                            <!-- if there is a button in form, it will close the modal -->
-                            <button
-                                :disabled="formEdit.processing"
-                                @click="
-                                    {
-                                        formEdit.reset(),
-                                            formEdit.clearErrors();
-                                    }
-                                "
-                                class="btn btn-sm"
-                            >
-                                Cancel
-                            </button>
-                        </form>
-                        <button
-                            type="submit"
-                            :disabled="formEdit.processing"
-                            class="btn btn-sm btn-success"
-                        >
-                            Update&nbsp;<span
-                                class="loading loading-spinner loading-sm"
-                                v-show="formEdit.processing"
-                            ></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </dialog>
     </AuthenticatedLayout>
 </template>

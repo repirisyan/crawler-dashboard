@@ -1,10 +1,12 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, router } from "@inertiajs/vue3";
+import { Head, router, Link } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import { ArrowPathIcon } from "@heroicons/vue/24/solid";
+import moment from "moment";
+
 const props = defineProps({
     marketplaces: Object,
 });
@@ -51,11 +53,14 @@ const toggleStatus = (id, maintenance) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2
-                class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
+            <div
+                class="breadcrumbs font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Crawler Engine
-            </h2>
+                <ul>
+                    <li>Master Data</li>
+                    <li>Engine</li>
+                </ul>
+            </div>
         </template>
 
         <div class="py-12">
@@ -96,6 +101,7 @@ const toggleStatus = (id, maintenance) => {
                                             <tr>
                                                 <th>Name</th>
                                                 <th>Maintenance</th>
+                                                <th>Last Update</th>
                                             </tr>
                                         </thead>
                                         <tbody v-if="!isTableEmpty">
@@ -155,6 +161,15 @@ const toggleStatus = (id, maintenance) => {
                                                             Engine Still Running
                                                         </span>
                                                     </p>
+                                                </td>
+                                                <td>
+                                                    {{
+                                                        moment(item.updated_at)
+                                                            .locale("id")
+                                                            .format(
+                                                                "DD MMMM YYYY HH:mm",
+                                                            )
+                                                    }}
                                                 </td>
                                             </tr>
                                         </tbody>

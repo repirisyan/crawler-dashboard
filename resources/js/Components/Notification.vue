@@ -1,10 +1,12 @@
 <script setup>
 import {
     BellIcon,
-    LightBulbIcon,
     ClockIcon,
     BellAlertIcon,
-    TrashIcon,
+    CheckCircleIcon,
+    ExclamationCircleIcon,
+    XCircleIcon,
+    InformationCircleIcon,
 } from "@heroicons/vue/24/solid";
 import Dropdown from "@/Components/Dropdown.vue";
 import { ref, onMounted, computed } from "vue";
@@ -104,7 +106,7 @@ const deleteAllNotification = async () => {
                             class="btn btn-sm btn-outline-dark absolute top-0 right-1 items-center"
                             @click="deleteAllNotification"
                         >
-                            Clear All <TrashIcon class="w-3 h-3" />
+                            Clear All
                         </button>
                     </div>
                     <div
@@ -115,22 +117,30 @@ const deleteAllNotification = async () => {
                         <div
                             class="group flex justify-between items-center cursor-pointer p-2 dark:hover:bg-gray-800 hover:bg-gray-200"
                         >
-                            <p class="text-base">
+                            <p class="text-sm">
                                 {{ notification.message }}<br />
                                 <small class="flex items-center"
                                     ><ClockIcon class="h-3 w-3" />&nbsp;{{
                                         moment(notification.created_at)
                                             .locale("id")
-                                            .format("DD MMMM YYYY hh:mm:ss")
+                                            .format("DD MMMM YYYY HH:mm:ss")
                                     }}</small
                                 >
                             </p>
-                            <div v-if="!notification.status">
-                                <LightBulbIcon
-                                    class="h-4 w-4 text-yellow-500"
-                                />
+                            <div>
+                                <CheckCircleIcon
+                                    v-if="notification.category == 'success'"
+                                    class="h-4 w-4 text-success"
+                                /><XCircleIcon
+                                    v-else-if="notification.category == 'error'"
+                                    class="h-3 w-3 text-error"
+                                /><ExclamationCircleIcon
+                                    v-else-if="
+                                        notification.category == 'warning'
+                                    "
+                                    class="h-3 w-3 text-warning"
+                                /><InformationCircleIcon v-else />
                             </div>
-                            <div v-else></div>
                         </div>
                     </div>
                 </div>

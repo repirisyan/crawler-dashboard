@@ -2,18 +2,17 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Keyword;
 use App\Models\Marketplace;
 use App\Models\Notification;
-use App\Models\SearchList;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class CrawlingProduct extends Command
 {
     public $marketplace;
 
-    public $search_list;
+    public $keywords;
 
     /**
      * The name and signature of the console command.
@@ -33,7 +32,7 @@ class CrawlingProduct extends Command
     {
         parent::__construct();
         $this->marketplace = new Marketplace();
-        $this->search_list = new SearchList();
+        $this->keywords = new Keyword();
     }
 
     /**
@@ -41,23 +40,24 @@ class CrawlingProduct extends Command
      */
     public function handle()
     {
-        DB::table('temp_items')->truncate();
+        // DB::table('temp_items')->truncate();
         $marketplaces = $this->marketplace->getActiveMarketplace();
-        $search_list = $this->search_list->getAllData(true);
+        $keywords = $this->keywords->getAllData(true);
         foreach ($marketplaces as $marketplace) {
-            foreach ($search_list as $item) {
+            foreach ($keywords as $item) {
                 $request = new \stdClass();
                 $request->marketplace_id = $marketplace->id;
                 $request->comodity_id = $item->comodity_id;
-                $request->keyword_id = $item->keyword_id;
+                $request->keyword_id = $item->id;
                 $request->engine = strtolower($marketplace->name);
-                $request->keyword = $item->keyword->name;
+                $request->keyword = $item->name;
                 $request->comodity = $item->comodity->name;
                 $request->user_id = 1;
                 $response = Http::post(env('APP_CRAWLER_GATEWAY').'/crawler', $request);
                 Notification::create([
                     'message' => 'Start crawling '.$marketplace->name.', keyword : '.$item->keyword->name,
                     'user_id' => 1,
+                    'category' => 'info'
                 ]);
             }
             if ($response->successful()) {

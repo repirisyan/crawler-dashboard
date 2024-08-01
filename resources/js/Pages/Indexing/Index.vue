@@ -198,6 +198,7 @@ const getData = async (page = null) => {
                                             <th>Name</th>
                                             <th>Category</th>
                                             <th>Rating</th>
+                                            <th>Sold</th>
                                             <th>Price</th>
                                             <th>Marketplace</th>
                                             <th>Seller</th>
@@ -253,6 +254,8 @@ const getData = async (page = null) => {
                                                         item?.rating
                                                     }}</span
                                                 >
+                                            </td>
+                                            <td class="whitespace-nowrap">
                                                 <span
                                                     class="badge badge-ghost badge-sm"
                                                     >{{ item?.sold }} Sold</span
@@ -293,7 +296,7 @@ const getData = async (page = null) => {
                                     </tbody>
                                     <tbody v-else>
                                         <tr>
-                                            <td colspan="7" class="text-center">
+                                            <td colspan="8" class="text-center">
                                                 No Data Available
                                             </td>
                                         </tr>
@@ -306,6 +309,7 @@ const getData = async (page = null) => {
                                             <th>Name</th>
                                             <th>Category</th>
                                             <th>Rating</th>
+                                            <th>Sold</th>
                                             <th>Price</th>
                                             <th>Marketplace</th>
                                             <th>Seller</th>

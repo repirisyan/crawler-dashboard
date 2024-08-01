@@ -65,13 +65,15 @@ Route::middleware('auth')->group(function () {
         Route::patch('maintenance/{id}', [MarketplaceController::class, 'maintenance'])->name('marketplace.maintenance');
     });
 
+    Route::post('comodity/import',[ComodityController::class,'import'])->name('comodity.import');
     Route::resource('comodity', ComodityController::class)->except(['create', 'show']);
 
     Route::resource('keyword', KeywordController::class)->except(['create', 'show']);
 
     Route::patch('search-list/change-status/{id}',[SearchListController::class,'changeStatus'])->name('search-list.change_status');
-    Route::resource('search-list', SearchListController::class)->except(['create', 'show']);
+    Route::get('search-list', [SearchListController::class,'index'])->name('search-list.index');
 
+    Route::post('supervision-list/import', [SupervisionListController::class, 'import'])->name('supervision-list.import');
     Route::patch('supervision-list/change-status/{id}',[SupervisionListController::class,'changeStatus'])->name('supervision-list.change_status');
     Route::resource('supervision-list', SupervisionListController::class)->except(['create', 'show']);
 

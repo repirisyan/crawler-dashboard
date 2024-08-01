@@ -23,6 +23,7 @@ class KeywordRequest extends FormRequest
     {
         return [
             'name' => 'required',
+            'comodity_id' => 'required'
         ];
     }
 }

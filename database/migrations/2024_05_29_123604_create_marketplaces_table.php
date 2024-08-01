@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('logo');
             $table->boolean('status')->default(false);
             $table->boolean('maintenance')->default(false);
-            $table->boolean('dailyrun')->default(false);
             $table->timestamps();
         });
     }
