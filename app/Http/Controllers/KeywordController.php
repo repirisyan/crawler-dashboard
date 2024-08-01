@@ -11,12 +11,14 @@ use Inertia\Inertia;
 
 class KeywordController extends Controller
 {
-    public $keyword, $comodity;
+    public $keyword;
+
+    public $comodity;
 
     public function __construct()
     {
-        $this->keyword = new Keyword();
-        $this->comodity = new Comodity();
+        $this->keyword = new Keyword;
+        $this->comodity = new Comodity;
     }
 
     /**
@@ -27,7 +29,7 @@ class KeywordController extends Controller
         return Inertia::render('Keyword', [
             'keywords' => $this->keyword->getKeywords($request->all()),
             'comodities' => $this->comodity->getAllComodity(),
-            'params' => $request->all()
+            'params' => $request->all(),
         ]);
     }
 

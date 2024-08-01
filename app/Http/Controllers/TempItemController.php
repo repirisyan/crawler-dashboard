@@ -13,7 +13,7 @@ class TempItemController extends Controller
 
     public function __construct()
     {
-        $this->temp_item = new TempItem();
+        $this->temp_item = new TempItem;
     }
 
     public function tempItemData(Request $request)

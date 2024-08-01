@@ -18,9 +18,9 @@ class CrawlerController extends Controller
 
     public function __construct()
     {
-        $this->crawler = new Marketplace();
-        $this->comodity = new Comodity();
-        $this->keyword = new Keyword();
+        $this->crawler = new Marketplace;
+        $this->comodity = new Comodity;
+        $this->keyword = new Keyword;
     }
 
     public function index()

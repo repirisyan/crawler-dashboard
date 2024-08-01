@@ -4,18 +4,18 @@ namespace App\Imports;
 
 use App\Models\Comodity;
 use App\Models\Notification;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\ImportFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Events\ImportFailed;
 
-class ComoditiesImport implements ToModel, WithChunkReading,WithValidation, ShouldQueue, WithEvents, WithHeadingRow, SkipsOnFailure
+class ComoditiesImport implements ShouldQueue, SkipsOnFailure, ToModel, WithChunkReading, WithEvents, WithHeadingRow, WithValidation
 {
     use SkipsFailures;
 
@@ -25,11 +25,10 @@ class ComoditiesImport implements ToModel, WithChunkReading,WithValidation, Shou
     {
         $this->user_id = $user_id;
     }
+
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
     public function model(array $row)
     {
         return new Comodity([
@@ -45,11 +44,11 @@ class ComoditiesImport implements ToModel, WithChunkReading,WithValidation, Shou
     public function registerEvents(): array
     {
         return [
-            ImportFailed::class => function(ImportFailed $event) {
+            ImportFailed::class => function (ImportFailed $event) {
                 Notification::create([
                     'user_id' => $this->user_id,
                     'message' => 'Import Comodity Failed',
-                    'category' => 'error'
+                    'category' => 'error',
                 ]);
             },
         ];

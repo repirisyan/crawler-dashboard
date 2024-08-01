@@ -11,7 +11,7 @@ class NotificationController extends Controller
 
     public function __contruct()
     {
-        $this->notification = new Notification();
+        $this->notification = new Notification;
     }
 
     public function userNotification()

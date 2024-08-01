@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('message');
             $table->boolean('status')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('category',['info','warning','error','success']);
+            $table->enum('category', ['info', 'warning', 'error', 'success']);
             $table->timestamps();
         });
     }

@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SupervisionListRequest;
 use App\Imports\SupervisionListImport;
-use App\Models\SupervisionList;
 use App\Jobs\NotifyUserOfCompletedImport;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Models\SupervisionList;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupervisionListController extends Controller
 {
@@ -18,7 +18,7 @@ class SupervisionListController extends Controller
 
     public function __construct()
     {
-        $this->supervision = new SupervisionList();
+        $this->supervision = new SupervisionList;
     }
 
     /**
@@ -28,7 +28,7 @@ class SupervisionListController extends Controller
     {
         return Inertia::render('SupervisionList', [
             'supervisions' => $this->supervision->getSupervisionList($request->all()),
-            'params' => $request->all()
+            'params' => $request->all(),
         ]);
     }
 
@@ -54,15 +54,16 @@ class SupervisionListController extends Controller
         return response()->json($this->supervision->getData($id));
     }
 
-    public function changeStatus(Request $request, $id){
+    public function changeStatus(Request $request, $id)
+    {
         try {
             $this->supervision->changeStatus($id, $request->status);
+
             return;
         } catch (Exception $e) {
             return response()->json($e->getMessage());
         }
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -92,26 +93,28 @@ class SupervisionListController extends Controller
         }
     }
 
-    public function import(Request $request){
+    public function import(Request $request)
+    {
         try {
             // Check if the file is uploaded
-            if (!$request->hasFile('file')) {
-                throw new Exception("No Supervision List File Uploaded", 400);
+            if (! $request->hasFile('file')) {
+                throw new Exception('No Supervision List File Uploaded', 400);
             }
 
             // Check if the file is of correct type
             if ($request->file('file')->getClientOriginalExtension() != 'xlsx') {
-                throw new Exception("Supervision List File Incorrect", 400);
+                throw new Exception('Supervision List File Incorrect', 400);
             }
-        
+
             $message = 'Supervision List Import Completed';
             $user_id = Auth::user()->id;
             Excel::import(new SupervisionListImport($user_id), $request->file('file'))->chain([
-                new NotifyUserOfCompletedImport($user_id,$message),
+                new NotifyUserOfCompletedImport($user_id, $message),
             ]);
+
             return to_route('supervision-list.index')->with('message', [200, 'File Uploaded']);
         } catch (Exception $e) {
-            return to_route('supervision-list.index')->with('message', [$e->getCode(), $e->getMessage()]);   
+            return to_route('supervision-list.index')->with('message', [$e->getCode(), $e->getMessage()]);
         }
     }
 }

@@ -21,9 +21,9 @@ class SupervisionController extends Controller
 
     public function __construct()
     {
-        $this->supervision = new Supervision();
-        $this->comodity = new Comodity();
-        $this->marketplace = new Marketplace();
+        $this->supervision = new Supervision;
+        $this->comodity = new Comodity;
+        $this->marketplace = new Marketplace;
     }
 
     public function index()

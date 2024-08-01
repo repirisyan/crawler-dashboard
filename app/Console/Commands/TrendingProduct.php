@@ -26,8 +26,8 @@ class TrendingProduct extends Command
      */
     public function handle()
     {
-        $request = new \stdClass();
-        $request->engine = "trending";
+        $request = new \stdClass;
+        $request->engine = 'trending';
         Http::post(env('APP_CRAWLER_GATEWAY').'/crawler', $request);
     }
 }

@@ -25,17 +25,18 @@ class Keyword extends Model
     {
         return $this->with('comodity:id,name')->when(isset($request['search']), function ($query) use ($request) {
             $query->where('name', 'like', '%'.$request['search'].'%');
-            })->when(isset($request['comodity']), function($query) use ($request){
-                $query->where('comodity_id',$request['comodity']);
-            })->when(isset($request['status']), function($query) use ($request){
-                $query->where('status',$request['status']);
-            })->paginate($request['per_page'] ?? 15);
+        })->when(isset($request['comodity']), function ($query) use ($request) {
+            $query->where('comodity_id', $request['comodity']);
+        })->when(isset($request['status']), function ($query) use ($request) {
+            $query->where('status', $request['status']);
+        })->paginate($request['per_page'] ?? 15);
     }
 
-    public function changeStatus($id,$status){
+    public function changeStatus($id, $status)
+    {
         return $this->find($id)->update([
-            'status' => !$status,
-            'updated_at' => now()
+            'status' => ! $status,
+            'updated_at' => now(),
         ]);
     }
 
@@ -53,7 +54,7 @@ class Keyword extends Model
     {
         return $this->create([
             'name' => $data['name'],
-            'comodity_id' => $data['comodity_id']
+            'comodity_id' => $data['comodity_id'],
         ]);
     }
 
@@ -61,7 +62,7 @@ class Keyword extends Model
     {
         return $this->find($keyword_id)->update([
             'name' => $data['name'],
-            'comodity_id' => $data['comodity_id']
+            'comodity_id' => $data['comodity_id'],
         ]);
     }
 

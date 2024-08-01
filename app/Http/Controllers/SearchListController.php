@@ -14,11 +14,10 @@ class SearchListController extends Controller
 
     public $keyword;
 
-
     public function __construct()
     {
-        $this->comodity = new Comodity();
-        $this->keyword = new Keyword();
+        $this->comodity = new Comodity;
+        $this->keyword = new Keyword;
     }
 
     /**
@@ -29,17 +28,18 @@ class SearchListController extends Controller
         return Inertia::render('SearchList', [
             'keywords' => $this->keyword->getKeywords($request->all()),
             'comodities' => $this->comodity->getAllComodity(),
-            'params' => $request->all()
+            'params' => $request->all(),
         ]);
     }
 
-    public function changeStatus(Request $request, $id){
+    public function changeStatus(Request $request, $id)
+    {
         try {
             $this->keyword->changeStatus($id, $request->status);
+
             return;
         } catch (Exception $e) {
             return response()->json($e->getMessage());
         }
     }
-
 }

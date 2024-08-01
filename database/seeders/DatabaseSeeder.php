@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call([
-            MarketplaceSeeder::class
+            MarketplaceSeeder::class,
         ]);
         User::create([
             'name' => 'Test User',

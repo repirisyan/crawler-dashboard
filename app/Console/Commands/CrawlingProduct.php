@@ -31,8 +31,8 @@ class CrawlingProduct extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->marketplace = new Marketplace();
-        $this->keywords = new Keyword();
+        $this->marketplace = new Marketplace;
+        $this->keywords = new Keyword;
     }
 
     /**
@@ -45,7 +45,7 @@ class CrawlingProduct extends Command
         $keywords = $this->keywords->getAllData(true);
         foreach ($marketplaces as $marketplace) {
             foreach ($keywords as $item) {
-                $request = new \stdClass();
+                $request = new \stdClass;
                 $request->marketplace_id = $marketplace->id;
                 $request->comodity_id = $item->comodity_id;
                 $request->keyword_id = $item->id;
@@ -57,7 +57,7 @@ class CrawlingProduct extends Command
                 Notification::create([
                     'message' => 'Start crawling '.$marketplace->name.', keyword : '.$item->keyword->name,
                     'user_id' => 1,
-                    'category' => 'info'
+                    'category' => 'info',
                 ]);
             }
             if ($response->successful()) {

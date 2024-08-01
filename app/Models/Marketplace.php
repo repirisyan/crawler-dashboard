@@ -40,7 +40,7 @@ class Marketplace extends Model
     {
         return $this->find($id)->update([
             'maintenance' => $status,
-            'updated_at' => now()
+            'updated_at' => now(),
         ]);
     }
 

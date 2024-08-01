@@ -13,7 +13,7 @@ class MarketplaceController extends Controller
 
     public function __construct()
     {
-        $this->marketplace = new Marketplace();
+        $this->marketplace = new Marketplace;
     }
 
     public function index()
