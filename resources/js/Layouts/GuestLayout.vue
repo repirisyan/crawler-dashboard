@@ -1,6 +1,7 @@
 <script setup>
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import { Link } from "@inertiajs/vue3";
+
+const darkmode = window.matchMedia('(prefers-color-scheme: dark)').matches
 </script>
 
 <template>
@@ -9,7 +10,8 @@ import { Link } from "@inertiajs/vue3";
     >
         <div>
             <Link href="/">
-                <ApplicationLogo class="w-20 h-20 fill-current text-gray-500" />
+                <img v-if="darkmode" src="/assets/img/logo/logo-dark.svg" class="w-auto h-20">
+                <img v-else src="/assets/img/logo/logo.svg" class="w-auto h-20">
             </Link>
         </div>
 
