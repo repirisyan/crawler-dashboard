@@ -9,10 +9,16 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
 
-class ComoditiesImport implements ToModel, WithChunkReading, ShouldQueue, WithEvents, WithHeadingRow
+class ComoditiesImport implements ToModel, WithChunkReading,WithValidation, ShouldQueue, WithEvents, WithHeadingRow, SkipsOnFailure
 {
+    use SkipsFailures;
+
     public $user_id;
 
     public function __construct($user_id)
@@ -46,6 +52,13 @@ class ComoditiesImport implements ToModel, WithChunkReading, ShouldQueue, WithEv
                     'category' => 'error'
                 ]);
             },
+        ];
+    }
+
+    public function rules(): array
+    {
+        return [
+            '*.name' => ['required', Rule::unique('comodities', 'name')],
         ];
     }
 }
