@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use Exception;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -14,10 +15,12 @@ class NotificationController extends Controller
         $this->notification = new Notification;
     }
 
-    public function userNotification()
+    public function userNotification(Request $request)
     {
         try {
-            return response(Notification::where('user_id', auth()->user()->id)->get());
+            return response(Notification::when(!empty($request->status), function($query) use ($request){
+                $query->where('category',$request->status);
+            })->where('user_id', auth()->user()->id)->orderBy('created_at','desc')->paginate(10));
         } catch (Exception $e) {
             return response($e->getMessage());
         }

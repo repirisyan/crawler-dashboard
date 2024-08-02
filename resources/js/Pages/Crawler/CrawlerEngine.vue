@@ -20,23 +20,25 @@ const loading = ref({
     status: {},
     check: {},
 });
-const keyword = ref(props.keyword);
-const comodity_id = ref(props.comodity_id);
-const keyword_id = ref(props.keyword_id);
+// const keyword = ref(props?.keyword);
+// const comodity_id = ref(props?.comodity_id);
+// const keyword_id = ref(props?.keyword_id);
 
-watch(
-    [() => props.comodity_id, () => props.keyword, () => props.keyword_id],
-    ([newComodity, newKeyword, newKeywordId]) => {
-        keyword.value = newKeyword;
-        comodity_id.value = newComodity;
-        keyword_id.value = newKeywordId;
-    },
-);
+// watch(
+//     [() => props.comodity_id, () => props.keyword, () => props.keyword_id],
+//     ([newComodity, newKeyword, newKeywordId]) => {
+//         keyword.value = newKeyword;
+//         comodity_id.value = newComodity;
+//         keyword_id.value = newKeywordId;
+//     },
+// );
 
 const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
 });
+
 const channel = pusher.subscribe("crawler-channel");
+
 channel.bind(`refreshEngine${props.marketplace}`, function (data) {
     checkStatus();
 });
