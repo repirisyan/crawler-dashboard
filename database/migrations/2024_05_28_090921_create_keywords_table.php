@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('keywords', function (Blueprint $table) {
             $table->id();
             $table->foreignId('comodity_id');
+            $table->string('sub_comodity')->nullable();
+            $table->string('second_level_sub_comodity')->nullable();
+            $table->string('third_level_sub_comodity')->nullable();
             $table->string('name');
             $table->boolean('status')->default(true);
             $table->timestamps();

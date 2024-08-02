@@ -45,9 +45,11 @@ class Keyword extends Model
         return $this->where('id', $keyword_id)->first();
     }
 
-    public function getAllKeyword()
+    public function getAllKeyword($status = null)
     {
-        return $this->with('comodity:id,name')->get();
+        return $this->with('comodity:id,name')->when($status != null, function($query) use ($status){
+            $query->where('status',$status);
+        })->get();
     }
 
     public function storeData($data)

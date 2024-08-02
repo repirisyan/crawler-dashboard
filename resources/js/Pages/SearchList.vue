@@ -167,7 +167,53 @@ const toggleStatus = (id, status) => {
                                                 :key="item.id"
                                             >
                                                 <td>
-                                                    {{ item.comodity.name }}
+                                                    <ul
+                                                        class="menu rounded-box w-auto"
+                                                    >
+                                                        <li>
+                                                            <a>{{
+                                                                item.comodity
+                                                                    .name
+                                                            }}</a>
+                                                            <ul
+                                                                v-show="
+                                                                    item.sub_comodity
+                                                                "
+                                                            >
+                                                                <li>
+                                                                    <a>{{
+                                                                        item.sub_comodity
+                                                                    }}</a>
+                                                                    <ul
+                                                                        v-show="
+                                                                            item.second_level_sub_comodity
+                                                                        "
+                                                                    >
+                                                                        <li>
+                                                                            <a
+                                                                                >{{
+                                                                                    item.second_level_sub_comodity
+                                                                                }}</a
+                                                                            >
+                                                                            <ul
+                                                                                v-show="
+                                                                                    item.third_level_sub_comodity
+                                                                                "
+                                                                            >
+                                                                                <li>
+                                                                                    <a
+                                                                                        >{{
+                                                                                            item.third_level_sub_comodity
+                                                                                        }}</a
+                                                                                    >
+                                                                                </li>
+                                                                            </ul>
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
                                                 </td>
                                                 <td>{{ item.name }}</td>
                                                 <td>
@@ -234,7 +280,7 @@ const toggleStatus = (id, status) => {
                                     v-show="!isTableEmpty"
                                 >
                                     <Link
-                                        :href="`${route('search-list.index')}?page=1&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        :href="`${route('search-list.index')}?page=1&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.keywords.current_page > 10
@@ -243,7 +289,7 @@ const toggleStatus = (id, status) => {
                                         1
                                     </Link>
                                     <Link
-                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page - 2}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page - 2}&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.keywords.current_page - 2 > 0
@@ -252,7 +298,7 @@ const toggleStatus = (id, status) => {
                                         {{ props.keywords.current_page - 2 }}
                                     </Link>
                                     <Link
-                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page - 1}&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.keywords.current_page - 1 > 0
@@ -267,7 +313,7 @@ const toggleStatus = (id, status) => {
                                         {{ props.keywords.current_page ?? "" }}
                                     </button>
                                     <Link
-                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page + 1}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page + 1}&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.keywords.next_page != null
@@ -276,7 +322,7 @@ const toggleStatus = (id, status) => {
                                         {{ props.keywords.current_page + 1 }}
                                     </Link>
                                     <Link
-                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page + 2}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        :href="`${route('search-list.index')}?page=${props.keywords.current_page + 2}&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.keywords.current_page + 2 <=
@@ -299,7 +345,7 @@ const toggleStatus = (id, status) => {
                                             props.keywords.current_page <
                                             props.keywords.last_page - 3
                                         "
-                                        :href="`${route('search-list.index')}?page=${props.keywords.last_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        :href="`${route('search-list.index')}?page=${props.keywords.last_page - 1}&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                     >
                                         {{ props.keywords.last_page - 1 }}
@@ -309,7 +355,7 @@ const toggleStatus = (id, status) => {
                                             props.keywords.current_page <
                                             props.keywords.last_page - 2
                                         "
-                                        :href="`${route('search-list.index')}?page=${props.keywords.last_page}&search=${props.params.search}&per_page=${props.params.per_page}&comodity=${props.params.comodity}&status=${props.params.status}`"
+                                        :href="`${route('search-list.index')}?page=${props.keywords.last_page}&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                     >
                                         {{ props.keywords.last_page }}

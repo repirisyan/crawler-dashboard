@@ -1,7 +1,7 @@
 <script setup>
 import { Link } from "@inertiajs/vue3";
 
-const darkmode = window.matchMedia('(prefers-color-scheme: dark)').matches
+const darkmode = window.matchMedia("(prefers-color-scheme: dark)").matches;
 </script>
 
 <template>
@@ -10,8 +10,16 @@ const darkmode = window.matchMedia('(prefers-color-scheme: dark)').matches
     >
         <div>
             <Link href="/">
-                <img v-if="darkmode" src="/assets/img/logo/logo-dark.svg" class="w-auto h-20">
-                <img v-else src="/assets/img/logo/logo.svg" class="w-auto h-20">
+                <img
+                    v-if="darkmode"
+                    src="/assets/img/logo/logo-dark.svg"
+                    class="w-auto h-20"
+                />
+                <img
+                    v-else
+                    src="/assets/img/logo/logo.svg"
+                    class="w-auto h-20"
+                />
             </Link>
         </div>
 

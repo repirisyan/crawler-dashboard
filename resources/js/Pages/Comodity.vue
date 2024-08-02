@@ -332,7 +332,7 @@ const destroy = (id) => {
                                     v-show="!isTableEmpty"
                                 >
                                     <Link
-                                        :href="`${route('comodity.index')}?page=1&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('comodity.index')}?page=1&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.comodities.current_page > 10
@@ -341,7 +341,7 @@ const destroy = (id) => {
                                         1
                                     </Link>
                                     <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page - 2}&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page - 2}&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.comodities.current_page - 2 >
@@ -351,7 +351,7 @@ const destroy = (id) => {
                                         {{ props.comodities.current_page - 2 }}
                                     </Link>
                                     <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page - 1}&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.comodities.current_page - 1 >
@@ -369,16 +369,17 @@ const destroy = (id) => {
                                         }}
                                     </button>
                                     <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page + 1}&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page + 1}&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
-                                            props.comodities.next_page != null
+                                            props.comodities.next_page_url !=
+                                            null
                                         "
                                     >
                                         {{ props.comodities.current_page + 1 }}
                                     </Link>
                                     <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page + 2}&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page + 2}&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.comodities.current_page + 2 <=
@@ -401,7 +402,7 @@ const destroy = (id) => {
                                             props.comodities.current_page <
                                             props.comodities.last_page - 3
                                         "
-                                        :href="`${route('comodity.index')}?page=${props.comodities.last_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('comodity.index')}?page=${props.comodities.last_page - 1}&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                     >
                                         {{ props.comodities.last_page - 1 }}
@@ -411,7 +412,7 @@ const destroy = (id) => {
                                             props.comodities.current_page <
                                             props.comodities.last_page - 2
                                         "
-                                        :href="`${route('comodity.index')}?page=${props.comodities.last_page}&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('comodity.index')}?page=${props.comodities.last_page}&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                     >
                                         {{ props.comodities.last_page }}

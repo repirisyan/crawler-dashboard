@@ -23,12 +23,14 @@ class Supervision extends Model
 
     public function getDatas($request)
     {
-        return $this->with(['comodity:id,name', 'marketplace:id,name'])->when($request['search'] != null, function ($query) use ($request) {
+        return $this->with(['keyword:id,comodity_id,sub_comodity,second_level_sub_comodity,third_level_sub_comodity,comodity.name', 'marketplace:id,name'])->when($request['search'] != null, function ($query) use ($request) {
             // If both search and marketplace_id are provided, add both conditions
             if ($request['comodity_id'] != null) {
                 $query->where(function ($query) use ($request) {
-                    $query->where('comodity_id', $request['comodity_id']);
-                });
+                        $query->whereHas('keyword', function($query) use ($request){
+                            $query->where('comodity_id',$request['comodity_id']);
+                        });
+                    });
             }
 
             if ($request['date'] != null) {
@@ -77,7 +79,7 @@ class Supervision extends Model
             'name' => $request['title'],
             'link' => $request['link'],
             'image' => $request['image'],
-            'comodity_id' => $request['comodity_id'],
+            'keyword_id' => $request['keyword_id'],
             'price' => $request['price'],
             'sold' => $request['sold'],
             'marketplace_id' => $request['marketplace_id'],

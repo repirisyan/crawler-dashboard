@@ -416,7 +416,7 @@ const destroy = (id) => {
                                     v-show="!isTableEmpty"
                                 >
                                     <Link
-                                        :href="`${route('supervision-list.index')}?page=1&search=${props.params.search}&per_page=${props.params.per_page}`"
+                                        :href="`${route('supervision-list.index')}?page=1&search=${search}&per_page=${per_page}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.supervisions.current_page > 10
@@ -425,7 +425,7 @@ const destroy = (id) => {
                                         1
                                     </Link>
                                     <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 2}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 2}&search=${search}&per_page=${per_page}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.supervisions.current_page -
@@ -438,7 +438,7 @@ const destroy = (id) => {
                                         }}
                                     </Link>
                                     <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 1}&search=${search}&per_page=${per_page}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.supervisions.current_page -
@@ -460,10 +460,11 @@ const destroy = (id) => {
                                         }}
                                     </button>
                                     <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 1}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 1}&search=${search}&per_page=${per_page}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
-                                            props.supervisions.next_page != null
+                                            props.supervisions.next_page_url !=
+                                            null
                                         "
                                     >
                                         {{
@@ -471,7 +472,7 @@ const destroy = (id) => {
                                         }}
                                     </Link>
                                     <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 2}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 2}&search=${search}&per_page=${per_page}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
                                             props.supervisions.current_page +
@@ -497,7 +498,7 @@ const destroy = (id) => {
                                             props.supervisions.current_page <
                                             props.supervisions.last_page - 3
                                         "
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page - 1}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page - 1}&search=${search}&per_page=${per_page}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                     >
                                         {{ props.supervisions.last_page - 1 }}
@@ -507,7 +508,7 @@ const destroy = (id) => {
                                             props.supervisions.current_page <
                                             props.supervisions.last_page - 2
                                         "
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page}&search=${props.params.search}&per_page=${props.params.per_page}&status=${props.params.status}`"
+                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page}&search=${search}&per_page=${per_page}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                     >
                                         {{ props.supervisions.last_page }}

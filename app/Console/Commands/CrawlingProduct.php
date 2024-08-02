@@ -42,7 +42,7 @@ class CrawlingProduct extends Command
     {
         // DB::table('temp_items')->truncate();
         $marketplaces = $this->marketplace->getActiveMarketplace();
-        $keywords = $this->keywords->getAllData(true);
+        $keywords = $this->keywords->getAllKeyword(true);
         foreach ($marketplaces as $marketplace) {
             foreach ($keywords as $item) {
                 $request = new \stdClass;
@@ -52,10 +52,13 @@ class CrawlingProduct extends Command
                 $request->engine = strtolower($marketplace->name);
                 $request->keyword = $item->name;
                 $request->comodity = $item->comodity->name;
+                $request->sub_comodity = $item->sub_comodity;
+                $request->second_level_sub_comodity = $item->second_level_sub_comodity;
+                $request->third_level_sub_comodity = $item->third_level_sub_comodity;
                 $request->user_id = 1;
                 $response = Http::post(env('APP_CRAWLER_GATEWAY').'/crawler', $request);
                 Notification::create([
-                    'message' => 'Start crawling '.$marketplace->name.', keyword : '.$item->keyword->name,
+                    'message' => 'Start crawling '.$marketplace->name.', keyword : '.$item->name,
                     'user_id' => 1,
                     'category' => 'info',
                 ]);

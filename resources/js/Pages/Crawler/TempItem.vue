@@ -368,8 +368,45 @@ const checkAll = (event) => {
                                     </div>
                                 </div>
                             </td>
-                            <td class="whitespace-nowrap">
-                                {{ item.comodity.name }}
+                            <td>
+                                <ul class="menu rounded-box w-auto">
+                                    <li>
+                                        <a>{{ item.keyword.comodity.name }}</a>
+                                        <ul v-show="item.keyword.sub_comodity">
+                                            <li>
+                                                <a>{{
+                                                    item.keyword.sub_comodity
+                                                }}</a>
+                                                <ul
+                                                    v-show="
+                                                        item.keyword
+                                                            .second_level_sub_comodity
+                                                    "
+                                                >
+                                                    <li>
+                                                        <a>{{
+                                                            item.keyword
+                                                                .second_level_sub_comodity
+                                                        }}</a>
+                                                        <ul
+                                                            v-show="
+                                                                item.keyword
+                                                                    .third_level_sub_comodity
+                                                            "
+                                                        >
+                                                            <li>
+                                                                <a>{{
+                                                                    item.keyword
+                                                                        .third_level_sub_comodity
+                                                                }}</a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
                             </td>
                             <td class="whitespace-nowrap">
                                 <span class="flex"

@@ -11,11 +11,6 @@ class TempItem extends Model
 
     protected $guarded = ['id'];
 
-    public function comodity()
-    {
-        return $this->belongsTo(Comodity::class);
-    }
-
     public function keyword()
     {
         return $this->belongsTo(Keyword::class);
@@ -28,12 +23,14 @@ class TempItem extends Model
 
     public function getData($request)
     {
-        return $this->with(['marketplace:id,name', 'comodity:id,name'])
+        return $this->with(['marketplace:id,name', 'keyword:id,comodity_id,sub_comodity,second_level_sub_comodity,third_level_sub_comodity,comodity.name'])
             ->when($request['search'] != null, function ($query) use ($request) {
                 // If both search and marketplace_id are provided, add both conditions
                 if ($request['comodity_id'] != null) {
                     $query->where(function ($query) use ($request) {
-                        $query->where('comodity_id', $request['comodity_id']);
+                        $query->whereHas('keyword', function($query) use ($request){
+                            $query->where('comodity_id',$request['comodity_id']);
+                        });
                     });
                 }
                 if ($request['date'] != null) {

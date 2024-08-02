@@ -139,7 +139,7 @@ const deleteAllNotification = async () => {
                                         notification.category == 'warning'
                                     "
                                     class="h-3 w-3 text-warning"
-                                /><InformationCircleIcon v-else />
+                                /><InformationCircleIcon class="h-3 w-3 text-info" v-else />
                             </div>
                         </div>
                     </div>

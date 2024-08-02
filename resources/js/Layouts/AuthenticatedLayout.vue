@@ -29,7 +29,8 @@ const master_navigation = [
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('dashboard')">
-                                    <img src="/assets/img/logo/small-logo.svg"
+                                    <img
+                                        src="/assets/img/logo/small-logo.svg"
                                         class="block h-9 w-auto fill-current"
                                     />
                                 </Link>
