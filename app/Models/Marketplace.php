@@ -31,6 +31,11 @@ class Marketplace extends Model
         return $this->select('id', 'name')->where('maintenance', false)->get();
     }
 
+    public function getCrawlingMarketplace()
+    {
+        return $this->select('id', 'name')->where(['maintenance' => false, 'status' => false])->get();
+    }
+
     public function getStatus($id)
     {
         return $this->where('id', $id)->value('status');

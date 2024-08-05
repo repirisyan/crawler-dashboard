@@ -47,8 +47,8 @@ class Keyword extends Model
 
     public function getAllKeyword($status = null)
     {
-        return $this->with('comodity:id,name')->when($status != null, function($query) use ($status){
-            $query->where('status',$status);
+        return $this->with('comodity:id,name')->when($status != null, function ($query) use ($status) {
+            $query->where('status', $status);
         })->get();
     }
 

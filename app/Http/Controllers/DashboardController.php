@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marketplace;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -12,11 +11,12 @@ class DashboardController extends Controller
 
     public function __construct()
     {
-        $this->crawler = new Marketplace();
+        $this->crawler = new Marketplace;
     }
 
-    public function index(){
-        return Inertia::render('Dashboard',[
+    public function index()
+    {
+        return Inertia::render('Dashboard', [
             'crawlers' => $this->crawler->getAllData(),
         ]);
     }

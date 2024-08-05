@@ -18,9 +18,9 @@ class NotificationController extends Controller
     public function userNotification(Request $request)
     {
         try {
-            return response(Notification::when(!empty($request->status), function($query) use ($request){
-                $query->where('category',$request->status);
-            })->where('user_id', auth()->user()->id)->orderBy('created_at','desc')->paginate(10));
+            return response(Notification::when(! empty($request->status), function ($query) use ($request) {
+                $query->where('category', $request->status);
+            })->where('user_id', auth()->user()->id)->orderBy('created_at', 'desc')->paginate(10));
         } catch (Exception $e) {
             return response($e->getMessage());
         }

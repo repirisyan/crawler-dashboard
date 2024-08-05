@@ -16,7 +16,7 @@ class Supervision extends Model
         return $this->belongsTo(Marketplace::class);
     }
 
-     public function keyword()
+    public function keyword()
     {
         return $this->belongsTo(Keyword::class);
     }
@@ -27,10 +27,10 @@ class Supervision extends Model
             // If both search and marketplace_id are provided, add both conditions
             if ($request['comodity_id'] != null) {
                 $query->where(function ($query) use ($request) {
-                        $query->whereHas('keyword', function($query) use ($request){
-                            $query->where('comodity_id',$request['comodity_id']);
-                        });
+                    $query->whereHas('keyword', function ($query) use ($request) {
+                        $query->where('comodity_id', $request['comodity_id']);
                     });
+                });
             }
 
             if ($request['date'] != null) {
