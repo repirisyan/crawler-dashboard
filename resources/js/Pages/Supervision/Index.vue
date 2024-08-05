@@ -57,7 +57,6 @@ onMounted(() => {
 });
 
 const getData = async (page = null) => {
-    console.log(page);
     loading.value["refresh"][0] = true;
     axios
         .get(route("supervision.data"), {

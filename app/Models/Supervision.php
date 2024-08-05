@@ -16,6 +16,11 @@ class Supervision extends Model
         return $this->belongsTo(Marketplace::class);
     }
 
+     public function keyword()
+    {
+        return $this->belongsTo(Keyword::class);
+    }
+
     public function getDatas($request)
     {
         return $this->with(['keyword:id,comodity_id,sub_comodity,second_level_sub_comodity,third_level_sub_comodity', 'marketplace:id,name', 'keyword.comodity:id,name'])->when($request['search'] != null, function ($query) use ($request) {
