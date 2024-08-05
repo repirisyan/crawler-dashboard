@@ -231,7 +231,7 @@ const destroy = (id) => {
                                                     >
                                                         <li>
                                                             <a>{{
-                                                                item.comodity
+                                                                item.keyword.comodity
                                                                     .name
                                                             }}</a>
                                                             <ul

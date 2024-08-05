@@ -18,7 +18,7 @@ class Supervision extends Model
 
     public function getDatas($request)
     {
-        return $this->with(['keyword:id,comodity_id,sub_comodity,second_level_sub_comodity,third_level_sub_comodity,keyword.comodity.name', 'marketplace:id,name'])->when($request['search'] != null, function ($query) use ($request) {
+        return $this->with(['keyword:id,comodity_id,sub_comodity,second_level_sub_comodity,third_level_sub_comodity', 'marketplace:id,name', 'keyword.comodity:id,name'])->when($request['search'] != null, function ($query) use ($request) {
             // If both search and marketplace_id are provided, add both conditions
             if ($request['comodity_id'] != null) {
                 $query->where(function ($query) use ($request) {
