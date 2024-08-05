@@ -25,8 +25,6 @@ const filter_comodity = ref(props.params?.comodity ?? "");
 const search = ref(props.params?.search ?? "");
 const per_page = ref(props.params?.per_page ?? 15);
 
-console.log(props.keywords);
-
 const loadingStates = ref({
     delete: {},
     update: {},
@@ -231,8 +229,7 @@ const destroy = (id) => {
                                                     >
                                                         <li>
                                                             <a>{{
-                                                                item.keyword.comodity
-                                                                    .name
+                                                                item.comodity.name
                                                             }}</a>
                                                             <ul
                                                                 v-show="
