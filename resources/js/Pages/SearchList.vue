@@ -316,7 +316,7 @@ const toggleStatus = (id, status) => {
                                         :href="`${route('search-list.index')}?page=${props.keywords.current_page + 1}&search=${search}&per_page=${per_page}&comodity=${filter_comodity}&status=${filter_status}`"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         v-show="
-                                            props.keywords.next_page != null
+                                            props.keywords.next_page_url != null
                                         "
                                     >
                                         {{ props.keywords.current_page + 1 }}

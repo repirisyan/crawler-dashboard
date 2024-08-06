@@ -60,9 +60,11 @@ const getNotification = async () => {
 };
 
 const loadMoreNotification = async (event) => {
+    loadingState.value["load"][0] = true;
     event.preventDefault();
     last_page.value = last_page.value + 1;
     await getNotification();
+    loadingState.value["load"][0] = false;
 };
 
 const isNotificationEmpty = computed(() => {
@@ -70,10 +72,12 @@ const isNotificationEmpty = computed(() => {
 });
 
 const filterStatus = (status_value, event) => {
+    loadingState.value["status"][0] = true;
     event.preventDefault();
     notifications.value = {};
     status.value = status_value;
     getNotification();
+    loadingState.value["status"][0] = false;
 };
 
 const readNotification = async (notification_id) => {
@@ -87,8 +91,9 @@ const readNotification = async (notification_id) => {
         });
 };
 
-const deleteNotification = async (notification_id) => {
-    axios
+const deleteNotification = async (notification_id, event) => {
+    event.preventDefault();
+    await axios
         .delete(route("notification.delete", notification_id))
         .then((response) => {
             console.log(response);
@@ -98,18 +103,20 @@ const deleteNotification = async (notification_id) => {
         });
 };
 
-const deleteAllNotification = async () => {
-    loadingState["delete"][0].value = true;
-    axios
+const deleteAllNotification = async (event) => {
+    event.preventDefault();
+    loadingState.value["delete"][0] = true;
+    await axios
         .delete(route("notification.delete_all"))
         .then(() => {
+            notifications.value = {};
             getNotification();
         })
         .catch((response) => {
             console.log(response);
         })
         .finally(() => {
-            loadingState["delete"][0].value = false;
+            loadingState.value["delete"][0] = false;
         });
 };
 </script>
@@ -135,7 +142,8 @@ const deleteAllNotification = async () => {
                     :disabled="loadingState['status'][0]"
                     @click.stop="filterStatus('', $event)"
                     type="button"
-                    class="btn btn-sm btn-outline btn-primary top-0 items-center"
+                    class="btn btn-sm btn-primary top-0 items-center"
+                    :class="status == '' ? '' : 'btn-outline'"
                 >
                     All
                     <span
@@ -200,11 +208,13 @@ const deleteAllNotification = async () => {
                     :disabled="loadingState['delete'][0]"
                     type="button"
                     class="btn btn-sm btn-outline top-0 items-center"
-                    @click="deleteAllNotification"
+                    @click.stop="deleteAllNotification"
                 >
-                    Clear All
+                    <span v-if="!loadingState['delete'][0]">
+                        Clear All
+                    </span>
                     <span
-                        v-show="loadingState['delete'][0]"
+                        v-else
                         class="loading loading-spinner loading-sm"
                     ></span>
                 </button>
