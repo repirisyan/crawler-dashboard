@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('temp_items', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->text('title');
             $table->text('image')->nullable();
             $table->unsignedBigInteger('price');
             $table->float('rating');

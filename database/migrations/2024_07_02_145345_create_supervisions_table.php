@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('supervisions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->text('name');
             $table->text('link');
             $table->text('image')->nullable();
             $table->foreignId('violation_id')->nullable()->constrained();
