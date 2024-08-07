@@ -13,7 +13,7 @@ const props = defineProps({
         <Link
             :href="`${route('comodity.index')}?page=1&search=${props.search ?? ''}&per_page=${props.per_page}`"
             class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-            v-show="props.current_page > 10"
+            v-show="props.current_page > 3"
         >
             1
         </Link>

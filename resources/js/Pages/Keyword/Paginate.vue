@@ -31,9 +31,15 @@ const visitPage = (pagenumber) => {
             type="button"
             @click="visitPage(1)"
             class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-            v-show="props.current_page > 10"
+            v-show="props.current_page > 3"
         >
             1
+        </button>
+        <button
+            v-show="props.current_page > 4"
+            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
+        >
+            ...
         </button>
         <button
             type="button"
