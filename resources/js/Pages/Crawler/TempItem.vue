@@ -281,6 +281,32 @@ const checkAll = (event) => {
                         >entries per page</label
                     >
                 </div>
+                <div
+                    class="join mt-2 text-center mx-auto"
+                    v-show="!isTableEmpty"
+                >
+                    <button
+                        :disabled="loading['refresh'][0]"
+                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                        v-show="prev_page != null"
+                        @click="getData(current_page - 1)"
+                    >
+                        «
+                    </button>
+                    <button
+                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
+                    >
+                        {{ current_page }}
+                    </button>
+                    <button
+                        :show="next_page != null"
+                        :disabled="loading['refresh'][0]"
+                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                        @click="getData(current_page + 1)"
+                    >
+                        »
+                    </button>
+                </div>
                 <div class="text-xs md:text-base lg:text-base">
                     Showing {{ from }} to {{ to }} from {{}} Entries
                 </div>

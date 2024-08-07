@@ -26,7 +26,7 @@ class ComodityController extends Controller
      */
     public function index(Request $request)
     {
-        return Inertia::render('Comodity', [
+        return Inertia::render('Comodity/Index', [
             'comodities' => $this->comodity->getComodities($request->all()),
             'params' => $request->all(),
         ]);

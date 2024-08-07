@@ -26,7 +26,7 @@ class KeywordController extends Controller
      */
     public function index(Request $request)
     {
-        return Inertia::render('Keyword', [
+        return Inertia::render('Keyword/Index', [
             'keywords' => $this->keyword->getKeywords($request->all()),
             'comodities' => $this->comodity->getAllComodity(),
             'params' => $request->all(),

@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, useForm, router, Link } from "@inertiajs/vue3";
+import Paginate from "./Paginate.vue";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
@@ -24,7 +25,7 @@ const modalEdit = ref(null);
 
 const fileInput = ref(null);
 
-const search = ref(props.params?.search);
+const search = ref(props.params?.search ?? "");
 const per_page = ref(props.params?.per_page ?? 15);
 
 const loadingStates = ref({
@@ -254,6 +255,18 @@ const destroy = (id) => {
                                             >entries per page</label
                                         >
                                     </div>
+                                    <Paginate
+                                        v-show="!isTableEmpty"
+                                        :search="search"
+                                        :per_page="per_page"
+                                        :current_page="
+                                            props.comodities.current_page
+                                        "
+                                        :next_page_url="
+                                            props.comodities.next_page_url
+                                        "
+                                        :last_page="props.comodities.last_page"
+                                    />
                                     <div
                                         class="text-xs md:text-base lg:text-base"
                                     >
@@ -327,97 +340,18 @@ const destroy = (id) => {
                                         </tbody>
                                     </table>
                                 </div>
-                                <div
-                                    class="join mt-2 mx-auto"
+                                <Paginate
                                     v-show="!isTableEmpty"
-                                >
-                                    <Link
-                                        :href="`${route('comodity.index')}?page=1&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.comodities.current_page > 10
-                                        "
-                                    >
-                                        1
-                                    </Link>
-                                    <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page - 2}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.comodities.current_page - 2 >
-                                            0
-                                        "
-                                    >
-                                        {{ props.comodities.current_page - 2 }}
-                                    </Link>
-                                    <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page - 1}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.comodities.current_page - 1 >
-                                            0
-                                        "
-                                    >
-                                        {{ props.comodities.current_page - 1 }}
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                                    >
-                                        {{
-                                            props.comodities.current_page ?? ""
-                                        }}
-                                    </button>
-                                    <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page + 1}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.comodities.next_page_url !=
-                                            null
-                                        "
-                                    >
-                                        {{ props.comodities.current_page + 1 }}
-                                    </Link>
-                                    <Link
-                                        :href="`${route('comodity.index')}?page=${props.comodities.current_page + 2}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.comodities.current_page + 2 <=
-                                            props.comodities.last_page
-                                        "
-                                    >
-                                        {{ props.comodities.current_page + 2 }}
-                                    </Link>
-                                    <button
-                                        v-show="
-                                            props.comodities.current_page <
-                                            props.comodities.last_page - 2
-                                        "
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
-                                    >
-                                        ...
-                                    </button>
-                                    <Link
-                                        v-show="
-                                            props.comodities.current_page <
-                                            props.comodities.last_page - 3
-                                        "
-                                        :href="`${route('comodity.index')}?page=${props.comodities.last_page - 1}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    >
-                                        {{ props.comodities.last_page - 1 }}
-                                    </Link>
-                                    <Link
-                                        v-show="
-                                            props.comodities.current_page <
-                                            props.comodities.last_page - 2
-                                        "
-                                        :href="`${route('comodity.index')}?page=${props.comodities.last_page}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    >
-                                        {{ props.comodities.last_page }}
-                                    </Link>
-                                </div>
+                                    :search="search"
+                                    :per_page="per_page"
+                                    :current_page="
+                                        props.comodities.current_page
+                                    "
+                                    :next_page_url="
+                                        props.comodities.next_page_url
+                                    "
+                                    :last_page="props.comodities.last_page"
+                                />
                             </div>
                         </div>
                     </div>
@@ -478,6 +412,7 @@ const destroy = (id) => {
                 </form>
             </div>
         </dialog>
+
         <dialog id="modalEdit" ref="modalEdit" class="modal">
             <div class="modal-box">
                 <h3 class="text-lg font-bold">Form Edit Data</h3>

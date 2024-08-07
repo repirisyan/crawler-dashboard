@@ -26,7 +26,7 @@ class Keyword extends Model
         return $this->with('comodity:id,name')->when(isset($request['search']), function ($query) use ($request) {
             $query->where('name', 'like', '%'.$request['search'].'%');
         })->when(isset($request['comodity']), function ($query) use ($request) {
-            $query->where('comodity_id', $request['comodity']);
+            $query->whereIn('comodity_id', $request['comodity']);
         })->when(isset($request['status']), function ($query) use ($request) {
             $query->where('status', $request['status']);
         })->paginate($request['per_page'] ?? 15);

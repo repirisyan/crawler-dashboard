@@ -1,6 +1,8 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, useForm, router, Link } from "@inertiajs/vue3";
+import HierarchyCategory from "@/Components/HierarchyCategory.vue";
+import Paginate from "./Paginate.vue";
+import { Head, useForm, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
@@ -9,6 +11,7 @@ import {
     PencilSquareIcon,
     TrashIcon,
     MagnifyingGlassIcon,
+    FunnelIcon,
 } from "@heroicons/vue/24/solid";
 import axios from "axios";
 
@@ -21,11 +24,12 @@ const props = defineProps({
 const modalCreate = ref(null);
 const modalEdit = ref(null);
 
-const filter_comodity = ref(props.params?.comodity ?? "");
+const filter_comodity = ref(props.params?.comodity ?? []);
 const search = ref(props.params?.search ?? "");
 const per_page = ref(props.params?.per_page ?? 15);
 
 const loadingStates = ref({
+    comodity: {},
     delete: {},
     update: {},
 });
@@ -44,7 +48,8 @@ const isTableEmpty = computed(() => {
 });
 
 const filterData = () => {
-    router.visit(
+    loadingStates.value["comodity"][0] = true;
+    router.get(
         route("keyword.index", {
             comodity: filter_comodity.value,
             search: search.value,
@@ -53,6 +58,9 @@ const filterData = () => {
         {
             preserveScroll: true,
             only: ["keywords", "params"],
+            onFinish: () => {
+                loadingStates.value["comodity"][0] = false;
+            },
         },
     );
 };
@@ -151,20 +159,18 @@ const destroy = (id) => {
                                     Keyword <PlusIcon class="h-3 w-3" />
                                 </button>
                                 <div class="flex gap-3">
-                                    <select
-                                        class="select select-bordered"
-                                        v-model.lazy="filter_comodity"
-                                        @change="filterData"
+                                    <button
+                                        class="btn"
+                                        onclick="modalFilterCategory.showModal()"
                                     >
-                                        <option value="">-- Category --</option>
-                                        <option
-                                            :value="comodity.id"
-                                            v-for="comodity in props.comodities"
-                                            :key="comodity.id"
+                                        Filter Category
+                                        <FunnelIcon class="w-4 h-4" />
+                                        <span
+                                            v-show="filter_comodity.length > 0"
+                                            class="text-success"
+                                            >{{ filter_comodity.length }}</span
                                         >
-                                            {{ comodity.name }}
-                                        </option>
-                                    </select>
+                                    </button>
                                     <label
                                         class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
                                     >
@@ -182,7 +188,7 @@ const destroy = (id) => {
                             <div class="card-body">
                                 <div
                                     v-show="!isTableEmpty"
-                                    class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between"
+                                    class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between mb-2"
                                 >
                                     <div class="flex gap-3 items-center">
                                         <select
@@ -200,6 +206,19 @@ const destroy = (id) => {
                                             >entries per page</label
                                         >
                                     </div>
+                                    <Paginate
+                                        v-show="!isTableEmpty"
+                                        :search="search"
+                                        :filter_comodity="filter_comodity"
+                                        :per_page="per_page"
+                                        :current_page="
+                                            props.keywords.current_page
+                                        "
+                                        :last_page="props.keywords.last_page"
+                                        :next_page_url="
+                                            props.keywords.next_page_url
+                                        "
+                                    />
                                     <div
                                         class="text-xs md:text-base lg:text-base"
                                     >
@@ -224,53 +243,20 @@ const destroy = (id) => {
                                                 :key="item.id"
                                             >
                                                 <td>
-                                                    <ul
-                                                        class="menu rounded-box w-auto"
-                                                    >
-                                                        <li>
-                                                            <a>{{
-                                                                item.comodity
-                                                                    .name
-                                                            }}</a>
-                                                            <ul
-                                                                v-show="
-                                                                    item.sub_comodity
-                                                                "
-                                                            >
-                                                                <li>
-                                                                    <a>{{
-                                                                        item.sub_comodity
-                                                                    }}</a>
-                                                                    <ul
-                                                                        v-show="
-                                                                            item.second_level_sub_comodity
-                                                                        "
-                                                                    >
-                                                                        <li>
-                                                                            <a
-                                                                                >{{
-                                                                                    item.second_level_sub_comodity
-                                                                                }}</a
-                                                                            >
-                                                                            <ul
-                                                                                v-show="
-                                                                                    item.third_level_sub_comodity
-                                                                                "
-                                                                            >
-                                                                                <li>
-                                                                                    <a
-                                                                                        >{{
-                                                                                            item.third_level_sub_comodity
-                                                                                        }}</a
-                                                                                    >
-                                                                                </li>
-                                                                            </ul>
-                                                                        </li>
-                                                                    </ul>
-                                                                </li>
-                                                            </ul>
-                                                        </li>
-                                                    </ul>
+                                                    <HierarchyCategory
+                                                        :comodity="
+                                                            item.comodity.name
+                                                        "
+                                                        :sub_comodity="
+                                                            item.sub_comodity
+                                                        "
+                                                        :second_level_sub_comodity="
+                                                            item.second_level_sub_comodity
+                                                        "
+                                                        :third_level_sub_comodity="
+                                                            item.third_level_sub_comodity
+                                                        "
+                                                    />
                                                 </td>
 
                                                 <td>{{ item.name }}</td>
@@ -324,92 +310,17 @@ const destroy = (id) => {
                                         </tbody>
                                     </table>
                                 </div>
-                                <div
-                                    class="join mt-2 mx-auto"
+                                <Paginate
                                     v-show="!isTableEmpty"
-                                >
-                                    <Link
-                                        :href="`${route('keyword.index')}?page=1&search=${search}&comodity=${filter_comodity}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.keywords.current_page > 10
-                                        "
-                                    >
-                                        1
-                                    </Link>
-                                    <Link
-                                        :href="`${route('keyword.index')}?page=${props.keywords.current_page - 2}&comodity=${filter_comodity}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.keywords.current_page - 2 > 0
-                                        "
-                                    >
-                                        {{ props.keywords.current_page - 2 }}
-                                    </Link>
-                                    <Link
-                                        :href="`${route('keyword.index')}?page=${props.keywords.current_page - 1}&comodity=${filter_comodity}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.keywords.current_page - 1 > 0
-                                        "
-                                    >
-                                        {{ props.keywords.current_page - 1 }}
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                                    >
-                                        {{ props.keywords.current_page ?? "" }}
-                                    </button>
-                                    <Link
-                                        :href="`${route('keyword.index')}?page=${props.keywords.current_page + 1}&comodity=${filter_comodity}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.keywords.next_page_url != null
-                                        "
-                                    >
-                                        {{ props.keywords.current_page + 1 }}
-                                    </Link>
-                                    <Link
-                                        :href="`${route('keyword.index')}?page=${props.keywords.current_page + 2}&comodity=${filter_comodity}&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.keywords.current_page + 2 <=
-                                            props.keywords.last_page
-                                        "
-                                    >
-                                        {{ props.keywords.current_page + 2 }}
-                                    </Link>
-                                    <button
-                                        v-show="
-                                            props.keywords.current_page <
-                                            props.keywords.last_page - 2
-                                        "
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
-                                    >
-                                        ...
-                                    </button>
-                                    <Link
-                                        v-show="
-                                            props.keywords.current_page <
-                                            props.keywords.last_page - 3
-                                        "
-                                        :href="`${route('keyword.index')}?page=${props.keywords.last_page - 1}&search=${search}&comodity=${filter_comodity}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    >
-                                        {{ props.keywords.last_page - 1 }}
-                                    </Link>
-                                    <Link
-                                        v-show="
-                                            props.keywords.current_page <
-                                            props.keywords.last_page - 2
-                                        "
-                                        :href="`${route('keyword.index')}?page=${props.keywords.last_page}&search=${search}&comodity=${filter_comodity}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    >
-                                        {{ props.keywords.last_page }}
-                                    </Link>
-                                </div>
+                                    :search="search"
+                                    :filter_comodity="filter_comodity"
+                                    :per_page="per_page"
+                                    :current_page="props.keywords.current_page"
+                                    :last_page="props.keywords.last_page"
+                                    :next_page_url="
+                                        props.keywords.next_page_url
+                                    "
+                                />
                             </div>
                         </div>
                     </div>
@@ -500,6 +411,52 @@ const destroy = (id) => {
                 </form>
             </div>
         </dialog>
+
+        <dialog id="modalFilterCategory" class="modal">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                    >
+                        ✕
+                    </button>
+                </form>
+                <div class="flex gap-3">
+                    <h3 class="text-lg font-bold">Filter Category</h3>
+                    <button
+                        class="btn btn-outline btn-success btn-sm"
+                        :disabled="loadingStates['comodity'][0]"
+                        @click="filterData"
+                    >
+                        Save
+                        <span
+                            class="loading loading-spinner loading-sm"
+                            v-show="loadingStates['comodity'][0]"
+                        ></span>
+                    </button>
+                </div>
+                <div class="divider"></div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div
+                        class="form-control"
+                        v-for="comodity in props.comodities"
+                        :key="comodity.id"
+                    >
+                        <label class="cursor-pointer label">
+                            <span class="label-text">{{ comodity.name }}</span>
+                            <input
+                                :id="`checkbox_comodity${comodity.id}`"
+                                type="checkbox"
+                                :value="comodity.id"
+                                v-model="filter_comodity"
+                                class="checkbox checkbox-success"
+                            />
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </dialog>
+
         <dialog id="modalEdit" ref="modalEdit" class="modal">
             <div class="modal-box">
                 <h3 class="text-lg font-bold">Form Edit Data</h3>
