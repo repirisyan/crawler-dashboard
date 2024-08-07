@@ -354,8 +354,7 @@ const checkAll = (event) => {
                                     <div
                                         class="text-xs md:text-base lg:text-base"
                                     >
-                                        Showing {{ from }} to {{ to }} from
-                                        {{ total }} Entries
+                                        Showing {{ from }} to {{ to }} Entries
                                     </div>
                                 </div>
                                 <div class="overflow-x-auto">
@@ -711,6 +710,7 @@ const checkAll = (event) => {
                                         {{ current_page }}
                                     </button>
                                     <button
+                                        :show="next_page != null"
                                         :disabled="loading['refresh'][0]"
                                         class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                         @click="getData(current_page + 1)"

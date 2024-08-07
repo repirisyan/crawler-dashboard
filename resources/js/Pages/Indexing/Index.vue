@@ -22,12 +22,10 @@ const products = ref({});
 // Paginate
 const current_page = ref(0);
 const next_page = ref(null);
-const has_next_page = ref(null);
-const limit = ref(15);
+const prev_page = ref(null);
+const per_page = ref(15);
 const from = ref(1);
 const to = ref(1);
-const total = ref(1);
-const last_page = ref(0);
 
 const loading = ref({
     refresh: {},
@@ -46,27 +44,25 @@ onMounted(() => {
     getData();
 });
 
-const getData = async (page = null) => {
+const getData = async (page = 1) => {
     loading.value["refresh"][0] = true;
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product`, {
             params: {
                 page: page,
                 search: search.value,
-                limit: limit.value,
+                limit: per_page.value,
                 marketplace: marketplace.value,
                 comodity: comodity.value,
             },
         })
         .then((response) => {
-            products.value = response.data.docs;
+            products.value = response.data.products;
             current_page.value = response.data.page;
-            next_page.value = `${import.meta.env.VITE_APP_CRAWLER_APP}?page=${response.data.nextPage}`;
-            has_next_page.value = response.data.hasNextPage;
-            from.value = (response.data.page - 1) * response.data.limit + 1;
-            to.value = response.data.page * response.data.limit;
-            total.value = response.data.totalDocs;
-            last_page.value = response.data.totalPages;
+            next_page.value = response.data.has_next_page;
+            prev_page.value = response.data.has_prev_page;
+            from.value = (response.data.page - 1) * response.data.per_page + 1;
+            to.value = response.data.page * response.data.per_page;
         })
         .catch((response) => {
             console.log(response);
@@ -172,7 +168,7 @@ const getData = async (page = null) => {
                                 <div class="flex gap-3 items-center">
                                     <select
                                         @change="getData"
-                                        v-model="limit"
+                                        v-model="per_page"
                                         class="select select-bordered select-sm max-w-xs text-xs"
                                     >
                                         <option value="15">15</option>
@@ -186,8 +182,7 @@ const getData = async (page = null) => {
                                     >
                                 </div>
                                 <div class="text-xs md:text-base lg:text-base">
-                                    Showing {{ from }} to {{ to }} from
-                                    {{ total }} Entries
+                                    Showing {{ from }} to {{ to }} Entries
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
@@ -319,77 +314,29 @@ const getData = async (page = null) => {
                                 </table>
                             </div>
                             <div
-                                class="join mt-2 mx-auto"
+                                class="join mt-2 text-center mx-auto"
                                 v-show="!isTableEmpty"
                             >
                                 <button
                                     :disabled="loading['refresh'][0]"
-                                    type="button"
-                                    @click="getData(1)"
                                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    v-if="current_page > 10"
-                                >
-                                    1
-                                </button>
-                                <button
-                                    :disabled="loading['refresh'][0]"
-                                    type="button"
-                                    @click="getData(current_page - 2)"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    v-if="current_page - 2 > 0"
-                                >
-                                    {{ current_page - 2 }}
-                                </button>
-                                <button
-                                    :disabled="loading['refresh'][0]"
-                                    type="button"
+                                    v-show="prev_page"
                                     @click="getData(current_page - 1)"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    v-if="current_page - 1 > 0"
                                 >
-                                    {{ current_page - 1 }}
+                                    «
                                 </button>
                                 <button
-                                    type="button"
                                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
                                 >
-                                    {{ current_page ?? "" }}
+                                    {{ current_page }}
                                 </button>
                                 <button
+                                    :show="next_page"
                                     :disabled="loading['refresh'][0]"
+                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                                     @click="getData(current_page + 1)"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    v-show="has_next_page"
                                 >
-                                    {{ current_page + 1 }}
-                                </button>
-                                <button
-                                    :disabled="loading['refresh'][0]"
-                                    @click="getData(current_page + 2)"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    v-show="current_page + 2 <= last_page"
-                                >
-                                    {{ current_page + 2 }}
-                                </button>
-                                <button
-                                    v-show="current_page < last_page - 2"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
-                                >
-                                    ...
-                                </button>
-                                <button
-                                    v-show="current_page < last_page - 3"
-                                    @click="getData(last_page - 1)"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                >
-                                    {{ last_page - 1 }}
-                                </button>
-                                <button
-                                    v-show="current_page < last_page - 2"
-                                    @click="getData(last_page)"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                >
-                                    {{ last_page }}
+                                    »
                                 </button>
                             </div>
                         </div>
