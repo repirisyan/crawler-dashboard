@@ -25,11 +25,10 @@ const temp_item = ref({});
 // Paginate
 const current_page = ref(0);
 const next_page = ref(null);
+const prev_page = ref(null);
 const per_page = ref(15);
 const from = ref(1);
 const to = ref(1);
-const total = ref(1);
-const last_page = ref(0);
 
 const checkbox = ref([]);
 const checkAllButton = ref(false);
@@ -41,15 +40,6 @@ const loading = ref({
     delete: {},
     supervision: {},
 });
-
-// Realtime Data
-// const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
-//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-// });
-// const channel = pusher.subscribe("crawler-channel");
-// channel.bind("refreshData", () => {
-//     getData();
-// });
 
 // Filter Data
 const search = ref("");
@@ -90,10 +80,9 @@ const getData = async (page = null) => {
             temp_item.value = response.data.data;
             current_page.value = response.data.current_page;
             next_page.value = response.data.next_page_url;
+            prev_page.value = response.data?.prev_page_url;
             from.value = response.data.from;
             to.value = response.data.to;
-            total.value = response.data.total;
-            last_page.value = response.data.last_page;
         })
         .catch((response) => {
             console.log(response);
@@ -293,7 +282,7 @@ const checkAll = (event) => {
                     >
                 </div>
                 <div class="text-xs md:text-base lg:text-base">
-                    Showing {{ from }} to {{ to }} from {{ total }} Entries
+                    Showing {{ from }} to {{ to }} from {{}} Entries
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -337,7 +326,7 @@ const checkAll = (event) => {
                                     />
                                 </label>
                             </th>
-                            <td>
+                            <td class="min-w-80">
                                 <div class="flex items-center gap-3">
                                     <div class="avatar">
                                         <div
@@ -368,7 +357,7 @@ const checkAll = (event) => {
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td class="min-w-64">
                                 <ul class="menu rounded-box w-auto">
                                     <li>
                                         <a>{{ item.keyword.comodity.name }}</a>
@@ -470,75 +459,26 @@ const checkAll = (event) => {
                     </tfoot>
                 </table>
             </div>
-            <div class="join mt-2 mx-auto" v-show="!isTableEmpty">
+            <div class="join mt-2 text-center mx-auto" v-show="!isTableEmpty">
                 <button
                     :disabled="loading['refresh'][0]"
-                    type="button"
-                    @click="getData(1)"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                    v-if="current_page > 10"
-                >
-                    1
-                </button>
-                <button
-                    :disabled="loading['refresh'][0]"
-                    type="button"
-                    @click="getData(current_page - 2)"
-                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                    v-if="current_page - 2 > 0"
-                >
-                    {{ current_page - 2 }}
-                </button>
-                <button
-                    :disabled="loading['refresh'][0]"
-                    type="button"
+                    v-show="prev_page != null"
                     @click="getData(current_page - 1)"
-                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                    v-if="current_page - 1 > 0"
                 >
-                    {{ current_page - 1 }}
+                    «
                 </button>
                 <button
-                    type="button"
                     class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
                 >
-                    {{ current_page ?? "" }}
+                    {{ current_page }}
                 </button>
                 <button
                     :disabled="loading['refresh'][0]"
+                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                     @click="getData(current_page + 1)"
-                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                    v-show="next_page != null"
                 >
-                    {{ current_page + 1 }}
-                </button>
-                <button
-                    :disabled="loading['refresh'][0]"
-                    @click="getData(current_page + 2)"
-                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                    v-show="current_page + 2 <= last_page"
-                >
-                    {{ current_page + 2 }}
-                </button>
-                <button
-                    v-show="current_page < last_page - 2"
-                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
-                >
-                    ...
-                </button>
-                <button
-                    v-show="current_page < last_page - 3"
-                    @click="getData(last_page - 1)"
-                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                >
-                    {{ last_page - 1 }}
-                </button>
-                <button
-                    v-show="current_page < last_page - 2"
-                    @click="getData(last_page)"
-                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                >
-                    {{ last_page }}
+                    »
                 </button>
             </div>
         </div>

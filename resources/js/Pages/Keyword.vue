@@ -229,7 +229,8 @@ const destroy = (id) => {
                                                     >
                                                         <li>
                                                             <a>{{
-                                                                item.comodity.name
+                                                                item.comodity
+                                                                    .name
                                                             }}</a>
                                                             <ul
                                                                 v-show="

@@ -63,7 +63,11 @@ class TempItem extends Model
                 // If only marketplace_id is provided, add the condition
                 $query->whereDate('created_at', $request['date']);
             })
-            ->paginate($request['entries'] ?? 15);
+            ->simplePaginate($request['entries'] ?? 15);
+    }
+
+    public function getTotalItem(){
+        return $this->count();
     }
 
     public function truncate()

@@ -210,9 +210,7 @@ const deleteAllNotification = async (event) => {
                     class="btn btn-sm btn-outline top-0 items-center"
                     @click.stop="deleteAllNotification"
                 >
-                    <span v-if="!loadingState['delete'][0]">
-                        Clear All
-                    </span>
+                    <span v-if="!loadingState['delete'][0]"> Clear All </span>
                     <span
                         v-else
                         class="loading loading-spinner loading-sm"
