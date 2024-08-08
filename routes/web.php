@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('supervision')->group(function () {
         Route::get('/', [SupervisionController::class, 'index'])->name('supervision.index');
+        Route::get('total-data',[SupervisionController::class,'getTotalData'])->name('supervision.total_data');
         Route::get('data', [SupervisionController::class, 'data'])->name('supervision.data');
         Route::post('/', [SupervisionController::class, 'store'])->name('supervision.store');
         Route::patch('solved', [SupervisionController::class, 'solved'])->name('supervision.solved');
@@ -76,6 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('supervision-list', SupervisionListController::class)->except(['create', 'show']);
 
     Route::get('temp-item', [TempItemController::class, 'tempItemData'])->name('temp-item.data');
+    Route::get('temp-item/total-data',[TempItemController::class,'getTotalData'])->name('temp-item.total_data');
     Route::delete('temp-item/delete-item', [TempItemController::class, 'deleteItem'])->name('temp-item.delete');
 });
 

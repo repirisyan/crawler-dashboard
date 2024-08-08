@@ -25,7 +25,7 @@ class SearchListController extends Controller
      */
     public function index(Request $request)
     {
-        return Inertia::render('SearchList', [
+        return Inertia::render('SearchList/Index', [
             'keywords' => $this->keyword->getKeywords($request->all()),
             'comodities' => $this->comodity->getAllComodity(),
             'params' => $request->all(),

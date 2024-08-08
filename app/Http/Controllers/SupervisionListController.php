@@ -26,7 +26,7 @@ class SupervisionListController extends Controller
      */
     public function index(Request $request)
     {
-        return Inertia::render('SupervisionList', [
+        return Inertia::render('SupervisionList/Index', [
             'supervisions' => $this->supervision->getSupervisionList($request->all()),
             'params' => $request->all(),
         ]);

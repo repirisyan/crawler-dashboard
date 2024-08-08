@@ -8,6 +8,7 @@ use App\Models\Supervision;
 use App\Models\TempItem;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -43,6 +44,18 @@ class SupervisionController extends Controller
         }
     }
 
+     public function getTotalData(){
+        try {
+            $data = Cache::remember('total_supervision', 86400, function () {
+                return $this->supervision->getTotalItem();
+            });
+            
+            return response()->json($data);
+        } catch (Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
     public function checkLink(Request $request, $id)
     {
         try {
@@ -70,7 +83,7 @@ class SupervisionController extends Controller
                     'flag' => true,
                 ]);
             });
-
+            Cache::put('total_supervision', $this->supervision->getTotalItem(), 86400);
             return response()->json('Data Saved');
         } catch (Exception $e) {
             return response()->json($e->getMessage(), $e->getCode());

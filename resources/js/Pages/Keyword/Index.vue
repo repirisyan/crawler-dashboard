@@ -12,6 +12,7 @@ import {
     TrashIcon,
     MagnifyingGlassIcon,
     FunnelIcon,
+    TagIcon,
 } from "@heroicons/vue/24/solid";
 import axios from "axios";
 
@@ -53,6 +54,7 @@ const filterData = () => {
         route("keyword.index", {
             comodity: filter_comodity.value,
             search: search.value,
+            per_page: per_page.value,
             page: 1,
         }),
         {
@@ -308,6 +310,16 @@ const destroy = (id) => {
                                                 </td>
                                             </tr>
                                         </tbody>
+                                        <tfoot
+                                            class="text-info"
+                                            v-show="!isTableEmpty"
+                                        >
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Keyword</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                                 <Paginate
@@ -421,24 +433,15 @@ const destroy = (id) => {
                         ✕
                     </button>
                 </form>
-                <div class="flex gap-3">
-                    <h3 class="text-lg font-bold">Filter Category</h3>
-                    <button
-                        class="btn btn-outline btn-success btn-sm"
-                        :disabled="loadingStates['comodity'][0]"
-                        @click="filterData"
-                    >
-                        Save
-                        <span
-                            class="loading loading-spinner loading-sm"
-                            v-show="loadingStates['comodity'][0]"
-                        ></span>
-                    </button>
+                <div class="flex gap-3 align-middle">
+                    <h3 class="text-lg font-bold align-middle flex gap-3">
+                        <TagIcon class="w-5 h-5 my-auto" /> Filter Category
+                    </h3>
                 </div>
                 <div class="divider"></div>
                 <div class="grid grid-cols-4 gap-4">
                     <div
-                        class="form-control"
+                        class="form-control border border-solid rounded-md border-teal-700"
                         v-for="comodity in props.comodities"
                         :key="comodity.id"
                     >
@@ -453,6 +456,20 @@ const destroy = (id) => {
                             />
                         </label>
                     </div>
+                </div>
+                <div class="divider"></div>
+                <div class="modal-action">
+                    <button
+                        class="btn btn-outline btn-success btn-sm"
+                        :disabled="loadingStates['comodity'][0]"
+                        @click="filterData"
+                    >
+                        Save
+                        <span
+                            class="loading loading-spinner loading-sm"
+                            v-show="loadingStates['comodity'][0]"
+                        ></span>
+                    </button>
                 </div>
             </div>
         </dialog>

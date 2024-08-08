@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Link, Head } from "@inertiajs/vue3";
+import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
+import { Head } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
 import { toast } from "vue3-toastify";
@@ -10,8 +11,14 @@ import {
     MagnifyingGlassIcon,
     ArrowPathIcon,
     TrashIcon,
-    EyeIcon,
     CheckIcon,
+    FunnelIcon,
+    TagIcon,
+    CalendarIcon,
+    BuildingStorefrontIcon,
+    UserIcon,
+    BanknotesIcon,
+    ShoppingBagIcon,
 } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
@@ -20,6 +27,7 @@ const props = defineProps({
 });
 
 const supervisions = ref({});
+const total_data = ref(0);
 
 // Paginate
 const current_page = ref(0);
@@ -34,6 +42,8 @@ const checkAllButton = ref(false);
 const optionMenu = ref(false);
 
 const loading = ref({
+    comodity: {},
+    marketplace: {},
     refresh: {},
     delete: {},
     link: {},
@@ -42,8 +52,8 @@ const loading = ref({
 
 // Filter Data
 const search = ref("");
-const marketplace_id = ref("");
-const comodity_id = ref("");
+const filter_marketplace = ref([]);
+const filter_comodity = ref([]);
 const date = ref("");
 const status = ref("");
 
@@ -53,17 +63,31 @@ const isTableEmpty = computed(() => {
 
 onMounted(() => {
     getData();
+    getTotalData();
 });
+
+const getTotalData = async () => {
+    axios
+        .get(route("supervision.total_data"))
+        .then((response) => {
+            total_data.value = response.data;
+        })
+        .catch((response) => {
+            console.log(response);
+        });
+};
 
 const getData = async (page = null) => {
     loading.value["refresh"][0] = true;
+    loading.value["marketplace"][0] = true;
+    loading.value["comodity"][0] = true;
     axios
         .get(route("supervision.data"), {
             params: {
                 page: page,
                 search: search.value,
-                marketplace_id: marketplace_id.value,
-                comodity_id: comodity_id.value,
+                marketplaces: filter_marketplace.value,
+                comodities: filter_comodity.value,
                 date: date.value,
                 entries: per_page.value,
                 status: status.value,
@@ -94,6 +118,8 @@ const getData = async (page = null) => {
         })
         .finally(() => {
             loading.value["refresh"][0] = false;
+            loading.value["marketplace"][0] = false;
+            loading.value["comodity"][0] = false;
         });
 };
 
@@ -238,36 +264,34 @@ const checkAll = (event) => {
                                             @change="getData"
                                         />
                                     </label>
-                                    <select
-                                        class="select select-bordered"
-                                        v-model="comodity_id"
-                                        @change="getData"
+                                    <button
+                                        class="btn"
+                                        onclick="modalFilterCategory.showModal()"
                                     >
-                                        <option value="">-- Category --</option>
-                                        <option
-                                            :value="comosity.id"
-                                            v-for="comosity in props.comodities"
-                                            :key="comosity.id"
+                                        Filter Category
+                                        <FunnelIcon class="w-4 h-4" />
+                                        <span
+                                            v-show="filter_comodity.length > 0"
+                                            class="text-success"
+                                            >{{ filter_comodity.length }}</span
                                         >
-                                            {{ comosity.name }}
-                                        </option>
-                                    </select>
-                                    <select
-                                        class="select select-bordered"
-                                        v-model="marketplace_id"
-                                        @change="getData"
+                                    </button>
+                                    <button
+                                        class="btn"
+                                        onclick="modalFilterMarketplace.showModal()"
                                     >
-                                        <option value="">
-                                            -- Marketplace --
-                                        </option>
-                                        <option
-                                            :value="marketplace.id"
-                                            v-for="marketplace in props.marketplaces"
-                                            :key="marketplace.id"
+                                        Filter Materketplace
+                                        <FunnelIcon class="w-4 h-4" />
+                                        <span
+                                            v-show="
+                                                filter_marketplace.length > 0
+                                            "
+                                            class="text-success"
+                                            >{{
+                                                filter_marketplace.length
+                                            }}</span
                                         >
-                                            {{ marketplace.name }}
-                                        </option>
-                                    </select>
+                                    </button>
                                     <select
                                         class="select select-bordered"
                                         v-model="status"
@@ -352,9 +376,36 @@ const checkAll = (event) => {
                                         >
                                     </div>
                                     <div
+                                        class="join mt-2 text-center mx-auto"
+                                        v-show="!isTableEmpty"
+                                    >
+                                        <button
+                                            :disabled="loading['refresh'][0]"
+                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                            v-show="prev_page != null"
+                                            @click="getData(current_page - 1)"
+                                        >
+                                            «
+                                        </button>
+                                        <button
+                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
+                                        >
+                                            {{ current_page }}
+                                        </button>
+                                        <button
+                                            :show="next_page != null"
+                                            :disabled="loading['refresh'][0]"
+                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                            @click="getData(current_page + 1)"
+                                        >
+                                            »
+                                        </button>
+                                    </div>
+                                    <div
                                         class="text-xs md:text-base lg:text-base"
                                     >
-                                        Showing {{ from }} to {{ to }} Entries
+                                        Showing {{ from }} to {{ to }} from
+                                        {{ total_data }} Entries
                                     </div>
                                 </div>
                                 <div class="overflow-x-auto">
@@ -384,10 +435,6 @@ const checkAll = (event) => {
                                                 </th>
                                                 <th>Name</th>
                                                 <th>Category</th>
-                                                <th>Price</th>
-                                                <th>Marketplace</th>
-                                                <th>Seller</th>
-                                                <th>Date</th>
                                                 <th>Product Check</th>
                                                 <th>Status</th>
                                             </tr>
@@ -420,7 +467,91 @@ const checkAll = (event) => {
                                                         />
                                                     </label>
                                                 </th>
-                                                <td class="min-w-80">
+                                                <td class="max-w-80">
+                                                    <div
+                                                        class="flex justify-start gap-3"
+                                                    >
+                                                        <div>
+                                                            <span
+                                                                class="text-xs flex gap-1"
+                                                            >
+                                                                <BuildingStorefrontIcon
+                                                                    class="w-3 h-3"
+                                                                />
+                                                                {{
+                                                                    item
+                                                                        .marketplace
+                                                                        .name
+                                                                }}
+                                                            </span>
+                                                            <span
+                                                                class="text-xs flex gap-1"
+                                                            >
+                                                                <UserIcon
+                                                                    class="w-3 h-3"
+                                                                />
+                                                                {{
+                                                                    item?.seller
+                                                                }}
+                                                            </span>
+                                                            <span
+                                                                class="text-xs flex gap-1"
+                                                            >
+                                                                <MapPinIcon
+                                                                    class="w-3 h-3 text-red-400"
+                                                                />{{
+                                                                    item?.location
+                                                                }}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <span
+                                                                class="text-xs flex gap-1"
+                                                            >
+                                                                <BanknotesIcon
+                                                                    class="w-3 h-3"
+                                                                />{{
+                                                                    new Intl.NumberFormat(
+                                                                        "id-ID",
+                                                                        {
+                                                                            style: "currency",
+                                                                            currency:
+                                                                                "IDR",
+                                                                        },
+                                                                    ).format(
+                                                                        item?.price,
+                                                                    )
+                                                                }}
+                                                            </span>
+                                                            <span
+                                                                class="text-xs flex gap-1"
+                                                            >
+                                                                <ShoppingBagIcon
+                                                                    class="w-3 h-3"
+                                                                />
+                                                                {{ item?.sold }}
+                                                                Sold
+                                                            </span>
+                                                            <span
+                                                                class="text-xs flex gap-1"
+                                                            >
+                                                                <CalendarIcon
+                                                                    class="w-3 h-3"
+                                                                />{{
+                                                                    moment(
+                                                                        item.created_at,
+                                                                    )
+                                                                        .locale(
+                                                                            "id",
+                                                                        )
+                                                                        .format(
+                                                                            "DD MMMM YYYY",
+                                                                        )
+                                                                }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <hr class="my-2" />
                                                     <div
                                                         class="flex items-center gap-3"
                                                     >
@@ -429,11 +560,15 @@ const checkAll = (event) => {
                                                                 class="mask mask-squircle w-12 h-12"
                                                             >
                                                                 <img
-                                                                    :src="
-                                                                        item?.image ??
-                                                                        '/assets/img/icon/no-image.svg'
+                                                                    @error="
+                                                                        $event.target.src =
+                                                                            '/assets/img/icon/no-image.svg'
                                                                     "
-                                                                    :alt="`Gambar ${item?.name}`"
+                                                                    loading="lazy"
+                                                                    :src="
+                                                                        item?.image
+                                                                    "
+                                                                    :alt="`Gambar ${item?.title}`"
                                                                 />
                                                             </div>
                                                         </div>
@@ -456,112 +591,27 @@ const checkAll = (event) => {
                                                     </div>
                                                 </td>
                                                 <td class="min-w-64">
-                                                    <ul
-                                                        class="menu rounded-box w-auto"
-                                                    >
-                                                        <li>
-                                                            <a>{{
-                                                                item.keyword
-                                                                    .comodity
-                                                                    .name
-                                                            }}</a>
-                                                            <ul
-                                                                v-show="
-                                                                    item.keyword
-                                                                        .sub_comodity
-                                                                "
-                                                            >
-                                                                <li>
-                                                                    <a>{{
-                                                                        item
-                                                                            .keyword
-                                                                            .sub_comodity
-                                                                    }}</a>
-                                                                    <ul
-                                                                        v-show="
-                                                                            item
-                                                                                .keyword
-                                                                                .second_level_sub_comodity
-                                                                        "
-                                                                    >
-                                                                        <li>
-                                                                            <a
-                                                                                >{{
-                                                                                    item
-                                                                                        .keyword
-                                                                                        .second_level_sub_comodity
-                                                                                }}</a
-                                                                            >
-                                                                            <ul
-                                                                                v-show="
-                                                                                    item
-                                                                                        .keyword
-                                                                                        .third_level_sub_comodity
-                                                                                "
-                                                                            >
-                                                                                <li>
-                                                                                    <a
-                                                                                        >{{
-                                                                                            item
-                                                                                                .keyword
-                                                                                                .third_level_sub_comodity
-                                                                                        }}</a
-                                                                                    >
-                                                                                </li>
-                                                                            </ul>
-                                                                        </li>
-                                                                    </ul>
-                                                                </li>
-                                                            </ul>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    <p>
-                                                        {{
-                                                            new Intl.NumberFormat(
-                                                                "id-ID",
-                                                                {
-                                                                    style: "currency",
-                                                                    currency:
-                                                                        "IDR",
-                                                                },
-                                                            ).format(
-                                                                item?.price,
-                                                            )
-                                                        }}
-                                                    </p>
-                                                    <span
-                                                        class="badge badge-ghost badge-sm"
-                                                        >{{
-                                                            item?.sold
-                                                        }}
-                                                        Sold</span
-                                                    >
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    {{ item.marketplace.name }}
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    <div class="font-bold">
-                                                        {{ item?.seller }}
-                                                    </div>
-                                                    <div class="flex">
-                                                        <MapPinIcon
-                                                            class="w-5 h-5 text-red-400"
-                                                        />&nbsp;{{
-                                                            item?.location
-                                                        }}
-                                                    </div>
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    {{
-                                                        moment(item.created_at)
-                                                            .locale("id")
-                                                            .format(
-                                                                "DD MMMM YYYY",
-                                                            )
-                                                    }}
+                                                    <HierarchyCategoryProd
+                                                        :comodity="
+                                                            item.keyword
+                                                                .comodity.name
+                                                        "
+                                                        :sub_comodity="
+                                                            item.keyword
+                                                                .sub_comodity
+                                                        "
+                                                        :second_level_sub_comodity="
+                                                            item.keyword
+                                                                .second_level_sub_comodity
+                                                        "
+                                                        :third_level_sub_comodity="
+                                                            item.keyword
+                                                                .third_level_sub_comodity
+                                                        "
+                                                        :keyword="
+                                                            item.keyword.name
+                                                        "
+                                                    />
                                                 </td>
                                                 <td class="whitespace-nowrap">
                                                     <a
@@ -667,7 +717,7 @@ const checkAll = (event) => {
                                         <tbody v-else>
                                             <tr>
                                                 <td
-                                                    colspan="9"
+                                                    colspan="5"
                                                     class="text-center"
                                                 >
                                                     No Data Available
@@ -682,10 +732,6 @@ const checkAll = (event) => {
                                                 <th></th>
                                                 <th>Name</th>
                                                 <th>Category</th>
-                                                <th>Price</th>
-                                                <th>Marketplace</th>
-                                                <th>Seller</th>
-                                                <th>Date</th>
                                                 <th>Product Check</th>
                                                 <th>Status</th>
                                             </tr>
@@ -724,5 +770,107 @@ const checkAll = (event) => {
                 </div>
             </div>
         </div>
+
+        <dialog id="modalFilterCategory" class="modal">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                    >
+                        ✕
+                    </button>
+                </form>
+                <div class="flex gap-3">
+                    <h3 class="text-lg font-bold align-middle flex gap-3">
+                        <TagIcon class="w-5 h-5 my-auto" /> Filter Category
+                    </h3>
+                </div>
+                <div class="divider"></div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div
+                        class="form-control border border-solid rounded-md border-teal-700"
+                        v-for="comodity in props.comodities"
+                        :key="comodity.id"
+                    >
+                        <label class="cursor-pointer label">
+                            <span class="label-text">{{ comodity.name }}</span>
+                            <input
+                                :id="`checkbox_comodity${comodity.id}`"
+                                type="checkbox"
+                                :value="comodity.id"
+                                v-model="filter_comodity"
+                                class="checkbox checkbox-success"
+                            />
+                        </label>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="modal-action">
+                    <button
+                        class="btn btn-outline btn-success btn-sm"
+                        :disabled="loading['comodity'][0]"
+                        @click="getData"
+                    >
+                        Save
+                        <span
+                            class="loading loading-spinner loading-sm"
+                            v-show="loading['comodity'][0]"
+                        ></span>
+                    </button>
+                </div>
+            </div>
+        </dialog>
+
+        <dialog id="modalFilterMarketplace" class="modal">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                    >
+                        ✕
+                    </button>
+                </form>
+                <div class="flex gap-3">
+                    <h3 class="text-lg font-bold align-middle flex gap-3">
+                        <TagIcon class="w-5 h-5 my-auto" /> Filter Marketplace
+                    </h3>
+                </div>
+                <div class="divider"></div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div
+                        class="form-control border border-solid rounded-md border-teal-700"
+                        v-for="marketplace in props.marketplaces"
+                        :key="marketplace.id"
+                    >
+                        <label class="cursor-pointer label">
+                            <span class="label-text">{{
+                                marketplace.name
+                            }}</span>
+                            <input
+                                :id="`checkbox_marketplace${marketplace.id}`"
+                                type="checkbox"
+                                :value="marketplace.id"
+                                v-model="filter_marketplace"
+                                class="checkbox checkbox-success"
+                            />
+                        </label>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="modal-action">
+                    <button
+                        class="btn btn-outline btn-success btn-sm"
+                        :disabled="loading['marketplace'][0]"
+                        @click="getData"
+                    >
+                        Save
+                        <span
+                            class="loading loading-spinner loading-sm"
+                            v-show="loading['marketplace'][0]"
+                        ></span>
+                    </button>
+                </div>
+            </div>
+        </dialog>
     </AuthenticatedLayout>
 </template>

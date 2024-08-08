@@ -23,26 +23,26 @@ class Supervision extends Model
 
     public function getDatas($request)
     {
-        return $this->with(['keyword:id,comodity_id,sub_comodity,second_level_sub_comodity,third_level_sub_comodity', 'marketplace:id,name', 'keyword.comodity:id,name'])->when($request['search'] != null, function ($query) use ($request) {
+        return $this->with(['keyword:id,name,comodity_id,sub_comodity,second_level_sub_comodity,third_level_sub_comodity', 'marketplace:id,name', 'keyword.comodity:id,name'])->when($request['search'] != null, function ($query) use ($request) {
             // If both search and marketplace_id are provided, add both conditions
-            if ($request['comodity_id'] != null) {
-                $query->where(function ($query) use ($request) {
-                    $query->whereHas('keyword', function ($query) use ($request) {
-                        $query->where('comodity_id', $request['comodity_id']);
+            if ($request['comodities'] != null) {
+                    $query->where(function ($query) use ($request) {
+                        $query->whereHas('keyword', function ($query) use ($request) {
+                            $query->whereIn('comodity_id', $request['comodities']);
+                        });
                     });
-                });
-            }
+                }
 
             if ($request['date'] != null) {
                 $query->where(function ($query) use ($request) {
                     $query->whereDate('created_at', $request['date']);
                 });
             }
-            if ($request['marketplace_id'] != null) {
-                $query->where(function ($query) use ($request) {
-                    $query->where('marketplace_id', $request['marketplace_id']);
-                });
-            }
+            if ($request['marketplaces'] != null) {
+                    $query->where(function ($query) use ($request) {
+                        $query->whereIn('marketplace_id', $request['marketplaces']);
+                    });
+                }
 
             if ($request['status'] != null) {
                 $query->where(function ($query) use ($request) {
@@ -56,13 +56,18 @@ class Supervision extends Model
             });
         })->when($request['status'] != null && $request['search'] == null, function ($query) use ($request) {
             $query->where('status', $request['status']);
-        })->when($request['marketplace_id'] != null && $request['search'] == null, function ($query) use ($request) {
-            // If only marketplace_id is provided, add the condition
-            $query->where('marketplace_id', $request['marketplace_id']);
-        })->when($request['comodity_id'] != null && $request['search'] == null, function ($query) use ($request) {
-            // If only marketplace_id is provided, add the condition
-            $query->where('comodity_id', $request['comodity_id']);
-        })->when($request['date'] != null && $request['search'] == null, function ($query) use ($request) {
+        })->when($request['marketplaces'] != null && $request['search'] == null, function ($query) use ($request) {
+                // If only marketplace_id is provided, add the condition
+                $query->whereIn('marketplace_id', $request['marketplaces']);
+            })
+            ->when($request['comodities'] != null && $request['search'] == null, function ($query) use ($request) {
+                // If only marketplace_id is provided, add the condition
+                $query->where(function ($query) use ($request) {
+                    $query->whereHas('keyword', function ($query) use ($request) {
+                        $query->whereIn('comodity_id', $request['comodities']);
+                    });
+                });
+            })->when($request['date'] != null && $request['search'] == null, function ($query) use ($request) {
             // If only marketplace_id is provided, add the condition
             $query->whereDate('created_at', $request['date']);
         })->simplePaginate($request['entries'] ?? 15);
@@ -73,6 +78,11 @@ class Supervision extends Model
         return $this->where('id', $supervision_id)->first();
     }
 
+    public function getTotalItem()
+    {
+        return $this->count();
+    }
+
     public function storeData($request)
     {
         return $this->create([
@@ -81,6 +91,8 @@ class Supervision extends Model
             'image' => $request['image'],
             'keyword_id' => $request['keyword_id'],
             'price' => $request['price'],
+            'rating' => $request['rating'],
+            'description' => $request['description'],
             'sold' => $request['sold'],
             'marketplace_id' => $request['marketplace_id'],
             'seller' => $request['seller'],

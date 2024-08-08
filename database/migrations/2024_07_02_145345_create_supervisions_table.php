@@ -16,10 +16,12 @@ return new class extends Migration
             $table->text('name');
             $table->text('link');
             $table->text('image')->nullable();
+            $table->text('description')->nullable();
             $table->foreignId('violation_id')->nullable()->constrained();
             $table->foreignId('keyword_id')->constrained();
             $table->unsignedBigInteger('price');
             $table->unsignedInteger('sold');
+            $table->float('rating');
             $table->foreignId('marketplace_id')->constrained();
             $table->string('seller');
             $table->string('location');

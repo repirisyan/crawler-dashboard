@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TempItem;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TempItemController extends Controller
@@ -20,6 +21,18 @@ class TempItemController extends Controller
     {
         try {
             return response()->json($this->temp_item->getData($request));
+        } catch (Exception $e) {
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function getTotalData(){
+        try {
+            $data = Cache::remember('total_temp_item', 86400, function () {
+                return $this->temp_item->getTotalItem();
+            });
+            
+            return response()->json($data);
         } catch (Exception $e) {
             return response()->json($e->getMessage(), 500);
         }

@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, useForm, router, Link } from "@inertiajs/vue3";
+import { Head, useForm, router } from "@inertiajs/vue3";
 import Paginate from "./Paginate.vue";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
@@ -338,6 +338,15 @@ const destroy = (id) => {
                                                 </td>
                                             </tr>
                                         </tbody>
+                                        <tfoot
+                                            class="text-info"
+                                            v-show="!isTableEmpty"
+                                        >
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                                 <Paginate

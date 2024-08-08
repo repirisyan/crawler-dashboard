@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, useForm, router, Link } from "@inertiajs/vue3";
+import Paginate from "./Paginate.vue";
+import { Head, useForm, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
@@ -271,7 +272,7 @@ const destroy = (id) => {
                             <div class="card-body">
                                 <div
                                     v-show="!isTableEmpty"
-                                    class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between"
+                                    class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between mb-2"
                                 >
                                     <div class="flex gap-3 items-center">
                                         <select
@@ -289,6 +290,21 @@ const destroy = (id) => {
                                             >entries per page</label
                                         >
                                     </div>
+                                    <Paginate
+                                        v-show="!isTableEmpty"
+                                        :search="search"
+                                        :per_page="per_page"
+                                        :current_page="
+                                            props.supervisions.current_page
+                                        "
+                                        :status="filter_status"
+                                        :next_page_url="
+                                            props.supervisions.next_page_url
+                                        "
+                                        :last_page="
+                                            props.supervisions.last_page
+                                        "
+                                    />
                                     <div
                                         class="text-xs md:text-base lg:text-base"
                                     >
@@ -409,111 +425,32 @@ const destroy = (id) => {
                                                 </td>
                                             </tr>
                                         </tbody>
+                                        <tfoot
+                                            class="text-info"
+                                            v-show="!isTableEmpty"
+                                        >
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Status</th>
+                                                <th>Last Update</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
-                                <div
-                                    class="join mt-2 mx-auto"
+                                <Paginate
                                     v-show="!isTableEmpty"
-                                >
-                                    <Link
-                                        :href="`${route('supervision-list.index')}?page=1&search=${search}&per_page=${per_page}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.supervisions.current_page > 10
-                                        "
-                                    >
-                                        1
-                                    </Link>
-                                    <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 2}&search=${search}&per_page=${per_page}&status=${filter_status}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.supervisions.current_page -
-                                                2 >
-                                            0
-                                        "
-                                    >
-                                        {{
-                                            props.supervisions.current_page - 2
-                                        }}
-                                    </Link>
-                                    <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page - 1}&search=${search}&per_page=${per_page}&status=${filter_status}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.supervisions.current_page -
-                                                1 >
-                                            0
-                                        "
-                                    >
-                                        {{
-                                            props.supervisions.current_page - 1
-                                        }}
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                                    >
-                                        {{
-                                            props.supervisions.current_page ??
-                                            ""
-                                        }}
-                                    </button>
-                                    <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 1}&search=${search}&per_page=${per_page}&status=${filter_status}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.supervisions.next_page_url !=
-                                            null
-                                        "
-                                    >
-                                        {{
-                                            props.supervisions.current_page + 1
-                                        }}
-                                    </Link>
-                                    <Link
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.current_page + 2}&search=${search}&per_page=${per_page}&status=${filter_status}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="
-                                            props.supervisions.current_page +
-                                                2 <=
-                                            props.supervisions.last_page
-                                        "
-                                    >
-                                        {{
-                                            props.supervisions.current_page + 2
-                                        }}
-                                    </Link>
-                                    <button
-                                        v-show="
-                                            props.supervisions.current_page <
-                                            props.supervisions.last_page - 2
-                                        "
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-disabled"
-                                    >
-                                        ...
-                                    </button>
-                                    <Link
-                                        v-show="
-                                            props.supervisions.current_page <
-                                            props.supervisions.last_page - 3
-                                        "
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page - 1}&search=${search}&per_page=${per_page}&status=${filter_status}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    >
-                                        {{ props.supervisions.last_page - 1 }}
-                                    </Link>
-                                    <Link
-                                        v-show="
-                                            props.supervisions.current_page <
-                                            props.supervisions.last_page - 2
-                                        "
-                                        :href="`${route('supervision-list.index')}?page=${props.supervisions.last_page}&search=${search}&per_page=${per_page}&status=${filter_status}`"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    >
-                                        {{ props.supervisions.last_page }}
-                                    </Link>
-                                </div>
+                                    :search="search"
+                                    :per_page="per_page"
+                                    :current_page="
+                                        props.supervisions.current_page
+                                    "
+                                    :status="filter_status"
+                                    :next_page_url="
+                                        props.supervisions.next_page_url
+                                    "
+                                    :last_page="props.supervisions.last_page"
+                                />
                             </div>
                         </div>
                     </div>
@@ -574,6 +511,7 @@ const destroy = (id) => {
                 </form>
             </div>
         </dialog>
+
         <dialog id="modalEdit" ref="modalEdit" class="modal">
             <div class="modal-box">
                 <h3 class="text-lg font-bold">Form Edit Data</h3>
