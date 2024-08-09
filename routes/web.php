@@ -11,7 +11,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchListController;
 use App\Http\Controllers\SupervisionController;
 use App\Http\Controllers\SupervisionListController;
-use App\Http\Controllers\TempItemController;
 use App\Http\Controllers\TrendingController;
 use Illuminate\Support\Facades\Route;
 
@@ -76,9 +75,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('supervision-list/change-status/{id}', [SupervisionListController::class, 'changeStatus'])->name('supervision-list.change_status');
     Route::resource('supervision-list', SupervisionListController::class)->except(['create', 'show']);
 
-    Route::get('temp-item', [TempItemController::class, 'tempItemData'])->name('temp-item.data');
-    Route::get('temp-item/total-data',[TempItemController::class,'getTotalData'])->name('temp-item.total_data');
-    Route::delete('temp-item/delete-item', [TempItemController::class, 'deleteItem'])->name('temp-item.delete');
 });
 
 require __DIR__.'/auth.php';

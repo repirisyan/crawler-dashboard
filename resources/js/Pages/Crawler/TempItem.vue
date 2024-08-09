@@ -15,10 +15,10 @@ import {
     TagIcon,
     UserIcon,
     BuildingStorefrontIcon,
-    BanknotesIcon,
     CalendarIcon,
     CalendarDaysIcon,
     ShoppingBagIcon,
+    ScaleIcon,
 } from "@heroicons/vue/24/solid";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
@@ -31,9 +31,10 @@ const props = defineProps({
 
 const temp_item = ref({});
 const total_data = ref(0);
+const description = ref("");
 
 // Paginate
-const current_page = ref(0);
+const current_page = ref(1);
 const next_page = ref(null);
 const prev_page = ref(null);
 const per_page = ref(15);
@@ -63,14 +64,14 @@ const isTableEmpty = computed(() => {
     return Object.keys(temp_item.value).length === 0;
 });
 
-onMounted(() => {
+onMounted(async () => {
+    await getTotalData();
     getData();
-    getTotalData();
 });
 
 const getTotalData = async () => {
-    axios
-        .get(route("temp-item.total_data"))
+    await axios
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item/total`)
         .then((response) => {
             total_data.value = response.data;
         })
@@ -79,19 +80,19 @@ const getTotalData = async () => {
         });
 };
 
-const getData = async (page = null) => {
+const getData = async (page = 1) => {
     loading.value["refresh"][0] = true;
     loading.value["comodity"][0] = true;
     loading.value["marketplace"][0] = true;
     axios
-        .get(route("temp-item.data"), {
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item`, {
             params: {
                 page: page,
                 search: search.value,
-                marketplaces: filter_marketplace.value,
-                comodities: filter_comodity.value,
+                marketplaces: JSON.stringify(filter_marketplace.value),
+                comodities: JSON.stringify(filter_comodity.value),
                 // date: date.value,
-                per_page: per_page.value,
+                limit: per_page.value,
             },
         })
         .then((response) => {
@@ -99,16 +100,19 @@ const getData = async (page = null) => {
             checkbox.value.length = 0;
             optionMenu.value = false;
             checkAllButton.value = false;
-            response.data.data.forEach((element) => {
+            response.data.forEach((element) => {
                 checkbox.value.push({ id: element.id, checked: false });
             });
-
-            temp_item.value = response.data.data;
-            current_page.value = response.data.current_page;
-            next_page.value = response.data.next_page_url;
-            prev_page.value = response.data?.prev_page_url;
-            from.value = response.data.from;
-            to.value = response.data.to;
+            const totalPages = Math.ceil(total_data.value / per_page.value);
+            const skip = (page - 1) * per_page.value;
+            current_page.value = page;
+            next_page.value =
+                current_page.value < totalPages ? current_page.value + 1 : null;
+            prev_page.value =
+                current_page.value > 1 ? current_page.value - 1 : null;
+            from.value = skip + 1;
+            to.value = skip + response.data.length;
+            temp_item.value = response.data;
         })
         .catch((response) => {
             console.log(response);
@@ -126,7 +130,7 @@ const deleteItem = () => {
         const checkedItems = computed(() => {
             return checkbox.value
                 .filter((item) => item.checked)
-                .map((item) => item.id);
+                .map((item) => item._id);
         });
         axios
             .delete(route("temp-item.delete"), {
@@ -136,7 +140,7 @@ const deleteItem = () => {
                 console.log(response.data);
             })
             .finally(() => {
-                getData();
+                getData(1);
                 loading.value["delete"][0] = false;
             });
     }
@@ -148,7 +152,7 @@ const supervisionItem = () => {
         const checkedItems = computed(() => {
             return checkbox.value
                 .filter((item) => item.checked)
-                .map((item) => item.id);
+                .map((item) => item._id);
         });
         axios
             .post(route("supervision.store"), {
@@ -161,7 +165,7 @@ const supervisionItem = () => {
                 console.log(response);
             })
             .finally(() => {
-                getData();
+                getData(1);
                 loading.value["supervision"][0] = false;
             });
     }
@@ -188,7 +192,7 @@ const checkAll = (event) => {
             <div class="card-header flex justify-between verflow-x-auto">
                 <div class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5">
                     <button
-                        @click="getData"
+                        @click="getData(current_page)"
                         class="btn btn-sm btn-outline btn-info"
                         :disabled="loading['refresh'][0]"
                     >
@@ -233,7 +237,7 @@ const checkAll = (event) => {
                             v-model.lazy="search"
                             type="text"
                             class="grow border-0"
-                            @change="getData"
+                            @change="getData(1)"
                             placeholder="Search"
                         />
                         <MagnifyingGlassIcon class="h-5 w-5" />
@@ -304,7 +308,7 @@ const checkAll = (event) => {
                             :disabled="loading['refresh'][0]"
                             class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
                             v-show="prev_page != null"
-                            @click="getData(current_page - 1)"
+                            @click="getData(prev_page)"
                         >
                             «
                         </button>
@@ -317,7 +321,7 @@ const checkAll = (event) => {
                             :show="next_page != null"
                             :disabled="loading['refresh'][0]"
                             class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                            @click="getData(current_page + 1)"
+                            @click="getData(next_page)"
                         >
                             »
                         </button>
@@ -365,94 +369,11 @@ const checkAll = (event) => {
                                         />
                                     </label>
                                 </th>
-                                <td class="max-w-80">
-                                    <div class="flex justify-start gap-3">
-                                        <div>
-                                            <span class="text-xs flex gap-1">
-                                                <BuildingStorefrontIcon
-                                                    class="w-3 h-3"
-                                                />
-                                                {{ item.marketplace.name }}
-                                            </span>
-                                            <span class="text-xs flex gap-1">
-                                                <UserIcon class="w-3 h-3" />
-                                                {{ item?.seller }}
-                                            </span>
-                                            <span class="text-xs flex gap-1">
-                                                <MapPinIcon
-                                                    class="w-3 h-3 text-red-400"
-                                                />{{ item?.location }}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <span class="text-xs flex gap-1">
-                                                <BanknotesIcon
-                                                    class="w-3 h-3"
-                                                />{{
-                                                    new Intl.NumberFormat(
-                                                        "id-ID",
-                                                        {
-                                                            style: "currency",
-                                                            currency: "IDR",
-                                                        },
-                                                    ).format(item?.price)
-                                                }}
-                                            </span>
-                                            <span class="text-xs flex gap-1">
-                                                <ShoppingBagIcon
-                                                    class="w-3 h-3"
-                                                />
-                                                {{ item?.sold }}
-                                                Sold
-                                            </span>
-                                            <span class="flex text-xs gap-1"
-                                                ><StarIcon
-                                                    class="h-3 w-3 text-yellow-500"
-                                                />{{ item?.rating }}</span
-                                            >
-                                        </div>
-                                        <div v-show="item.flag">
-                                            <span class="text-xs flex gap-1">
-                                                <FlagIcon
-                                                    class="h-3 w-3 text-success"
-                                                />
-                                                Supervision
-                                            </span>
-                                            <span class="text-xs flex gap-1">
-                                                <CalendarDaysIcon
-                                                    class="w-3 h-3"
-                                                />{{
-                                                    moment(item.updated_at)
-                                                        .locale("id")
-                                                        .format("DD MMMM YYYY")
-                                                }}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <a
-                                                href="javascript:;"
-                                                class="text-xs flex gap-1 hover:text-blue-500"
-                                            >
-                                                <EyeIcon class="w-3 h-3" /><span
-                                                    >Show Description</span
-                                                >
-                                            </a>
-                                            <span class="text-xs flex gap-1">
-                                                <CalendarIcon
-                                                    class="w-3 h-3"
-                                                />{{
-                                                    moment(item.created_at)
-                                                        .locale("id")
-                                                        .format("DD MMMM YYYY")
-                                                }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <hr class="my-2" />
+                                <td class="w-auto">
                                     <div class="flex items-center gap-3">
                                         <div class="avatar">
                                             <div
-                                                class="mask mask-squircle w-12 h-12"
+                                                class="mask mask-squircle w-24 h-24"
                                             >
                                                 <img
                                                     @error="
@@ -460,7 +381,7 @@ const checkAll = (event) => {
                                                             '/assets/img/icon/no-image.svg'
                                                     "
                                                     loading="lazy"
-                                                    :src="item?.image"
+                                                    :src="item?.image[0]"
                                                     :alt="`Gambar ${item?.title}`"
                                                 />
                                             </div>
@@ -474,24 +395,270 @@ const checkAll = (event) => {
                                                     >{{ item?.title }}</a
                                                 >
                                             </div>
+                                            <div
+                                                class="font-extrabold text-lg"
+                                                v-if="item.price?.discount"
+                                            >
+                                                {{
+                                                    new Intl.NumberFormat(
+                                                        "id-ID",
+                                                        {
+                                                            style: "currency",
+                                                            currency: "IDR",
+                                                        },
+                                                    ).format(
+                                                        (item.price
+                                                            .original_price *
+                                                            item.price
+                                                                .discount) /
+                                                            100,
+                                                    )
+                                                }}
+                                            </div>
+                                            <div
+                                                v-else
+                                                class="font-extrabold text-lg"
+                                            >
+                                                {{
+                                                    new Intl.NumberFormat(
+                                                        "id-ID",
+                                                        {
+                                                            style: "currency",
+                                                            currency: "IDR",
+                                                        },
+                                                    ).format(item.price.price)
+                                                }}
+                                            </div>
+                                            <div
+                                                class="font-extrabold text-xs flex gap-2"
+                                                v-show="item.price?.discount"
+                                            >
+                                                <span
+                                                    class="line-through text-gray-400"
+                                                    >{{
+                                                        new Intl.NumberFormat(
+                                                            "id-ID",
+                                                            {
+                                                                style: "currency",
+                                                                currency: "IDR",
+                                                            },
+                                                        ).format(
+                                                            item.price
+                                                                .original_price,
+                                                        )
+                                                    }}</span
+                                                >
+                                                <span class="text-error"
+                                                    >{{
+                                                        item.price?.discount
+                                                    }}%</span
+                                                >
+                                            </div>
+                                            <div
+                                                class="flex gap-3 mt-1 align-middle"
+                                            >
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                >
+                                                    <img
+                                                        class="max-w-14 max-h-4"
+                                                        :src="`/assets/img/marketplace/${item.marketplace.toLowerCase()}.svg`"
+                                                        v-if="
+                                                            item.marketplace !=
+                                                            'OLX'
+                                                        "
+                                                    />
+                                                    <span
+                                                        v-else
+                                                        class="flex gap-1"
+                                                    >
+                                                        <BuildingStorefrontIcon
+                                                            class="w-3 h-3"
+                                                        />{{ item.marketplace }}
+                                                    </span>
+                                                </span>
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                >
+                                                    <CalendarIcon
+                                                        class="w-3 h-3"
+                                                    />{{
+                                                        moment(item.created_at)
+                                                            .locale("id")
+                                                            .format(
+                                                                "DD MMMM YYYY",
+                                                            )
+                                                    }}
+                                                </span>
+                                            </div>
+                                            <div class="mt-1 flex gap-3">
+                                                <a
+                                                    target="_blank"
+                                                    :href="
+                                                        item.seller.url ??
+                                                        'javascript:;'
+                                                    "
+                                                    class="text-xs flex gap-1"
+                                                    :class="
+                                                        item.seller.url
+                                                            ? 'text-blue-500 hover:link'
+                                                            : ''
+                                                    "
+                                                >
+                                                    <UserIcon class="w-3 h-3" />
+                                                    {{ item.seller.name }}
+                                                </a>
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                >
+                                                    <MapPinIcon
+                                                        class="w-3 h-3 text-red-400"
+                                                    /><span
+                                                        v-show="
+                                                            item.location
+                                                                ?.province
+                                                        "
+                                                        >{{
+                                                            item.location
+                                                                ?.province
+                                                        }}, </span
+                                                    ><span
+                                                        v-show="
+                                                            item.location?.city
+                                                        "
+                                                        >{{
+                                                            item.location?.city
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        v-show="
+                                                            item.location
+                                                                ?.district
+                                                        "
+                                                        >,
+                                                        {{
+                                                            item.location
+                                                                ?.district
+                                                        }}</span
+                                                    >
+                                                </span>
+                                            </div>
+
+                                            <div
+                                                class="flex gap-3 align-middle mt-1"
+                                            >
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                    v-show="item.weight"
+                                                >
+                                                    <ScaleIcon
+                                                        class="h-3 w-3"
+                                                    />
+                                                    {{ item.weight }} Gram
+                                                </span>
+                                                <span
+                                                    class="text-xs flex align-middle"
+                                                >
+                                                    <ShoppingBagIcon
+                                                        class="w-3 h-3"
+                                                    />
+                                                    {{ item.sold }}
+                                                    Sold
+                                                </span>
+                                                <span
+                                                    class="flex text-xs gap-1 align-middle"
+                                                    ><StarIcon
+                                                        class="h-3 w-3 text-yellow-500"
+                                                    />{{
+                                                        item.rating.rating
+                                                    }}/{{
+                                                        item.rating.count
+                                                    }}</span
+                                                >
+                                                <a
+                                                    @click="
+                                                        description =
+                                                            item.description
+                                                    "
+                                                    href="javascript:;"
+                                                    onclick="modalDescription.showModal()"
+                                                    class="text-xs flex gap-1 hover:text-info"
+                                                    v-show="item.description"
+                                                >
+                                                    <EyeIcon
+                                                        class="w-3 h-3"
+                                                    /><span
+                                                        >Show Description</span
+                                                    >
+                                                </a>
+                                            </div>
+                                            <div
+                                                v-show="item.flag"
+                                                class="flex gap-3 align-middle mt-1"
+                                            >
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                >
+                                                    <FlagIcon
+                                                        class="h-3 w-3 text-success"
+                                                    />
+                                                    Supervision
+                                                </span>
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                >
+                                                    <CalendarDaysIcon
+                                                        class="w-3 h-3"
+                                                    />{{
+                                                        moment(item.updated_at)
+                                                            .locale("id")
+                                                            .format(
+                                                                "DD MMMM YYYY",
+                                                            )
+                                                    }}
+                                                </span>
+                                            </div>
+                                            <div v-show="item.flag">
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                >
+                                                    <FlagIcon
+                                                        class="h-3 w-3 text-success"
+                                                    />
+                                                    Supervision
+                                                </span>
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                >
+                                                    <CalendarDaysIcon
+                                                        class="w-3 h-3"
+                                                    />{{
+                                                        moment(item.updated_at)
+                                                            .locale("id")
+                                                            .format(
+                                                                "DD MMMM YYYY",
+                                                            )
+                                                    }}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="min-w-64">
                                     <HierarchyCategoryProd
-                                        :comodity="item.keyword.comodity.name"
+                                        :comodity="item.comodity.comodity"
                                         :sub_comodity="
-                                            item.keyword.sub_comodity
+                                            item.comodity.sub_comodity
                                         "
                                         :second_level_sub_comodity="
-                                            item.keyword
+                                            item.comodity
                                                 .second_level_sub_comodity
                                         "
                                         :third_level_sub_comodity="
-                                            item.keyword
+                                            item.comodity
                                                 .third_level_sub_comodity
                                         "
-                                        :keyword="item.keyword.name"
+                                        :keyword="item.keyword"
                                     />
                                 </td>
                             </tr>
@@ -579,7 +746,7 @@ const checkAll = (event) => {
                     <button
                         class="btn btn-outline btn-success btn-sm"
                         :disabled="loading['comodity'][0]"
-                        @click="filterData"
+                        @click="getData(1)"
                     >
                         Save
                         <span
@@ -631,7 +798,7 @@ const checkAll = (event) => {
                     <button
                         class="btn btn-outline btn-success btn-sm"
                         :disabled="loading['marketplace'][0]"
-                        @click="filterData"
+                        @click="getData(1)"
                     >
                         Save
                         <span
@@ -641,6 +808,16 @@ const checkAll = (event) => {
                     </button>
                 </div>
             </div>
+        </dialog>
+
+        <!-- Open the modal using ID.showModal() method -->
+        <dialog id="modalDescription" class="modal">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <p class="py-4" v-html="description"></p>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
         </dialog>
     </div>
 </template>

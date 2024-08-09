@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->text('name');
             $table->text('link');
-            $table->text('image')->nullable();
+            $table->json('image')->nullable();
+            $table->string('brand')->nullable();
             $table->text('description')->nullable();
             $table->foreignId('violation_id')->nullable()->constrained();
             $table->foreignId('keyword_id')->constrained();
@@ -24,7 +25,7 @@ return new class extends Migration
             $table->float('rating');
             $table->foreignId('marketplace_id')->constrained();
             $table->string('seller');
-            $table->string('location');
+            $table->json('location');
             $table->boolean('check')->default(false);
             $table->dateTime('last_check')->nullable();
             $table->boolean('status')->default(false);
