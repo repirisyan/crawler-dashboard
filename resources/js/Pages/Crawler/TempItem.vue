@@ -2,7 +2,6 @@
 import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
-import { Link } from "@inertiajs/vue3";
 import {
     StarIcon,
     MapPinIcon,
@@ -22,6 +21,7 @@ import {
 } from "@heroicons/vue/24/solid";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import VueEasyLightbox from "vue-easy-lightbox";
 // import Pusher from "pusher-js";
 
 const props = defineProps({
@@ -32,6 +32,11 @@ const props = defineProps({
 const temp_item = ref({});
 const total_data = ref(0);
 const description = ref("");
+
+// Image Gallery
+const visibleImgGallery = ref(false);
+const indexRef = ref(0); // default 0
+const imgsRef = ref([]);
 
 // Paginate
 const current_page = ref(1);
@@ -91,8 +96,7 @@ const getData = async (page = 1) => {
                 search: search.value,
                 marketplaces: JSON.stringify(filter_marketplace.value),
                 comodities: JSON.stringify(filter_comodity.value),
-                // date: date.value,
-                limit: per_page.value,
+                per_page: per_page.value,
             },
         })
         .then((response) => {
@@ -101,7 +105,7 @@ const getData = async (page = 1) => {
             optionMenu.value = false;
             checkAllButton.value = false;
             response.data.forEach((element) => {
-                checkbox.value.push({ id: element.id, checked: false });
+                checkbox.value.push({ id: element._id, checked: false });
             });
             const totalPages = Math.ceil(total_data.value / per_page.value);
             const skip = (page - 1) * per_page.value;
@@ -124,48 +128,29 @@ const getData = async (page = 1) => {
         });
 };
 
-const deleteItem = () => {
-    if (confirm("Apa anda yakin ingin menghapus data ini ?")) {
-        loading.value["delete"][0] = true;
-        const checkedItems = computed(() => {
-            return checkbox.value
-                .filter((item) => item.checked)
-                .map((item) => item._id);
-        });
-        axios
-            .delete(route("temp-item.delete"), {
-                data: { ids: checkedItems.value },
-            })
-            .catch((response) => {
-                console.log(response.data);
-            })
-            .finally(() => {
-                getData(1);
-                loading.value["delete"][0] = false;
-            });
-    }
-};
-
 const supervisionItem = () => {
     if (confirm("Lakukan pengawasan terhadap produk ini ?")) {
         loading.value["supervision"][0] = true;
         const checkedItems = computed(() => {
             return checkbox.value
                 .filter((item) => item.checked)
-                .map((item) => item._id);
+                .map((item) => item.id);
         });
         axios
-            .post(route("supervision.store"), {
+            .post(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
                 ids: checkedItems.value,
             })
             .then((response) => {
-                toast.success(response.data);
+                toast.success(response.data.message || "Operation successful");
             })
-            .catch((response) => {
-                console.log(response);
+            .catch((error) => {
+                console.error("Error:", error);
+                toast.error(
+                    error.response?.data?.message || "An error occurred",
+                );
             })
             .finally(() => {
-                getData(1);
+                getData(current_page.value);
                 loading.value["supervision"][0] = false;
             });
     }
@@ -184,6 +169,13 @@ const checkAll = (event) => {
     checkbox.value.forEach((element) => {
         element.checked = event.target.checked;
     });
+};
+
+const showGallery = (images) => {
+    if (images.length > 1) {
+        visibleImgGallery.value = true;
+        imgsRef.value = images;
+    }
 };
 </script>
 <template>
@@ -287,7 +279,7 @@ const checkAll = (event) => {
                 >
                     <div class="flex gap-3 items-center">
                         <select
-                            @change="getData"
+                            @change="getData(1)"
                             v-model="per_page"
                             class="select select-bordered select-sm max-w-xs text-xs"
                         >
@@ -351,10 +343,7 @@ const checkAll = (event) => {
                             </tr>
                         </thead>
                         <tbody v-if="!isTableEmpty">
-                            <tr
-                                v-for="(item, index) in temp_item"
-                                :key="item?.id"
-                            >
+                            <tr v-for="(item, index) in temp_item" :key="index">
                                 <th>
                                     <label>
                                         <input
@@ -373,17 +362,39 @@ const checkAll = (event) => {
                                     <div class="flex items-center gap-3">
                                         <div class="avatar">
                                             <div
-                                                class="mask mask-squircle w-24 h-24"
+                                                class="rounded w-24 h-24"
+                                                :class="
+                                                    item.image.large.length > 1
+                                                        ? 'ring-info ring-offset-base-100 ring ring-offset-2'
+                                                        : ''
+                                                "
                                             >
-                                                <img
-                                                    @error="
-                                                        $event.target.src =
-                                                            '/assets/img/icon/no-image.svg'
+                                                <a
+                                                    href="javascript:;"
+                                                    :class="
+                                                        item.image.large
+                                                            .length > 1
+                                                            ? 'cursor-pointer'
+                                                            : 'cursor-default'
                                                     "
-                                                    loading="lazy"
-                                                    :src="item?.image[0]"
-                                                    :alt="`Gambar ${item?.title}`"
-                                                />
+                                                    @click="
+                                                        showGallery(
+                                                            item.image.large,
+                                                        )
+                                                    "
+                                                >
+                                                    <img
+                                                        @error="
+                                                            $event.target.src =
+                                                                '/assets/img/icon/no-image.svg'
+                                                        "
+                                                        loading="lazy"
+                                                        :src="
+                                                            item?.image.small[0]
+                                                        "
+                                                        :alt="`Gambar ${item?.title}`"
+                                                    />
+                                                </a>
                                             </div>
                                         </div>
                                         <div>
@@ -490,6 +501,14 @@ const checkAll = (event) => {
                                                             )
                                                     }}
                                                 </span>
+                                                <span
+                                                    class="text-xs flex gap-1"
+                                                    v-show="item.brand"
+                                                >
+                                                    <TagIcon
+                                                        class="w-3 h-3"
+                                                    />{{ item.brand }}
+                                                </span>
                                             </div>
                                             <div class="mt-1 flex gap-3">
                                                 <a
@@ -561,7 +580,7 @@ const checkAll = (event) => {
                                                 >
                                                     <ShoppingBagIcon
                                                         class="w-3 h-3"
-                                                    />
+                                                    />&nbsp;
                                                     {{ item.sold }}
                                                     Sold
                                                 </span>
@@ -618,29 +637,6 @@ const checkAll = (event) => {
                                                     }}
                                                 </span>
                                             </div>
-                                            <div v-show="item.flag">
-                                                <span
-                                                    class="text-xs flex gap-1"
-                                                >
-                                                    <FlagIcon
-                                                        class="h-3 w-3 text-success"
-                                                    />
-                                                    Supervision
-                                                </span>
-                                                <span
-                                                    class="text-xs flex gap-1"
-                                                >
-                                                    <CalendarDaysIcon
-                                                        class="w-3 h-3"
-                                                    />{{
-                                                        moment(item.updated_at)
-                                                            .locale("id")
-                                                            .format(
-                                                                "DD MMMM YYYY",
-                                                            )
-                                                    }}
-                                                </span>
-                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -665,7 +661,7 @@ const checkAll = (event) => {
                         </tbody>
                         <tbody v-else>
                             <tr>
-                                <td colspan="9" class="text-center">
+                                <td colspan="3" class="text-center">
                                     No Data Available
                                 </td>
                             </tr>
@@ -707,7 +703,12 @@ const checkAll = (event) => {
                 </div>
             </div>
         </div>
-
+        <vue-easy-lightbox
+            :visible="visibleImgGallery"
+            :imgs="imgsRef"
+            :index="indexRef"
+            @hide="visibleImgGallery = false"
+        ></vue-easy-lightbox>
         <dialog id="modalFilterCategory" class="modal">
             <div class="modal-box w-11/12 max-w-4xl">
                 <form method="dialog">

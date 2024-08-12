@@ -6,7 +6,7 @@ const props = defineProps({
     per_page: Number | String,
     next_page_url: String,
     filter_comodity: Array,
-    status: Boolean,
+    status: String,
     current_page: Number,
     last_page: Number,
 });

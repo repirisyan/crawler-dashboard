@@ -1,15 +1,26 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
 import { Head } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
+import VueEasyLightbox from "vue-easy-lightbox";
 
 import {
     StarIcon,
     MapPinIcon,
     MagnifyingGlassIcon,
     ArrowPathIcon,
+    EyeIcon,
     FlagIcon,
+    FunnelIcon,
+    TagIcon,
+    UserIcon,
+    BuildingStorefrontIcon,
+    CalendarIcon,
+    CalendarDaysIcon,
+    ShoppingBagIcon,
+    ScaleIcon,
 } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
@@ -18,9 +29,16 @@ const props = defineProps({
 });
 
 const products = ref({});
+const total_data = ref(0);
+const description = ref("");
+
+// Image Gallery
+const visibleImgGallery = ref(false);
+const indexRef = ref(0); // default 0
+const imgsRef = ref([]);
 
 // Paginate
-const current_page = ref(0);
+const current_page = ref(1);
 const next_page = ref(null);
 const prev_page = ref(null);
 const per_page = ref(15);
@@ -29,47 +47,76 @@ const to = ref(1);
 
 const loading = ref({
     refresh: {},
+    comodity: {},
+    marketplace: {},
 });
 
 // Filter Data
 const search = ref("");
-const marketplace = ref("");
-const comodity = ref("");
+const filter_marketplace = ref([]);
+const filter_comodity = ref([]);
 
 const isTableEmpty = computed(() => {
     return Object.keys(products.value).length === 0;
 });
 
-onMounted(() => {
+onMounted(async () => {
+    await getTotalData();
     getData();
 });
 
+const getTotalData = async () => {
+    await axios
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product/total`)
+        .then((response) => {
+            total_data.value = response.data;
+        })
+        .catch((response) => {
+            console.log(response);
+        });
+};
+
 const getData = async (page = 1) => {
     loading.value["refresh"][0] = true;
+    loading.value["comodity"][0] = true;
+    loading.value["marketplace"][0] = true;
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product`, {
             params: {
                 page: page,
                 search: search.value,
-                limit: per_page.value,
-                marketplace: marketplace.value,
-                comodity: comodity.value,
+                per_page: per_page.value,
+                marketplaces: JSON.stringify(filter_marketplace.value),
+                comodities: JSON.stringify(filter_comodity.value),
             },
         })
         .then((response) => {
-            products.value = response.data.products;
-            current_page.value = response.data.page;
-            next_page.value = response.data.has_next_page;
-            prev_page.value = response.data.has_prev_page;
-            from.value = (response.data.page - 1) * response.data.per_page + 1;
-            to.value = response.data.page * response.data.per_page;
+            const totalPages = Math.ceil(total_data.value / per_page.value);
+            const skip = (page - 1) * per_page.value;
+            current_page.value = page;
+            next_page.value =
+                current_page.value < totalPages ? current_page.value + 1 : null;
+            prev_page.value =
+                current_page.value > 1 ? current_page.value - 1 : null;
+            from.value = skip + 1;
+            to.value = skip + response.data.length;
+            products.value = response.data;
         })
         .catch((response) => {
             console.log(response);
         })
         .finally(() => {
             loading.value["refresh"][0] = false;
+            loading.value["comodity"][0] = false;
+            loading.value["marketplace"][0] = false;
         });
+};
+
+const showGallery = (images) => {
+    if (images.length > 1) {
+        visibleImgGallery.value = true;
+        imgsRef.value = images;
+    }
 };
 </script>
 <template>
@@ -92,13 +139,13 @@ const getData = async (page = 1) => {
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="card">
                             <div
-                                class="card-header flex justify-between verflow-x-auto mb-4"
+                                class="card-header flex justify-between verflow-x-auto"
                             >
                                 <div
                                     class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5"
                                 >
                                     <button
-                                        @click="getData"
+                                        @click="getData(current_page)"
                                         class="btn btn-sm btn-outline btn-info"
                                         :disabled="loading['refresh'][0]"
                                     >
@@ -117,36 +164,34 @@ const getData = async (page = 1) => {
                                 <div
                                     class="grid grid-cols-1 md:flex lg:flex gap-3 float-end"
                                 >
-                                    <select
-                                        class="select select-bordered"
-                                        v-model="comodity"
-                                        @change="getData"
+                                    <button
+                                        class="btn"
+                                        onclick="modalFilterCategory.showModal()"
                                     >
-                                        <option value="">-- Category --</option>
-                                        <option
-                                            :value="comodity.name"
-                                            v-for="comodity in props.comodities"
-                                            :key="comodity.id"
+                                        Filter Category
+                                        <FunnelIcon class="w-4 h-4" />
+                                        <span
+                                            v-show="filter_comodity.length > 0"
+                                            class="text-success"
+                                            >{{ filter_comodity.length }}</span
                                         >
-                                            {{ comodity.name }}
-                                        </option>
-                                    </select>
-                                    <select
-                                        class="select select-bordered"
-                                        v-model="marketplace"
-                                        @change="getData"
+                                    </button>
+                                    <button
+                                        class="btn"
+                                        onclick="modalFilterMarketplace.showModal()"
                                     >
-                                        <option value="">
-                                            -- Marketplace --
-                                        </option>
-                                        <option
-                                            :value="marketplace.name"
-                                            v-for="marketplace in props.marketplaces"
-                                            :key="marketplace.id"
+                                        Filter Materketplace
+                                        <FunnelIcon class="w-4 h-4" />
+                                        <span
+                                            v-show="
+                                                filter_marketplace.length > 0
+                                            "
+                                            class="text-success"
+                                            >{{
+                                                filter_marketplace.length
+                                            }}</span
                                         >
-                                            {{ marketplace.name }}
-                                        </option>
-                                    </select>
+                                    </button>
                                     <label
                                         class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
                                     >
@@ -154,192 +199,650 @@ const getData = async (page = 1) => {
                                             v-model.lazy="search"
                                             type="text"
                                             class="grow border-0"
-                                            @change="getData"
-                                            placeholder="Filter Data"
+                                            @change="getData(1)"
+                                            placeholder="Search"
                                         />
                                         <MagnifyingGlassIcon class="h-5 w-5" />
                                     </label>
                                 </div>
                             </div>
-                            <div
-                                v-show="!isTableEmpty"
-                                class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between"
-                            >
-                                <div class="flex gap-3 items-center">
-                                    <select
-                                        @change="getData"
-                                        v-model="per_page"
-                                        class="select select-bordered select-sm max-w-xs text-xs"
-                                    >
-                                        <option value="15">15</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                    <label
-                                        class="text-xs md:text-base lg:text-base"
-                                        >entries per page</label
-                                    >
-                                </div>
-                                <div class="text-xs md:text-base lg:text-base">
-                                    Showing {{ from }} to {{ to }} Entries
-                                </div>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="table">
-                                    <!-- head -->
-                                    <thead class="text-info">
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Rating</th>
-                                            <th>Sold</th>
-                                            <th>Price</th>
-                                            <th>Marketplace</th>
-                                            <th>Seller</th>
-                                            <th>Crawling Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody v-if="!isTableEmpty">
-                                        <tr
-                                            v-for="item in products"
-                                            :key="item?.id"
+                            <div class="card-body">
+                                <div
+                                    v-show="!isTableEmpty"
+                                    class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between mb-2"
+                                >
+                                    <div class="flex gap-3 items-center">
+                                        <select
+                                            @change="getData(1)"
+                                            v-model="per_page"
+                                            class="select select-bordered select-sm max-w-xs text-xs"
                                         >
-                                            <td>
-                                                <div
-                                                    class="flex items-center gap-3"
-                                                >
-                                                    <div class="avatar">
-                                                        <div
-                                                            class="mask mask-squircle w-12 h-12"
-                                                        >
-                                                            <img
-                                                                :src="
-                                                                    item?.image ??
-                                                                    '/assets/img/icon/no-image.svg'
-                                                                "
-                                                                :alt="`Gambar ${item?.title}`"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div class="font-bold">
-                                                            <a
-                                                                class="hover:link hover:link-info"
-                                                                :href="
-                                                                    item?.link
-                                                                "
-                                                                target="_blank"
-                                                                >{{
-                                                                    item?.title
-                                                                }}</a
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                {{ item.comodity }}
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                <span class="flex"
-                                                    ><StarIcon
-                                                        class="h-4 w-4 text-yellow-500"
-                                                    />&nbsp;{{
-                                                        item?.rating
-                                                    }}</span
-                                                >
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                <span
-                                                    class="badge badge-ghost badge-sm"
-                                                    >{{ item?.sold }} Sold</span
-                                                >
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                {{
-                                                    new Intl.NumberFormat(
-                                                        "id-ID",
-                                                        {
-                                                            style: "currency",
-                                                            currency: "IDR",
-                                                        },
-                                                    ).format(item?.price)
-                                                }}
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                {{ item.marketplace }}
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                <div class="font-bold">
-                                                    {{ item?.seller }}
-                                                </div>
-                                                <div class="flex">
-                                                    <MapPinIcon
-                                                        class="w-5 h-5 text-red-400"
-                                                    />&nbsp;{{ item?.location }}
-                                                </div>
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                {{
-                                                    moment(item.created_at)
-                                                        .locale("id")
-                                                        .format("DD MMMM YYYY")
-                                                }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tbody v-else>
-                                        <tr>
-                                            <td colspan="8" class="text-center">
-                                                No Data Available
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot
-                                        class="text-info"
+                                            <option value="15">15</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <label
+                                            class="text-xs md:text-base lg:text-base"
+                                            >entries per page</label
+                                        >
+                                    </div>
+                                    <div
+                                        class="join mt-2 text-center mx-auto"
                                         v-show="!isTableEmpty"
                                     >
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Category</th>
-                                            <th>Rating</th>
-                                            <th>Sold</th>
-                                            <th>Price</th>
-                                            <th>Marketplace</th>
-                                            <th>Seller</th>
-                                            <th>Crawling Date</th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div
-                                class="join mt-2 text-center mx-auto"
-                                v-show="!isTableEmpty"
-                            >
-                                <button
-                                    :disabled="loading['refresh'][0]"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    v-show="prev_page"
-                                    @click="getData(current_page - 1)"
+                                        <button
+                                            :disabled="loading['refresh'][0]"
+                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                            v-show="prev_page != null"
+                                            @click="getData(prev_page)"
+                                        >
+                                            «
+                                        </button>
+                                        <button
+                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
+                                        >
+                                            {{ current_page }}
+                                        </button>
+                                        <button
+                                            :show="next_page != null"
+                                            :disabled="loading['refresh'][0]"
+                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                            @click="getData(next_page)"
+                                        >
+                                            »
+                                        </button>
+                                    </div>
+                                    <div
+                                        class="text-xs md:text-base lg:text-base"
+                                    >
+                                        Showing {{ from }} to {{ to }} from
+                                        {{ total_data }} Entries
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="table">
+                                        <!-- head -->
+                                        <thead class="text-info">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Category</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody v-if="!isTableEmpty">
+                                            <tr
+                                                v-for="(
+                                                    item, index
+                                                ) in products"
+                                                :key="index"
+                                            >
+                                                <td class="w-auto">
+                                                    <div
+                                                        class="flex items-center gap-3"
+                                                    >
+                                                        <div class="avatar">
+                                                            <div
+                                                                class="rounded w-24 h-24"
+                                                                :class="
+                                                                    item.image
+                                                                        ?.large
+                                                                        .length >
+                                                                    1
+                                                                        ? 'ring-info ring-offset-base-100 ring ring-offset-2'
+                                                                        : ''
+                                                                "
+                                                            >
+                                                                <a
+                                                                    href="javascript:;"
+                                                                    :class="
+                                                                        item
+                                                                            .image
+                                                                            ?.large
+                                                                            .length >
+                                                                        1
+                                                                            ? 'cursor-pointer'
+                                                                            : 'cursor-default'
+                                                                    "
+                                                                    @click="
+                                                                        showGallery(
+                                                                            item
+                                                                                .image
+                                                                                .large,
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    <img
+                                                                        @error="
+                                                                            $event.target.src =
+                                                                                '/assets/img/icon/no-image.svg'
+                                                                        "
+                                                                        loading="lazy"
+                                                                        :src="
+                                                                            item
+                                                                                ?.image
+                                                                                ?.small[0]
+                                                                        "
+                                                                        :alt="`Gambar ${item?.title}`"
+                                                                    />
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div
+                                                                class="font-bold"
+                                                            >
+                                                                <a
+                                                                    class="hover:link hover:link-info"
+                                                                    :href="
+                                                                        item?.link
+                                                                    "
+                                                                    target="_blank"
+                                                                    >{{
+                                                                        item?.title
+                                                                    }}</a
+                                                                >
+                                                            </div>
+                                                            <div
+                                                                class="font-extrabold text-lg"
+                                                                v-if="
+                                                                    item.price
+                                                                        ?.discount
+                                                                "
+                                                            >
+                                                                {{
+                                                                    new Intl.NumberFormat(
+                                                                        "id-ID",
+                                                                        {
+                                                                            style: "currency",
+                                                                            currency:
+                                                                                "IDR",
+                                                                        },
+                                                                    ).format(
+                                                                        (item
+                                                                            .price
+                                                                            .original_price *
+                                                                            item
+                                                                                .price
+                                                                                .discount) /
+                                                                            100,
+                                                                    )
+                                                                }}
+                                                            </div>
+                                                            <div
+                                                                v-else
+                                                                class="font-extrabold text-lg"
+                                                            >
+                                                                {{
+                                                                    new Intl.NumberFormat(
+                                                                        "id-ID",
+                                                                        {
+                                                                            style: "currency",
+                                                                            currency:
+                                                                                "IDR",
+                                                                        },
+                                                                    ).format(
+                                                                        item
+                                                                            .price
+                                                                            .price,
+                                                                    )
+                                                                }}
+                                                            </div>
+                                                            <div
+                                                                class="font-extrabold text-xs flex gap-2"
+                                                                v-show="
+                                                                    item.price
+                                                                        ?.discount
+                                                                "
+                                                            >
+                                                                <span
+                                                                    class="line-through text-gray-400"
+                                                                    >{{
+                                                                        new Intl.NumberFormat(
+                                                                            "id-ID",
+                                                                            {
+                                                                                style: "currency",
+                                                                                currency:
+                                                                                    "IDR",
+                                                                            },
+                                                                        ).format(
+                                                                            item
+                                                                                .price
+                                                                                .original_price,
+                                                                        )
+                                                                    }}</span
+                                                                >
+                                                                <span
+                                                                    class="text-error"
+                                                                    >{{
+                                                                        item
+                                                                            .price
+                                                                            ?.discount
+                                                                    }}%</span
+                                                                >
+                                                            </div>
+                                                            <div
+                                                                class="flex gap-3 mt-1 align-middle"
+                                                            >
+                                                                <span
+                                                                    class="text-xs flex gap-1"
+                                                                >
+                                                                    <img
+                                                                        class="max-w-14 max-h-4"
+                                                                        :src="`/assets/img/marketplace/${item.marketplace.toLowerCase()}.svg`"
+                                                                        v-if="
+                                                                            item.marketplace !=
+                                                                            'OLX'
+                                                                        "
+                                                                    />
+                                                                    <span
+                                                                        v-else
+                                                                        class="flex gap-1"
+                                                                    >
+                                                                        <BuildingStorefrontIcon
+                                                                            class="w-3 h-3"
+                                                                        />{{
+                                                                            item.marketplace
+                                                                        }}
+                                                                    </span>
+                                                                </span>
+                                                                <span
+                                                                    class="text-xs flex gap-1"
+                                                                >
+                                                                    <CalendarIcon
+                                                                        class="w-3 h-3"
+                                                                    />{{
+                                                                        moment(
+                                                                            item.created_at,
+                                                                        )
+                                                                            .locale(
+                                                                                "id",
+                                                                            )
+                                                                            .format(
+                                                                                "DD MMMM YYYY",
+                                                                            )
+                                                                    }}
+                                                                </span>
+                                                                <span
+                                                                    class="text-xs flex gap-1"
+                                                                    v-show="
+                                                                        item.brand
+                                                                    "
+                                                                >
+                                                                    <TagIcon
+                                                                        class="w-3 h-3"
+                                                                    />{{
+                                                                        item.brand
+                                                                    }}
+                                                                </span>
+                                                            </div>
+                                                            <div
+                                                                class="mt-1 flex gap-3"
+                                                            >
+                                                                <a
+                                                                    target="_blank"
+                                                                    :href="
+                                                                        item
+                                                                            .seller
+                                                                            .url ??
+                                                                        'javascript:;'
+                                                                    "
+                                                                    class="text-xs flex gap-1"
+                                                                    :class="
+                                                                        item
+                                                                            .seller
+                                                                            .url
+                                                                            ? 'text-blue-500 hover:link'
+                                                                            : ''
+                                                                    "
+                                                                >
+                                                                    <UserIcon
+                                                                        class="w-3 h-3"
+                                                                    />
+                                                                    {{
+                                                                        item
+                                                                            .seller
+                                                                            .name
+                                                                    }}
+                                                                </a>
+                                                                <span
+                                                                    class="text-xs flex gap-1"
+                                                                >
+                                                                    <MapPinIcon
+                                                                        class="w-3 h-3 text-red-400"
+                                                                    /><span
+                                                                        v-show="
+                                                                            item
+                                                                                .location
+                                                                                ?.province
+                                                                        "
+                                                                        >{{
+                                                                            item
+                                                                                .location
+                                                                                ?.province
+                                                                        }}, </span
+                                                                    ><span
+                                                                        v-show="
+                                                                            item
+                                                                                .location
+                                                                                ?.city
+                                                                        "
+                                                                        >{{
+                                                                            item
+                                                                                .location
+                                                                                ?.city
+                                                                        }}</span
+                                                                    >
+                                                                    <span
+                                                                        v-show="
+                                                                            item
+                                                                                .location
+                                                                                ?.district
+                                                                        "
+                                                                        >,
+                                                                        {{
+                                                                            item
+                                                                                .location
+                                                                                ?.district
+                                                                        }}</span
+                                                                    >
+                                                                </span>
+                                                            </div>
+
+                                                            <div
+                                                                class="flex gap-3 align-middle mt-1"
+                                                            >
+                                                                <span
+                                                                    class="text-xs flex gap-1"
+                                                                    v-show="
+                                                                        item.weight
+                                                                    "
+                                                                >
+                                                                    <ScaleIcon
+                                                                        class="h-3 w-3"
+                                                                    />
+                                                                    {{
+                                                                        item.weight
+                                                                    }}
+                                                                    Gram
+                                                                </span>
+                                                                <span
+                                                                    class="text-xs flex align-middle"
+                                                                >
+                                                                    <ShoppingBagIcon
+                                                                        class="w-3 h-3"
+                                                                    />&nbsp;
+                                                                    {{
+                                                                        item.sold
+                                                                    }}
+                                                                    Sold
+                                                                </span>
+                                                                <span
+                                                                    class="flex text-xs gap-1 align-middle"
+                                                                    ><StarIcon
+                                                                        class="h-3 w-3 text-yellow-500"
+                                                                    />{{
+                                                                        item
+                                                                            .rating
+                                                                            .rating
+                                                                    }}/{{
+                                                                        item
+                                                                            .rating
+                                                                            .count
+                                                                    }}</span
+                                                                >
+                                                                <a
+                                                                    @click="
+                                                                        description =
+                                                                            item.description
+                                                                    "
+                                                                    href="javascript:;"
+                                                                    onclick="modalDescription.showModal()"
+                                                                    class="text-xs flex gap-1 hover:text-info"
+                                                                    v-show="
+                                                                        item.description
+                                                                    "
+                                                                >
+                                                                    <EyeIcon
+                                                                        class="w-3 h-3"
+                                                                    /><span
+                                                                        >Show
+                                                                        Description</span
+                                                                    >
+                                                                </a>
+                                                            </div>
+                                                            <div
+                                                                v-show="
+                                                                    item.flag
+                                                                "
+                                                                class="flex gap-3 align-middle mt-1"
+                                                            >
+                                                                <span
+                                                                    class="text-xs flex gap-1"
+                                                                >
+                                                                    <FlagIcon
+                                                                        class="h-3 w-3 text-success"
+                                                                    />
+                                                                    Supervision
+                                                                </span>
+                                                                <span
+                                                                    class="text-xs flex gap-1"
+                                                                >
+                                                                    <CalendarDaysIcon
+                                                                        class="w-3 h-3"
+                                                                    />{{
+                                                                        moment(
+                                                                            item.updated_at,
+                                                                        )
+                                                                            .locale(
+                                                                                "id",
+                                                                            )
+                                                                            .format(
+                                                                                "DD MMMM YYYY",
+                                                                            )
+                                                                    }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="min-w-64">
+                                                    <HierarchyCategoryProd
+                                                        :comodity="
+                                                            item.comodity
+                                                                .comodity
+                                                        "
+                                                        :sub_comodity="
+                                                            item.comodity
+                                                                .sub_comodity
+                                                        "
+                                                        :second_level_sub_comodity="
+                                                            item.comodity
+                                                                .second_level_sub_comodity
+                                                        "
+                                                        :third_level_sub_comodity="
+                                                            item.comodity
+                                                                .third_level_sub_comodity
+                                                        "
+                                                        :keyword="item.keyword"
+                                                    />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tbody v-else>
+                                            <tr>
+                                                <td
+                                                    colspan="3"
+                                                    class="text-center"
+                                                >
+                                                    No Data Available
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot
+                                            class="text-info"
+                                            v-show="!isTableEmpty"
+                                        >
+                                            <tr>
+                                                <th></th>
+                                                <th>Name</th>
+                                                <th>Category</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div
+                                    class="join mt-2 text-center mx-auto"
+                                    v-show="!isTableEmpty"
                                 >
-                                    «
-                                </button>
-                                <button
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                                >
-                                    {{ current_page }}
-                                </button>
-                                <button
-                                    :show="next_page"
-                                    :disabled="loading['refresh'][0]"
-                                    class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                    @click="getData(current_page + 1)"
-                                >
-                                    »
-                                </button>
+                                    <button
+                                        :disabled="loading['refresh'][0]"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        v-show="prev_page != null"
+                                        @click="getData(current_page - 1)"
+                                    >
+                                        «
+                                    </button>
+                                    <button
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
+                                    >
+                                        {{ current_page }}
+                                    </button>
+                                    <button
+                                        :show="next_page != null"
+                                        :disabled="loading['refresh'][0]"
+                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
+                                        @click="getData(current_page + 1)"
+                                    >
+                                        »
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        <vue-easy-lightbox
+                            :visible="visibleImgGallery"
+                            :imgs="imgsRef"
+                            :index="indexRef"
+                            @hide="visibleImgGallery = false"
+                        ></vue-easy-lightbox>
+                        <dialog id="modalFilterCategory" class="modal">
+                            <div class="modal-box w-11/12 max-w-4xl">
+                                <form method="dialog">
+                                    <button
+                                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                    >
+                                        ✕
+                                    </button>
+                                </form>
+                                <div class="flex gap-3">
+                                    <h3
+                                        class="text-lg font-bold align-middle flex gap-3"
+                                    >
+                                        <TagIcon class="w-5 h-5 my-auto" />
+                                        Filter Category
+                                    </h3>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="grid grid-cols-4 gap-4">
+                                    <div
+                                        class="form-control border border-solid rounded-md border-teal-700"
+                                        v-for="comodity in props.comodities"
+                                        :key="comodity.id"
+                                    >
+                                        <label class="cursor-pointer label">
+                                            <span class="label-text">{{
+                                                comodity.name
+                                            }}</span>
+                                            <input
+                                                :id="`checkbox_comodity${comodity.id}`"
+                                                type="checkbox"
+                                                :value="comodity.id"
+                                                v-model="filter_comodity"
+                                                class="checkbox checkbox-success"
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="modal-action">
+                                    <button
+                                        class="btn btn-outline btn-success btn-sm"
+                                        :disabled="loading['comodity'][0]"
+                                        @click="getData(1)"
+                                    >
+                                        Save
+                                        <span
+                                            class="loading loading-spinner loading-sm"
+                                            v-show="loading['comodity'][0]"
+                                        ></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </dialog>
+
+                        <dialog id="modalFilterMarketplace" class="modal">
+                            <div class="modal-box w-11/12 max-w-4xl">
+                                <form method="dialog">
+                                    <button
+                                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                    >
+                                        ✕
+                                    </button>
+                                </form>
+                                <div class="flex gap-3">
+                                    <h3
+                                        class="text-lg font-bold align-middle flex gap-3"
+                                    >
+                                        <TagIcon class="w-5 h-5 my-auto" />
+                                        Filter Marketplace
+                                    </h3>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="grid grid-cols-4 gap-4">
+                                    <div
+                                        class="form-control border border-solid rounded-md border-teal-700"
+                                        v-for="marketplace in props.marketplaces"
+                                        :key="marketplace.id"
+                                    >
+                                        <label class="cursor-pointer label">
+                                            <span class="label-text">{{
+                                                marketplace.name
+                                            }}</span>
+                                            <input
+                                                :id="`checkbox_marketplace${marketplace.id}`"
+                                                type="checkbox"
+                                                :value="marketplace.id"
+                                                v-model="filter_marketplace"
+                                                class="checkbox checkbox-success"
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="modal-action">
+                                    <button
+                                        class="btn btn-outline btn-success btn-sm"
+                                        :disabled="loading['marketplace'][0]"
+                                        @click="getData(1)"
+                                    >
+                                        Save
+                                        <span
+                                            class="loading loading-spinner loading-sm"
+                                            v-show="loading['marketplace'][0]"
+                                        ></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </dialog>
+
+                        <!-- Open the modal using ID.showModal() method -->
+                        <dialog id="modalDescription" class="modal">
+                            <div class="modal-box w-11/12 max-w-5xl">
+                                <p class="py-4" v-html="description"></p>
+                            </div>
+                            <form method="dialog" class="modal-backdrop">
+                                <button>close</button>
+                            </form>
+                        </dialog>
                     </div>
                 </div>
             </div>

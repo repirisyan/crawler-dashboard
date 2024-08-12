@@ -5,7 +5,7 @@ const props = defineProps({
     search: String,
     per_page: Number | String,
     next_page_url: String,
-    status: Boolean,
+    status: String,
     current_page: Number,
     last_page: Number,
 });

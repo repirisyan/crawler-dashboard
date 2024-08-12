@@ -5,11 +5,10 @@ import { onMounted, ref, computed } from "vue";
 import moment from "moment";
 
 import {
-    StarIcon,
-    MapPinIcon,
     MagnifyingGlassIcon,
     ArrowPathIcon,
-    FlagIcon,
+    FunnelIcon,
+    TagIcon,
 } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
@@ -22,7 +21,7 @@ const products = ref({});
 const current_page = ref(0);
 const next_page = ref(null);
 const has_next_page = ref(null);
-const limit = ref(15);
+const per_page = ref(15);
 const from = ref(1);
 const to = ref(1);
 const total = ref(1);
@@ -30,11 +29,12 @@ const last_page = ref(0);
 
 const loading = ref({
     refresh: {},
+    marketplace: {},
 });
 
 // Filter Data
 const search = ref("");
-const marketplace = ref("");
+const filter_marketplace = ref([]);
 
 const isTableEmpty = computed(() => {
     return Object.keys(products.value).length === 0;
@@ -44,15 +44,16 @@ onMounted(() => {
     getData();
 });
 
-const getData = async (page = null) => {
+const getData = async (page = 1) => {
     loading.value["refresh"][0] = true;
+    loading.value["marketplace"][0] = true;
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/trending-product`, {
             params: {
                 page: page,
                 search: search.value,
-                limit: limit.value,
-                marketplace: marketplace.value,
+                per_page: per_page.value,
+                marketplaces: JSON.stringify(filter_marketplace.value),
             },
         })
         .then((response) => {
@@ -70,6 +71,7 @@ const getData = async (page = null) => {
         })
         .finally(() => {
             loading.value["refresh"][0] = false;
+            loading.value["marketplace"][0] = false;
         });
 };
 </script>
@@ -99,7 +101,7 @@ const getData = async (page = null) => {
                                     class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5"
                                 >
                                     <button
-                                        @click="getData"
+                                        @click="getData(1)"
                                         class="btn btn-sm btn-outline btn-info"
                                         :disabled="loading['refresh'][0]"
                                     >
@@ -118,22 +120,22 @@ const getData = async (page = null) => {
                                 <div
                                     class="grid grid-cols-1 md:flex lg:flex gap-3 float-end"
                                 >
-                                    <select
-                                        class="select select-bordered"
-                                        v-model="marketplace"
-                                        @change="getData"
+                                    <button
+                                        class="btn"
+                                        onclick="modalFilterMarketplace.showModal()"
                                     >
-                                        <option value="">
-                                            -- Marketplace --
-                                        </option>
-                                        <option
-                                            :value="marketplace.name"
-                                            v-for="marketplace in props.marketplaces"
-                                            :key="marketplace.id"
+                                        Filter Materketplace
+                                        <FunnelIcon class="w-4 h-4" />
+                                        <span
+                                            v-show="
+                                                filter_marketplace.length > 0
+                                            "
+                                            class="text-success"
+                                            >{{
+                                                filter_marketplace.length
+                                            }}</span
                                         >
-                                            {{ marketplace.name }}
-                                        </option>
-                                    </select>
+                                    </button>
                                     <label
                                         class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
                                     >
@@ -155,7 +157,7 @@ const getData = async (page = null) => {
                                 <div class="flex gap-3 items-center">
                                     <select
                                         @change="getData"
-                                        v-model="limit"
+                                        v-model="per_page"
                                         class="select select-bordered select-sm max-w-xs text-xs"
                                     >
                                         <option value="15">15</option>
@@ -342,5 +344,56 @@ const getData = async (page = null) => {
                 </div>
             </div>
         </div>
+        <dialog id="modalFilterMarketplace" class="modal">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                    >
+                        ✕
+                    </button>
+                </form>
+                <div class="flex gap-3">
+                    <h3 class="text-lg font-bold align-middle flex gap-3">
+                        <TagIcon class="w-5 h-5 my-auto" /> Filter Marketplace
+                    </h3>
+                </div>
+                <div class="divider"></div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div
+                        class="form-control border border-solid rounded-md border-teal-700"
+                        v-for="marketplace in props.marketplaces"
+                        :key="marketplace.id"
+                    >
+                        <label class="cursor-pointer label">
+                            <span class="label-text">{{
+                                marketplace.name
+                            }}</span>
+                            <input
+                                :id="`checkbox_marketplace${marketplace.id}`"
+                                type="checkbox"
+                                :value="marketplace.id"
+                                v-model="filter_marketplace"
+                                class="checkbox checkbox-success"
+                            />
+                        </label>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="modal-action">
+                    <button
+                        class="btn btn-outline btn-success btn-sm"
+                        :disabled="loading['marketplace'][0]"
+                        @click="getData(1)"
+                    >
+                        Save
+                        <span
+                            class="loading loading-spinner loading-sm"
+                            v-show="loading['marketplace'][0]"
+                        ></span>
+                    </button>
+                </div>
+            </div>
+        </dialog>
     </AuthenticatedLayout>
 </template>

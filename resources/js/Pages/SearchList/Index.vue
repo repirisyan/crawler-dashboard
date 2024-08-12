@@ -18,7 +18,7 @@ const props = defineProps({
     comodities: Object,
     params: Object,
 });
-
+console.log(props.params?.status);
 const filter_comodity = ref(props.params?.comodity ?? []);
 const search = ref(props.params?.search ?? "");
 const filter_status = ref(props.params?.status ?? "");
@@ -39,6 +39,7 @@ const filterData = () => {
         route("search-list.index", {
             comodity: filter_comodity.value,
             search: search.value,
+            per_page: per_page.value,
             status: filter_status.value,
             page: 1,
         }),
