@@ -50,6 +50,7 @@ const checkAllButton = ref(false);
 const optionMenu = ref(false);
 
 const loading = ref({
+    data: {},
     comodity: {},
     marketplace: {},
     refresh: {},
@@ -70,8 +71,10 @@ const isTableEmpty = computed(() => {
 });
 
 onMounted(async () => {
+    loading.value["data"][0] = true;
     await getTotalData();
-    getData();
+    await getData();
+    loading.value["data"][0] = false;
 });
 
 const getTotalData = async () => {
@@ -876,6 +879,15 @@ const showGallery = (images) => {
                                             <tr>
                                                 <td
                                                     colspan="5"
+                                                    v-if="loading['data'][0]"
+                                                    class="text-center"
+                                                >
+                                                    <span
+                                                        class="loading loading-spinner loading-sm"
+                                                    ></span>
+                                                </td>
+                                                <td
+                                                    colspan="5"
                                                     class="text-center"
                                                 >
                                                     No Data Available
@@ -955,7 +967,7 @@ const showGallery = (images) => {
                             <input
                                 :id="`checkbox_comodity${comodity.id}`"
                                 type="checkbox"
-                                :value="comodity.id"
+                                :value="comodity.name"
                                 v-model="filter_comodity"
                                 class="checkbox checkbox-success"
                             />
@@ -1007,7 +1019,7 @@ const showGallery = (images) => {
                             <input
                                 :id="`checkbox_marketplace${marketplace.id}`"
                                 type="checkbox"
-                                :value="marketplace.id"
+                                :value="marketplace.name"
                                 v-model="filter_marketplace"
                                 class="checkbox checkbox-success"
                             />

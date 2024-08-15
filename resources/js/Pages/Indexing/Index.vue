@@ -755,7 +755,7 @@ const showGallery = (images) => {
                                             <input
                                                 :id="`checkbox_comodity${comodity.id}`"
                                                 type="checkbox"
-                                                :value="comodity.id"
+                                                :value="comodity.name"
                                                 v-model="filter_comodity"
                                                 class="checkbox checkbox-success"
                                             />
@@ -810,7 +810,7 @@ const showGallery = (images) => {
                                             <input
                                                 :id="`checkbox_marketplace${marketplace.id}`"
                                                 type="checkbox"
-                                                :value="marketplace.id"
+                                                :value="marketplace.name"
                                                 v-model="filter_marketplace"
                                                 class="checkbox checkbox-success"
                                             />

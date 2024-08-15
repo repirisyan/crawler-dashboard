@@ -38,6 +38,7 @@ const form = useForm({
     name: "",
 });
 const formEdit = useForm({
+    id: "",
     name: "",
 });
 
@@ -439,7 +440,7 @@ const destroy = (id) => {
                             class="input input-bordered w-full"
                         />
                         <div class="label" v-show="formEdit.errors.name">
-                            <span class="label-text-alt text-danger">{{
+                            <span class="label-text-alt text-error">{{
                                 formEdit.errors.name
                             }}</span>
                         </div>

@@ -33,6 +33,7 @@ class SupervisionListImport implements ShouldQueue, SkipsOnFailure, ToModel, Wit
     {
         return new SupervisionList([
             'name' => $row['name'],
+            'category' => $row['category'],
         ]);
     }
 
@@ -58,6 +59,7 @@ class SupervisionListImport implements ShouldQueue, SkipsOnFailure, ToModel, Wit
     {
         return [
             '*.name' => ['required', Rule::unique('supervision_lists', 'name')],
+            '*.category' => ['required']
         ];
     }
 }

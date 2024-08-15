@@ -22,7 +22,7 @@ class ComodityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|unique:comodities,name',
+            'name' => 'required|unique:comodities,name,'.$this->id,
         ];
     }
 }

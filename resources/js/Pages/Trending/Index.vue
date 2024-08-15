@@ -372,7 +372,7 @@ const getData = async (page = 1) => {
                             <input
                                 :id="`checkbox_marketplace${marketplace.id}`"
                                 type="checkbox"
-                                :value="marketplace.id"
+                                :value="marketplace.name"
                                 v-model="filter_marketplace"
                                 class="checkbox checkbox-success"
                             />

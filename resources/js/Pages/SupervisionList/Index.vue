@@ -41,9 +41,12 @@ const loadingStates = ref({
 
 const form = useForm({
     name: "",
+    category: "",
 });
 const formEdit = useForm({
+    id: "",
     name: "",
+    category: "",
 });
 
 const isTableEmpty = computed(() => {
@@ -126,6 +129,7 @@ const editData = (id) => {
     modalEdit.value.showModal();
     axios.get(route("supervision-list.edit", id)).then((response) => {
         formEdit.name = response.data.name;
+        formEdit.category = response.data.category;
         formEdit.id = id;
     });
 };
@@ -157,7 +161,7 @@ const updateData = () => {
             toast.success(response.props.flash.message[1]);
         },
         onError: (response) => {
-            formEdit.reset();
+            console.log(response);
             toast.error(response.props.flash.message[1]);
         },
     });
@@ -318,6 +322,7 @@ const destroy = (id) => {
                                         <thead class="text-info">
                                             <tr>
                                                 <th>Name</th>
+                                                <th>Category</th>
                                                 <th>Status</th>
                                                 <th>Last Update</th>
                                                 <th>Action</th>
@@ -331,6 +336,9 @@ const destroy = (id) => {
                                             >
                                                 <td>
                                                     {{ item.name }}
+                                                </td>
+                                                <td>
+                                                    {{ item.category }}
                                                 </td>
                                                 <td>
                                                     <a
@@ -418,7 +426,7 @@ const destroy = (id) => {
                                         <tbody v-else>
                                             <tr>
                                                 <td
-                                                    colspan="4"
+                                                    colspan="5"
                                                     class="text-center"
                                                 >
                                                     No Data Available
@@ -431,6 +439,7 @@ const destroy = (id) => {
                                         >
                                             <tr>
                                                 <th>Name</th>
+                                                <th>Category</th>
                                                 <th>Status</th>
                                                 <th>Last Update</th>
                                                 <th>Action</th>
@@ -478,6 +487,31 @@ const destroy = (id) => {
                         <div class="label" v-show="form.errors.name">
                             <span class="label-text-alt text-danger">{{
                                 form.errors.name
+                            }}</span>
+                        </div>
+                    </label>
+                    <label class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Category</span>
+                        </div>
+                        <select
+                            v-model.lazy="form.category"
+                            :class="form.errors.category ? 'select-error' : ''"
+                            :readonly="form.processing"
+                            required
+                            class="select select-bordered w-full"
+                        >
+                            <option value="" selected>
+                                -- Select Category --
+                            </option>
+                            <option value="SNI">SNI</option>
+                            <option value="Halal">Halal</option>
+                            <option value="Ijin Edar">Ijin Edar</option>
+                            <option value="HAKI">HAKI</option>
+                        </select>
+                        <div class="label" v-show="form.errors.category">
+                            <span class="label-text-alt text-danger">{{
+                                form.errors.category
                             }}</span>
                         </div>
                     </label>
@@ -530,8 +564,35 @@ const destroy = (id) => {
                             class="input input-bordered w-full"
                         />
                         <div class="label" v-show="formEdit.errors.name">
-                            <span class="label-text-alt text-danger">{{
+                            <span class="label-text-alt text-error">{{
                                 formEdit.errors.name
+                            }}</span>
+                        </div>
+                    </label>
+                    <label class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Category</span>
+                        </div>
+                        <select
+                            v-model.lazy="formEdit.category"
+                            :class="
+                                formEdit.errors.category ? 'select-error' : ''
+                            "
+                            :readonly="formEdit.processing"
+                            required
+                            class="select select-bordered w-full"
+                        >
+                            <option value="" selected>
+                                -- Select Category --
+                            </option>
+                            <option value="SNI">SNI</option>
+                            <option value="Halal">Halal</option>
+                            <option value="Ijin Edar">Ijin Edar</option>
+                            <option value="HAKI">HAKI</option>
+                        </select>
+                        <div class="label" v-show="formEdit.errors.category">
+                            <span class="label-text-alt text-error">{{
+                                formEdit.errors.category
                             }}</span>
                         </div>
                     </label>
