@@ -21,6 +21,7 @@ import {
     BuildingStorefrontIcon,
     UserIcon,
     ShoppingBagIcon,
+    XMarkIcon,
 } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
@@ -57,6 +58,7 @@ const loading = ref({
     delete: {},
     link: {},
     solved: {},
+    certificate: {},
 });
 
 // Filter Data
@@ -65,6 +67,9 @@ const filter_marketplace = ref([]);
 const filter_comodity = ref([]);
 const date = ref(null);
 const status = ref("");
+const filter_certificate = ref([]);
+
+const certificate = ["BPOM", "SNI", "Distribution Permit", "Halal"];
 
 const isTableEmpty = computed(() => {
     return Object.keys(supervisions.value).length === 0;
@@ -92,6 +97,7 @@ const getData = async (page = 1) => {
     loading.value["refresh"][0] = true;
     loading.value["marketplace"][0] = true;
     loading.value["comodity"][0] = true;
+    loading.value["certificate"][0] = true;
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
             params: {
@@ -99,6 +105,7 @@ const getData = async (page = 1) => {
                 search: search.value,
                 marketplaces: JSON.stringify(filter_marketplace.value),
                 comodities: JSON.stringify(filter_comodity.value),
+                certificates: JSON.stringify(filter_certificate.value),
                 per_page: per_page.value,
                 date: date.value,
                 status: status.value,
@@ -134,6 +141,7 @@ const getData = async (page = 1) => {
             loading.value["refresh"][0] = false;
             loading.value["marketplace"][0] = false;
             loading.value["comodity"][0] = false;
+            loading.value["certificate"][0] = false;
         });
 };
 
@@ -241,7 +249,7 @@ const showGallery = (images) => {
                             <div
                                 class="card-header flex justify-between verflow-x-auto"
                             >
-                                <div
+                                <!-- <div
                                     class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5"
                                 >
                                     <button
@@ -260,7 +268,7 @@ const showGallery = (images) => {
                                             class="loading loading-spinner loading-sm"
                                         ></span>
                                     </button>
-                                </div>
+                                </div> -->
                                 <div
                                     class="grid grid-cols-1 md:flex lg:flex gap-3 float-end"
                                 >
@@ -274,6 +282,13 @@ const showGallery = (images) => {
                                             @change="getData(1)"
                                         />
                                     </label>
+                                    <button
+                                        class="btn"
+                                        onclick="modalFilterCertificate.showModal()"
+                                    >
+                                        Filter Certificate
+                                        <FunnelIcon class="w-4 h-4" />
+                                    </button>
                                     <button
                                         class="btn"
                                         onclick="modalFilterCategory.showModal()"
@@ -806,6 +821,75 @@ const showGallery = (images) => {
                                                                     >
                                                                 </a>
                                                             </div>
+                                                            <div
+                                                                class="flex gap-3 align-middle mt-1"
+                                                            >
+                                                                <span
+                                                                    class="text-xs flex gap-1 align-middle"
+                                                                >
+                                                                    BPOM :
+                                                                    <CheckIcon
+                                                                        v-if="
+                                                                            item
+                                                                                .certified
+                                                                                .bpom
+                                                                        "
+                                                                        class="w-4 h-4 text-success"
+                                                                    /><XMarkIcon
+                                                                        v-else
+                                                                        class="w-4 h-4 text-error"
+                                                                    />
+                                                                </span>
+                                                                <span
+                                                                    class="text-xs flex gap-1 align-middle"
+                                                                >
+                                                                    SNI :
+                                                                    <CheckIcon
+                                                                        v-if="
+                                                                            item
+                                                                                .certified
+                                                                                .sni
+                                                                        "
+                                                                        class="w-4 h-4 text-success"
+                                                                    /><XMarkIcon
+                                                                        v-else
+                                                                        class="w-4 h-4 text-error"
+                                                                    />
+                                                                </span>
+                                                                <span
+                                                                    class="text-xs flex gap-1 align-middle"
+                                                                >
+                                                                    Distribution
+                                                                    Permit :
+                                                                    <CheckIcon
+                                                                        v-if="
+                                                                            item
+                                                                                .certified
+                                                                                .distribution_permit
+                                                                        "
+                                                                        class="w-4 h-4 text-success"
+                                                                    /><XMarkIcon
+                                                                        v-else
+                                                                        class="w-4 h-4 text-error"
+                                                                    />
+                                                                </span>
+                                                                <span
+                                                                    class="text-xs flex gap-1 align-middle"
+                                                                >
+                                                                    Halal :
+                                                                    <CheckIcon
+                                                                        v-if="
+                                                                            item
+                                                                                .certified
+                                                                                .halal
+                                                                        "
+                                                                        class="w-4 h-4 text-success"
+                                                                    /><XMarkIcon
+                                                                        v-else
+                                                                        class="w-4 h-4 text-error"
+                                                                    />
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -940,6 +1024,92 @@ const showGallery = (images) => {
                 </div>
             </div>
         </div>
+
+        <dialog id="modalFilterCertificate" class="modal">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                    >
+                        ✕
+                    </button>
+                </form>
+                <div class="flex gap-3">
+                    <h3 class="text-lg font-bold align-middle flex gap-3">
+                        <TagIcon class="w-5 h-5 my-auto" /> Filter Certificate
+                    </h3>
+                </div>
+                <div class="divider"></div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div
+                        v-for="(item, index) in certificate"
+                        :key="index"
+                        class="border border-solid rounded-md border-teal-700 p-5"
+                    >
+                        <h5>{{ item }}</h5>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text"> All </span>
+                                <input
+                                    v-model="filter_certificate[index]"
+                                    value=""
+                                    type="radio"
+                                    :name="`radio-certificate-${index}`"
+                                    class="radio checked:bg-neutral-500"
+                                    :checked="filter_certificate[index] == null"
+                                />
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text">
+                                    <XMarkIcon class="w-5 h-5 text-error" />
+                                </span>
+                                <input
+                                    v-model="filter_certificate[index]"
+                                    :value="false"
+                                    type="radio"
+                                    :name="`radio-certificate-${index}`"
+                                    class="radio checked:bg-red-500"
+                                    :checked="
+                                        filter_certificate[index] == false
+                                    "
+                                />
+                            </label>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer">
+                                <span class="label-text">
+                                    <CheckIcon class="w-5 h-5 text-success" />
+                                </span>
+                                <input
+                                    v-model="filter_certificate[index]"
+                                    type="radio"
+                                    :value="true"
+                                    :name="`radio-certificate-${index}`"
+                                    class="radio checked:bg-green-500"
+                                    :checked="filter_certificate[index] == true"
+                                />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="modal-action">
+                    <button
+                        class="btn btn-outline btn-success btn-sm"
+                        :disabled="loading['certificate'][0]"
+                        @click="getData(1)"
+                    >
+                        Save
+                        <span
+                            class="loading loading-spinner loading-sm"
+                            v-show="loading['certificate'][0]"
+                        ></span>
+                    </button>
+                </div>
+            </div>
+        </dialog>
 
         <dialog id="modalFilterCategory" class="modal">
             <div class="modal-box w-11/12 max-w-4xl">

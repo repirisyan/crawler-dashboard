@@ -35,6 +35,8 @@ const loading = ref({
 // Filter Data
 const search = ref("");
 const filter_marketplace = ref([]);
+const filter_date_from = ref(null);
+const filter_date_until = ref(null);
 
 const isTableEmpty = computed(() => {
     return Object.keys(products.value).length === 0;
@@ -54,6 +56,8 @@ const getData = async (page = 1) => {
                 search: search.value,
                 per_page: per_page.value,
                 marketplaces: JSON.stringify(filter_marketplace.value),
+                date_from: filter_date_from.value,
+                date_until: filter_date_until.value,
             },
         })
         .then((response) => {
@@ -120,6 +124,34 @@ const getData = async (page = 1) => {
                                 <div
                                     class="grid grid-cols-1 md:flex lg:flex gap-3 float-end"
                                 >
+                                    <label
+                                        class="input input-bordered items-center flex gap-2 input-md w-auto"
+                                    >
+                                        <div class="label">
+                                            <span class="label-text">From</span>
+                                        </div>
+                                        <input
+                                            v-model="filter_date_from"
+                                            type="date"
+                                            class="grow border-0"
+                                            @change="getData(1)"
+                                        />
+                                    </label>
+                                    <label
+                                        class="input input-bordered items-center flex gap-2 input-md w-auto"
+                                    >
+                                        <div class="label">
+                                            <span class="label-text"
+                                                >Until</span
+                                            >
+                                        </div>
+                                        <input
+                                            v-model="filter_date_until"
+                                            type="date"
+                                            class="grow border-0"
+                                            @change="getData(1)"
+                                        />
+                                    </label>
                                     <button
                                         class="btn"
                                         onclick="modalFilterMarketplace.showModal()"
