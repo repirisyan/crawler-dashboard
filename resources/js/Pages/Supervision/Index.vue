@@ -69,7 +69,7 @@ const date = ref(null);
 const status = ref("");
 const filter_certificate = ref([]);
 
-const certificate = ["BPOM", "SNI", "Distribution Permit", "Halal"];
+const certificate = ["BPOM", "SNI", "No Reg Produk", "Halal"];
 
 const isTableEmpty = computed(() => {
     return Object.keys(supervisions.value).length === 0;
@@ -450,7 +450,7 @@ const showGallery = (images) => {
                                                         />
                                                     </label>
                                                 </th>
-                                                <th>Name</th>
+                                                <th>Product</th>
                                                 <th>Status</th>
                                                 <th>Date Supervision</th>
                                                 <th>Category</th>
@@ -832,7 +832,7 @@ const showGallery = (images) => {
                                                                         v-if="
                                                                             item
                                                                                 .certified
-                                                                                .bpom
+                                                                                ?.bpom
                                                                         "
                                                                         class="w-4 h-4 text-success"
                                                                     /><XMarkIcon
@@ -848,7 +848,7 @@ const showGallery = (images) => {
                                                                         v-if="
                                                                             item
                                                                                 .certified
-                                                                                .sni
+                                                                                ?.sni
                                                                         "
                                                                         class="w-4 h-4 text-success"
                                                                     /><XMarkIcon
@@ -859,13 +859,12 @@ const showGallery = (images) => {
                                                                 <span
                                                                     class="text-xs flex gap-1 align-middle"
                                                                 >
-                                                                    Distribution
-                                                                    Permit :
+                                                                    No Reg Produk :
                                                                     <CheckIcon
                                                                         v-if="
                                                                             item
                                                                                 .certified
-                                                                                .distribution_permit
+                                                                                ?.distribution_permit
                                                                         "
                                                                         class="w-4 h-4 text-success"
                                                                     /><XMarkIcon
@@ -881,7 +880,7 @@ const showGallery = (images) => {
                                                                         v-if="
                                                                             item
                                                                                 .certified
-                                                                                .halal
+                                                                                ?.halal
                                                                         "
                                                                         class="w-4 h-4 text-success"
                                                                     /><XMarkIcon
@@ -984,7 +983,7 @@ const showGallery = (images) => {
                                         >
                                             <tr>
                                                 <th></th>
-                                                <th>Name</th>
+                                                <th>Product</th>
                                                 <th>Status</th>
                                                 <th>Date Supervision</th>
                                                 <th>Category</th>

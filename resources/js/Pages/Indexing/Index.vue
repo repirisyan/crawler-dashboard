@@ -61,7 +61,7 @@ const filter_marketplace = ref([]);
 const filter_comodity = ref([]);
 const filter_certificate = ref([]);
 
-const certificate = ["BPOM", "SNI", "Distribution Permit", "Halal"];
+const certificate = ["BPOM", "SNI", "No RegProduk", "Halal"];
 
 const isTableEmpty = computed(() => {
     return Object.keys(products.value).length === 0;
@@ -284,7 +284,7 @@ const showGallery = (images) => {
                                         <!-- head -->
                                         <thead class="text-info">
                                             <tr>
-                                                <th>Name</th>
+                                                <th>Product</th>
                                                 <th>Category</th>
                                             </tr>
                                         </thead>
@@ -699,8 +699,7 @@ const showGallery = (images) => {
                                                                 <span
                                                                     class="text-xs flex gap-1 align-middle"
                                                                 >
-                                                                    Distribution
-                                                                    Permit :
+                                                                    No Reg Produk :
                                                                     <CheckIcon
                                                                         v-if="
                                                                             item
@@ -782,7 +781,7 @@ const showGallery = (images) => {
                                         >
                                             <tr>
                                                 <th></th>
-                                                <th>Name</th>
+                                                <th>Product</th>
                                                 <th>Category</th>
                                             </tr>
                                         </tfoot>

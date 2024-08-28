@@ -11,16 +11,6 @@ class Comodity extends Model
 
     protected $guarded = ['id'];
 
-    public function temp_item()
-    {
-        return $this->hasMany(TempItem::class);
-    }
-
-    public function supervision()
-    {
-        return $this->hasMany(Supervision::class);
-    }
-
     public function getComodities($request)
     {
         return $this->when(isset($request['search']), function ($query) use ($request) {

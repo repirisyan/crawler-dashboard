@@ -69,7 +69,7 @@ const filter_marketplace = ref([]);
 const filter_comodity = ref([]);
 const filter_certificate = ref([]);
 
-const certificate = ["BPOM", "SNI", "Distribution Permit", "Halal"];
+const certificate = ["BPOM", "SNI", "No Reg Produk", "Halal"];
 
 // const date = ref(moment().format("YYYY-MM-DD"));
 
@@ -359,7 +359,7 @@ const showGallery = (images) => {
                                         />
                                     </label>
                                 </th>
-                                <th>Name</th>
+                                <th>Product</th>
                                 <th>Category</th>
                             </tr>
                         </thead>
@@ -611,9 +611,9 @@ const showGallery = (images) => {
                                                         class="h-3 w-3 text-yellow-500"
                                                     />{{
                                                         item.rating.rating
-                                                    }}/{{
+                                                    }}({{
                                                         item.rating.count
-                                                    }}</span
+                                                    }})</span
                                                 >
                                                 <a
                                                     @click="
@@ -661,13 +661,14 @@ const showGallery = (images) => {
                                             <div
                                                 class="flex gap-3 align-middle mt-1"
                                             >
-                                                <span
+                                                <div>
+                                                    <span
                                                     class="text-xs flex gap-1 align-middle"
                                                 >
                                                     BPOM :
                                                     <CheckIcon
                                                         v-if="
-                                                            item.certified.bpom
+                                                            item.certified?.bpom
                                                         "
                                                         class="w-4 h-4 text-success"
                                                     /><XMarkIcon
@@ -675,13 +676,17 @@ const showGallery = (images) => {
                                                         class="w-4 h-4 text-error"
                                                     />
                                                 </span>
+                                                <span class="text-xs" v-show="item.certified?.bpom_number">
+                                                    {{item.certified?.bpom_number}}
+                                                </span>
+                                                </div>
                                                 <span
                                                     class="text-xs flex gap-1 align-middle"
                                                 >
                                                     SNI :
                                                     <CheckIcon
                                                         v-if="
-                                                            item.certified.sni
+                                                            item.certified?.sni
                                                         "
                                                         class="w-4 h-4 text-success"
                                                     /><XMarkIcon
@@ -692,11 +697,11 @@ const showGallery = (images) => {
                                                 <span
                                                     class="text-xs flex gap-1 align-middle"
                                                 >
-                                                    Distribution Permit :
+                                                    No Reg Produk :
                                                     <CheckIcon
                                                         v-if="
                                                             item.certified
-                                                                .distribution_permit
+                                                                ?.distribution_permit
                                                         "
                                                         class="w-4 h-4 text-success"
                                                     /><XMarkIcon
@@ -710,7 +715,7 @@ const showGallery = (images) => {
                                                     Halal :
                                                     <CheckIcon
                                                         v-if="
-                                                            item.certified.halal
+                                                            item.certified?.halal
                                                         "
                                                         class="w-4 h-4 text-success"
                                                     /><XMarkIcon
@@ -760,7 +765,7 @@ const showGallery = (images) => {
                         <tfoot class="text-info" v-show="!isTableEmpty">
                             <tr>
                                 <th></th>
-                                <th>Name</th>
+                                <th>Product</th>
                                 <th>Category</th>
                             </tr>
                         </tfoot>

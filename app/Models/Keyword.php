@@ -11,11 +11,6 @@ class Keyword extends Model
 
     protected $guarded = ['id'];
 
-    public function temp_item()
-    {
-        return $this->hasMany(TempItem::class);
-    }
-
     public function comodity()
     {
         return $this->belongsTo(Comodity::class);

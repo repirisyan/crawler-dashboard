@@ -11,16 +11,6 @@ class Marketplace extends Model
 
     protected $guarded = ['id'];
 
-    public function temp_item()
-    {
-        return $this->hasMany(TempItem::class);
-    }
-
-    public function supervision()
-    {
-        return $this->hasMany(Supervision::class);
-    }
-
     public function getAllData()
     {
         return $this->all();
