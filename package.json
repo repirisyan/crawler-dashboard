@@ -8,12 +8,12 @@
   "devDependencies": {
     "@inertiajs/vue3": "^1.2.0",
     "@tailwindcss/forms": "^0.5.8",
-    "@vitejs/plugin-vue": "^5.1.2",
+    "@vitejs/plugin-vue": "^5.1.3",
     "autoprefixer": "^10.4.20",
-    "axios": "^1.7.5",
+    "axios": "^1.7.7",
     "daisyui": "^4.12.10",
     "laravel-vite-plugin": "^1.0.5",
-    "postcss": "^8.4.41",
+    "postcss": "^8.4.43",
     "tailwindcss": "^3.4.10",
     "vite": "^5.4.2",
     "vue": "^3.4.38"
@@ -24,6 +24,6 @@
     "pusher-js": "^8.4.0-rc2",
     "qs": "^6.13.0",
     "vue-easy-lightbox": "^1.19.0",
-    "vue3-toastify": "^0.2.2"
+    "vue3-toastify": "^0.2.3"
   }
 }
