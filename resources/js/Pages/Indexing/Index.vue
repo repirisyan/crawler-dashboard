@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
+import SimplePaginateAPI from "@/Components/SimplePaginateAPI.vue";
 import { Head } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
@@ -246,32 +247,13 @@ const showGallery = (images) => {
                                             >entries per page</label
                                         >
                                     </div>
-                                    <div
-                                        class="join mt-2 text-center mx-auto"
-                                        v-show="!isTableEmpty"
-                                    >
-                                        <button
-                                            :disabled="loading['refresh'][0]"
-                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                            v-show="prev_page != null"
-                                            @click="getData(prev_page)"
-                                        >
-                                            «
-                                        </button>
-                                        <button
-                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                                        >
-                                            {{ current_page }}
-                                        </button>
-                                        <button
-                                            :show="next_page != null"
-                                            :disabled="loading['refresh'][0]"
-                                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                            @click="getData(next_page)"
-                                        >
-                                            »
-                                        </button>
-                                    </div>
+                                    <SimplePaginateAPI
+                                        @get-data="getData"
+                                        :loading="loading['refresh'][0]"
+                                        :prev_page="prev_page"
+                                        :next_page="next_page"
+                                        :current_page="current_page"
+                                    />
                                     <div
                                         class="text-xs md:text-base lg:text-base"
                                     >
@@ -699,7 +681,8 @@ const showGallery = (images) => {
                                                                 <span
                                                                     class="text-xs flex gap-1 align-middle"
                                                                 >
-                                                                    No Reg Produk :
+                                                                    No Reg
+                                                                    Produk :
                                                                     <CheckIcon
                                                                         v-if="
                                                                             item
@@ -787,32 +770,14 @@ const showGallery = (images) => {
                                         </tfoot>
                                     </table>
                                 </div>
-                                <div
-                                    class="join mt-2 text-center mx-auto"
+                                <SimplePaginateAPI
                                     v-show="!isTableEmpty"
-                                >
-                                    <button
-                                        :disabled="loading['refresh'][0]"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        v-show="prev_page != null"
-                                        @click="getData(current_page - 1)"
-                                    >
-                                        «
-                                    </button>
-                                    <button
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                                    >
-                                        {{ current_page }}
-                                    </button>
-                                    <button
-                                        :show="next_page != null"
-                                        :disabled="loading['refresh'][0]"
-                                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                                        @click="getData(current_page + 1)"
-                                    >
-                                        »
-                                    </button>
-                                </div>
+                                    @get-data="getData"
+                                    :loading="loading['refresh'][0]"
+                                    :prev_page="prev_page"
+                                    :next_page="next_page"
+                                    :current_page="current_page"
+                                />
                             </div>
                         </div>
                         <vue-easy-lightbox

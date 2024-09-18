@@ -1,5 +1,7 @@
 <script setup>
 import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
+import SimplePaginateAPI from "@/Components/SimplePaginateAPI.vue";
+import PerPage from "@/Components/PerPage.vue";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
 import {
@@ -298,47 +300,14 @@ const showGallery = (images) => {
                     v-show="!isTableEmpty"
                     class="grid grid-cols-1 gap-3 md:flex lg:flex md:justify-between lg:justify-between mb-2"
                 >
-                    <div class="flex gap-3 items-center">
-                        <select
-                            @change="getData(1)"
-                            v-model="per_page"
-                            class="select select-bordered select-sm max-w-xs text-xs"
-                        >
-                            <option value="15">15</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <label class="text-xs md:text-base lg:text-base"
-                            >entries per page</label
-                        >
-                    </div>
-                    <div
-                        class="join mt-2 text-center mx-auto"
-                        v-show="!isTableEmpty"
-                    >
-                        <button
-                            :disabled="loading['refresh'][0]"
-                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                            v-show="prev_page != null"
-                            @click="getData(prev_page)"
-                        >
-                            «
-                        </button>
-                        <button
-                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                        >
-                            {{ current_page }}
-                        </button>
-                        <button
-                            :show="next_page != null"
-                            :disabled="loading['refresh'][0]"
-                            class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                            @click="getData(next_page)"
-                        >
-                            »
-                        </button>
-                    </div>
+                    <PerPage v-model:per_page="per_page" @get-data="getData" />
+                    <SimplePaginateAPI
+                        @get-data="getData"
+                        :loading="loading['refresh'][0]"
+                        :prev_page="prev_page"
+                        :next_page="next_page"
+                        :current_page="current_page"
+                    />
                     <div class="text-xs md:text-base lg:text-base">
                         Showing {{ from }} to {{ to }} from
                         {{ total_data }} Entries
@@ -663,22 +632,32 @@ const showGallery = (images) => {
                                             >
                                                 <div>
                                                     <span
-                                                    class="text-xs flex gap-1 align-middle"
-                                                >
-                                                    BPOM :
-                                                    <CheckIcon
-                                                        v-if="
-                                                            item.certified?.bpom
+                                                        class="text-xs flex gap-1 align-middle"
+                                                    >
+                                                        BPOM :
+                                                        <CheckIcon
+                                                            v-if="
+                                                                item.certified
+                                                                    ?.bpom
+                                                            "
+                                                            class="w-4 h-4 text-success"
+                                                        /><XMarkIcon
+                                                            v-else
+                                                            class="w-4 h-4 text-error"
+                                                        />
+                                                    </span>
+                                                    <span
+                                                        class="text-xs"
+                                                        v-show="
+                                                            item.certified
+                                                                ?.bpom_number
                                                         "
-                                                        class="w-4 h-4 text-success"
-                                                    /><XMarkIcon
-                                                        v-else
-                                                        class="w-4 h-4 text-error"
-                                                    />
-                                                </span>
-                                                <span class="text-xs" v-show="item.certified?.bpom_number">
-                                                    {{item.certified?.bpom_number}}
-                                                </span>
+                                                    >
+                                                        {{
+                                                            item.certified
+                                                                ?.bpom_number
+                                                        }}
+                                                    </span>
                                                 </div>
                                                 <span
                                                     class="text-xs flex gap-1 align-middle"
@@ -715,7 +694,8 @@ const showGallery = (images) => {
                                                     Halal :
                                                     <CheckIcon
                                                         v-if="
-                                                            item.certified?.halal
+                                                            item.certified
+                                                                ?.halal
                                                         "
                                                         class="w-4 h-4 text-success"
                                                     /><XMarkIcon
@@ -771,32 +751,14 @@ const showGallery = (images) => {
                         </tfoot>
                     </table>
                 </div>
-                <div
-                    class="join mt-2 text-center mx-auto"
+                <SimplePaginateAPI
                     v-show="!isTableEmpty"
-                >
-                    <button
-                        :disabled="loading['refresh'][0]"
-                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                        v-show="prev_page != null"
-                        @click="getData(current_page - 1)"
-                    >
-                        «
-                    </button>
-                    <button
-                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-950 border border-gray-300 dark:border-gray-500 join-item btn btn-sm btn-active"
-                    >
-                        {{ current_page }}
-                    </button>
-                    <button
-                        :show="next_page != null"
-                        :disabled="loading['refresh'][0]"
-                        class="bg-white text-black dark:text-white hover:text-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 join-item btn btn-sm"
-                        @click="getData(current_page + 1)"
-                    >
-                        »
-                    </button>
-                </div>
+                    @get-data="getData"
+                    :loading="loading['refresh'][0]"
+                    :prev_page="prev_page"
+                    :next_page="next_page"
+                    :current_page="current_page"
+                />
             </div>
         </div>
         <vue-easy-lightbox

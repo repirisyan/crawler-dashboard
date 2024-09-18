@@ -3,20 +3,19 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PaginateAPI from "@/Components/PaginateAPI.vue";
 import { Head } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
-import moment from "moment";
-
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 import {
     MagnifyingGlassIcon,
     ArrowPathIcon,
-    FunnelIcon,
-    TagIcon,
+    TrashIcon,
 } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
     marketplaces: Object,
 });
 
-const products = ref({});
+const brands = ref({});
 
 // Paginate
 const current_page = ref(0);
@@ -28,41 +27,51 @@ const to = ref(1);
 const total = ref(1);
 const last_page = ref(0);
 
+const checkbox = ref([]);
+const checkAllButton = ref(false);
+const optionMenu = ref(false);
+
 const loading = ref({
     refresh: {},
-    marketplace: {},
+    data: {},
+    delete: {},
 });
 
 // Filter Data
 const search = ref("");
-const filter_marketplace = ref([]);
-const filter_date_from = ref(null);
-const filter_date_until = ref(null);
 
 const isTableEmpty = computed(() => {
-    return Object.keys(products.value).length === 0;
+    return Object.keys(brands.value).length === 0;
 });
 
 onMounted(() => {
+    loading.value["data"][0] = true;
     getData();
+    loading.value["data"][0] = false;
 });
 
 const getData = async (page = 1) => {
     loading.value["refresh"][0] = true;
-    loading.value["marketplace"][0] = true;
     axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/trending-product`, {
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/brand`, {
             params: {
                 page: page,
                 search: search.value,
                 per_page: per_page.value,
-                marketplaces: JSON.stringify(filter_marketplace.value),
-                date_from: filter_date_from.value,
-                date_until: filter_date_until.value,
             },
         })
         .then((response) => {
-            products.value = response.data.docs;
+            checkbox.value.length = 0;
+            optionMenu.value = false;
+            checkAllButton.value = false;
+            response.data.docs.forEach((element) => {
+                checkbox.value.push({
+                    id: element._id,
+                    checked: false,
+                });
+            });
+
+            brands.value = response.data.docs;
             current_page.value = response.data.page;
             next_page.value = `${import.meta.env.VITE_APP_CRAWLER_APP}?page=${response.data.nextPage}`;
             has_next_page.value = response.data.hasNextPage;
@@ -76,19 +85,65 @@ const getData = async (page = 1) => {
         })
         .finally(() => {
             loading.value["refresh"][0] = false;
-            loading.value["marketplace"][0] = false;
         });
+};
+
+const checkOptionMenu = () => {
+    const isAtLeastOneChecked = computed(() => {
+        return checkbox.value.some((item) => item.checked);
+    });
+    optionMenu.value = isAtLeastOneChecked.value;
+};
+
+const checkAll = (event) => {
+    optionMenu.value = event.target.checked;
+    checkAllButton.value = event.target.checked;
+    checkbox.value.forEach((element) => {
+        if (!element.status) {
+            element.checked = event.target.checked;
+        }
+    });
+};
+
+const deleteItem = () => {
+    if (confirm("Apa anda yakin ingin menghapus data ini ?")) {
+        loading.value["delete"][0] = true;
+        const checkedItems = computed(() => {
+            return checkbox.value
+                .filter((item) => item.checked)
+                .map((item) => item.id);
+        });
+        axios
+            .delete(`${import.meta.env.VITE_APP_CRAWLER_API}/brand`, {
+                data: {
+                    ids: checkedItems.value,
+                },
+            })
+            .then((response) => {
+                toast.success(response.data.message || "Delete Success");
+            })
+            .catch((error) => {
+                console.log(error);
+                toast.error(
+                    error.response?.data.message || "An error occurred",
+                );
+            })
+            .finally(() => {
+                getData(current_page.value);
+                loading.value["delete"][0] = false;
+            });
+    }
 };
 </script>
 <template>
-    <Head title="Trending Data" />
+    <Head title="Brand Data" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2
                 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
             >
-                Trending Data
+                Brand
             </h2>
         </template>
 
@@ -126,50 +181,6 @@ const getData = async (page = 1) => {
                                     class="grid grid-cols-1 md:flex lg:flex gap-3 float-end"
                                 >
                                     <label
-                                        class="input input-bordered items-center flex gap-2 input-md w-auto"
-                                    >
-                                        <div class="label">
-                                            <span class="label-text">From</span>
-                                        </div>
-                                        <input
-                                            v-model="filter_date_from"
-                                            type="date"
-                                            class="grow border-0"
-                                            @change="getData(1)"
-                                        />
-                                    </label>
-                                    <label
-                                        class="input input-bordered items-center flex gap-2 input-md w-auto"
-                                    >
-                                        <div class="label">
-                                            <span class="label-text"
-                                                >Until</span
-                                            >
-                                        </div>
-                                        <input
-                                            v-model="filter_date_until"
-                                            type="date"
-                                            class="grow border-0"
-                                            @change="getData(1)"
-                                        />
-                                    </label>
-                                    <button
-                                        class="btn"
-                                        onclick="modalFilterMarketplace.showModal()"
-                                    >
-                                        Filter Materketplace
-                                        <FunnelIcon class="w-4 h-4" />
-                                        <span
-                                            v-show="
-                                                filter_marketplace.length > 0
-                                            "
-                                            class="text-success"
-                                            >{{
-                                                filter_marketplace.length
-                                            }}</span
-                                        >
-                                    </button>
-                                    <label
                                         class="input input-bordered items-center flex gap-2 input-md w-auto md:w-80 lg:w-80"
                                     >
                                         <input
@@ -177,11 +188,36 @@ const getData = async (page = 1) => {
                                             type="text"
                                             class="grow border-0"
                                             @change="getData(1)"
-                                            placeholder="Filter Data"
+                                            placeholder="Search Brand Name"
                                         />
                                         <MagnifyingGlassIcon class="h-5 w-5" />
                                     </label>
                                 </div>
+                            </div>
+                            <div
+                                class="grid grid-cols-1 md:block md:gap-5 lg:block lg:gap-5 mb-5"
+                                v-show="optionMenu"
+                            >
+                                <span class="text-sm mr-3">
+                                    {{
+                                        checkbox.filter((item) => item.checked)
+                                            .length
+                                    }}
+                                    Item Selected
+                                </span>
+                                <button
+                                    class="btn btn-error btn-sm btn-outline mr-3"
+                                    :disabled="loading['delete'][0]"
+                                    @click="deleteItem"
+                                >
+                                    <TrashIcon
+                                        v-if="!loading['delete'][0]"
+                                        class="h-3 w-3"
+                                    /><span
+                                        v-else
+                                        class="loading loading-spinner loading-sm"
+                                    ></span>
+                                </button>
                             </div>
                             <div
                                 v-show="!isTableEmpty"
@@ -213,18 +249,47 @@ const getData = async (page = 1) => {
                                     <!-- head -->
                                     <thead class="text-info">
                                         <tr>
+                                            <th class="w-4">
+                                                <label v-if="!isTableEmpty">
+                                                    <input
+                                                        :checked="
+                                                            checkAllButton
+                                                        "
+                                                        @change="checkAll"
+                                                        type="checkbox"
+                                                        class="checkbox checkbox-sm"
+                                                    />
+                                                </label>
+                                            </th>
                                             <th>Name</th>
-                                            <th>Sold</th>
-                                            <th>Marketplace</th>
-                                            <th>Date</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody v-if="!isTableEmpty">
                                         <tr
-                                            v-for="item in products"
+                                            v-for="(item, index) in brands"
                                             :key="item?.id"
                                         >
-                                            <td>
+                                            <th>
+                                                <label>
+                                                    <input
+                                                        v-model="
+                                                            checkbox[index]
+                                                                .checked
+                                                        "
+                                                        @change="
+                                                            checkbox[
+                                                                index
+                                                            ].checked =
+                                                                $event.target.checked;
+                                                            checkOptionMenu();
+                                                        "
+                                                        type="checkbox"
+                                                        class="checkbox checkbox-sm"
+                                                    />
+                                                </label>
+                                            </th>
+                                            <td class="w-auto">
                                                 <div
                                                     class="flex items-center gap-3"
                                                 >
@@ -237,7 +302,7 @@ const getData = async (page = 1) => {
                                                                     item?.imageURL ??
                                                                     '/assets/img/icon/no-image.svg'
                                                                 "
-                                                                :alt="`Gambar ${item?.keyword}`"
+                                                                :alt="`Gambar ${item?.name}`"
                                                             />
                                                         </div>
                                                     </div>
@@ -250,37 +315,19 @@ const getData = async (page = 1) => {
                                                                 "
                                                                 target="_blank"
                                                                 >{{
-                                                                    item?.keyword
+                                                                    item?.name
                                                                 }}</a
                                                             >
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="whitespace-nowrap">
-                                                <span
-                                                    class="badge badge-ghost badge-sm"
-                                                    >{{
-                                                        item?.productCount
-                                                    }}
-                                                    Sold</span
-                                                >
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                {{ item.marketplace }}
-                                            </td>
-                                            <td class="whitespace-nowrap">
-                                                {{
-                                                    moment(item.created_at)
-                                                        .locale("id")
-                                                        .format("DD MMMM YYYY")
-                                                }}
-                                            </td>
+                                            <td></td>
                                         </tr>
                                     </tbody>
                                     <tbody v-else>
                                         <tr>
-                                            <td colspan="4" class="text-center">
+                                            <td colspan="3" class="text-center">
                                                 No Data Available
                                             </td>
                                         </tr>
@@ -290,10 +337,9 @@ const getData = async (page = 1) => {
                                         v-show="!isTableEmpty"
                                     >
                                         <tr>
+                                            <th></th>
                                             <th>Name</th>
-                                            <th>Sold</th>
-                                            <th>Marketplace</th>
-                                            <th>Date</th>
+                                            <th></th>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -311,56 +357,5 @@ const getData = async (page = 1) => {
                 </div>
             </div>
         </div>
-        <dialog id="modalFilterMarketplace" class="modal">
-            <div class="modal-box w-11/12 max-w-4xl">
-                <form method="dialog">
-                    <button
-                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                    >
-                        ✕
-                    </button>
-                </form>
-                <div class="flex gap-3">
-                    <h3 class="text-lg font-bold align-middle flex gap-3">
-                        <TagIcon class="w-5 h-5 my-auto" /> Filter Marketplace
-                    </h3>
-                </div>
-                <div class="divider"></div>
-                <div class="grid grid-cols-4 gap-4">
-                    <div
-                        class="form-control border border-solid rounded-md border-teal-700"
-                        v-for="marketplace in props.marketplaces"
-                        :key="marketplace.id"
-                    >
-                        <label class="cursor-pointer label">
-                            <span class="label-text">{{
-                                marketplace.name
-                            }}</span>
-                            <input
-                                :id="`checkbox_marketplace${marketplace.id}`"
-                                type="checkbox"
-                                :value="marketplace.name"
-                                v-model="filter_marketplace"
-                                class="checkbox checkbox-success"
-                            />
-                        </label>
-                    </div>
-                </div>
-                <div class="divider"></div>
-                <div class="modal-action">
-                    <button
-                        class="btn btn-outline btn-success btn-sm"
-                        :disabled="loading['marketplace'][0]"
-                        @click="getData(1)"
-                    >
-                        Save
-                        <span
-                            class="loading loading-spinner loading-sm"
-                            v-show="loading['marketplace'][0]"
-                        ></span>
-                    </button>
-                </div>
-            </div>
-        </dialog>
     </AuthenticatedLayout>
 </template>

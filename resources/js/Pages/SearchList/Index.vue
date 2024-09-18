@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Paginate from "./Paginate.vue";
+import Paginate from "@/Components/Paginate.vue";
 import HierarchyCategory from "@/Components/HierarchyCategory.vue";
 import { Head, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
@@ -158,6 +158,7 @@ const toggleStatus = (id, status) => {
                                         :per_page="per_page"
                                         :comodity="filter_comodity"
                                         :status="filter_status"
+                                        :route="'search-list.index'"
                                         :current_page="
                                             props.keywords.current_page
                                         "

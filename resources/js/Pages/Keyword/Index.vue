@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import HierarchyCategory from "@/Components/HierarchyCategory.vue";
-import Paginate from "./Paginate.vue";
+import Paginate from "@/Components/Paginate.vue";
 import { Head, useForm, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
@@ -210,6 +210,7 @@ const destroy = (id) => {
                                     </div>
                                     <Paginate
                                         v-show="!isTableEmpty"
+                                        :route="'keyword.index'"
                                         :search="search"
                                         :filter_comodity="filter_comodity"
                                         :per_page="per_page"

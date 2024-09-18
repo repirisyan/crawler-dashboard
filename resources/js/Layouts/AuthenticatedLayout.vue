@@ -94,6 +94,11 @@ const master_navigation = [
                                             Engine
                                         </DropdownLink>
                                         <DropdownLink
+                                            :href="route('brand.index')"
+                                        >
+                                            Brand
+                                        </DropdownLink>
+                                        <DropdownLink
                                             :href="route('comodity.index')"
                                         >
                                             Category
@@ -267,6 +272,12 @@ const master_navigation = [
                             :active="route().current('comodity.index')"
                         >
                             Engine
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('brand.index')"
+                            :active="route().current('brand.index')"
+                        >
+                            Brand
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('marketplace.index')"

@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, useForm, router } from "@inertiajs/vue3";
-import Paginate from "./Paginate.vue";
+import Paginate from "@/Components/Paginate.vue";
 import { computed, ref } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
@@ -258,6 +258,7 @@ const destroy = (id) => {
                                     </div>
                                     <Paginate
                                         v-show="!isTableEmpty"
+                                        :route="'comodity.index'"
                                         :search="search"
                                         :per_page="per_page"
                                         :current_page="

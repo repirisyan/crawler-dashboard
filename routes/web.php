@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ComodityController;
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\DashboardController;
@@ -39,6 +40,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('crawler', [CrawlerController::class, 'index'])->name('crawler.index');
     Route::get('crawler/{id}/status', [CrawlerController::class, 'getStatus'])->name('crawler.status');
+
+    Route::get('brand', [BrandController::class,'index'])->name('brand.index');
 
     Route::prefix('supervision')->group(function () {
         Route::get('/', [SupervisionController::class, 'index'])->name('supervision.index');
