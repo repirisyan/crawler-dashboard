@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PaginateAPI from "@/Components/PaginateAPI.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, useForm } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
@@ -9,6 +9,8 @@ import {
     MagnifyingGlassIcon,
     ArrowPathIcon,
     TrashIcon,
+    PlusIcon,
+    PencilSquareIcon,
 } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
@@ -31,8 +33,15 @@ const checkbox = ref([]);
 const checkAllButton = ref(false);
 const optionMenu = ref(false);
 
+const form = useForm({
+    id: null,
+    name: null,
+});
+
 const loading = ref({
     refresh: {},
+    store: {},
+    update: {},
     data: {},
     delete: {},
 });
@@ -105,6 +114,59 @@ const checkAll = (event) => {
     });
 };
 
+const storeData = () => {
+    loading.value["store"][0] = true;
+    axios
+        .post(`${import.meta.env.VITE_APP_CRAWLER_API}/brand`, form)
+        .then((response) => {
+            toast.success(response.data.message || "Data Saved");
+            modalCreate.close();
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.error(error.response?.data.message || "an error occured");
+        })
+        .finally(() => {
+            getData(current_page.value);
+            form.reset();
+            form.clearErrors();
+            loading.value["store"][0] = false;
+        });
+};
+
+const editData = (id) => {
+    axios
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/brand/${id}`)
+        .then((response) => {
+            form.name = response.data[0].name;
+            form.id = id;
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.error(error.response?.data.message);
+        });
+};
+
+const updateData = () => {
+    loading.value["update"][0] = false;
+    axios
+        .patch(`${import.meta.env.VITE_APP_CRAWLER_API}/brand`, form)
+        .then((response) => {
+            toast.success(response.data.message || "Update Success");
+            modalUpdate.close();
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.error(error.response?.data.message);
+        })
+        .finally(() => {
+            getData(current_page.value);
+            form.reset();
+            form.clearErrors();
+            loading.value["update"][0] = false;
+        });
+};
+
 const deleteItem = () => {
     if (confirm("Apa anda yakin ingin menghapus data ini ?")) {
         loading.value["delete"][0] = true;
@@ -117,6 +179,31 @@ const deleteItem = () => {
             .delete(`${import.meta.env.VITE_APP_CRAWLER_API}/brand`, {
                 data: {
                     ids: checkedItems.value,
+                },
+            })
+            .then((response) => {
+                toast.success(response.data.message || "Delete Success");
+            })
+            .catch((error) => {
+                console.log(error);
+                toast.error(
+                    error.response?.data.message || "An error occurred",
+                );
+            })
+            .finally(() => {
+                getData(current_page.value);
+                loading.value["delete"][0] = false;
+            });
+    }
+};
+
+const destroy = (id) => {
+    if (confirm("Apa anda yakin ingin menghapus data ini ?")) {
+        loading.value["delete"][0] = true;
+        axios
+            .delete(`${import.meta.env.VITE_APP_CRAWLER_API}/brand`, {
+                data: {
+                    ids: [id],
                 },
             })
             .then((response) => {
@@ -175,6 +262,12 @@ const deleteItem = () => {
                                             v-else
                                             class="loading loading-spinner loading-sm"
                                         ></span>
+                                    </button>
+                                    <button
+                                        class="btn btn-outline btn-success btn-sm"
+                                        onclick="modalCreate.showModal()"
+                                    >
+                                        Brand <PlusIcon class="h-3 w-3" />
                                     </button>
                                 </div>
                                 <div
@@ -322,7 +415,39 @@ const deleteItem = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td></td>
+                                            <td class="flex gap-2">
+                                                <button
+                                                    @click="editData(item.id)"
+                                                    onclick="modalUpdate.showModal()"
+                                                    class="btn btn-warning btn-sm"
+                                                >
+                                                    <PencilSquareIcon
+                                                        class="h-3 w-3"
+                                                    />
+                                                </button>
+                                                <button
+                                                    @click="destroy(item.id)"
+                                                    :disabled="
+                                                        loading['delete'][
+                                                            item.id
+                                                        ]
+                                                    "
+                                                    class="btn btn-error btn-sm"
+                                                >
+                                                    <span
+                                                        class="loading loading-spinner loading-sm"
+                                                        v-if="
+                                                            loading['delete'][
+                                                                item.id
+                                                            ]
+                                                        "
+                                                    ></span>
+                                                    <TrashIcon
+                                                        class="h-3 w-3"
+                                                        v-else
+                                                    />
+                                                </button>
+                                            </td>
                                         </tr>
                                     </tbody>
                                     <tbody v-else>
@@ -357,5 +482,113 @@ const deleteItem = () => {
                 </div>
             </div>
         </div>
+
+        <dialog id="modalCreate" ref="modalCreate" class="modal">
+            <div class="modal-box">
+                <h3 class="text-lg font-bold">Form Add Data</h3>
+                <div class="divider"></div>
+                <form @submit.prevent="storeData">
+                    <label class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Name</span>
+                        </div>
+                        <input
+                            type="text"
+                            v-model.lazy="form.name"
+                            :readonly="loading['store'][0]"
+                            placeholder="Type here"
+                            class="input input-bordered w-full"
+                            :class="form.errors.name ? 'input-error' : ''"
+                        />
+                        <div class="label" v-show="form.errors.name">
+                            <span class="label-text-alt text-error">{{
+                                form.errors.name
+                            }}</span>
+                        </div>
+                    </label>
+                    <div class="divider"></div>
+                    <div class="modal-action flex justify-between">
+                        <form method="dialog">
+                            <!-- if there is a button in form, it will close the modal -->
+                            <button
+                                :disabled="loading['store'][0]"
+                                @click="
+                                    {
+                                        form.reset(), form.clearErrors();
+                                    }
+                                "
+                                class="btn btn-sm"
+                            >
+                                Cancel
+                            </button>
+                        </form>
+                        <button
+                            type="submit"
+                            :disabled="loading['store'][0]"
+                            class="btn btn-sm btn-success"
+                        >
+                            Save&nbsp;<span
+                                class="loading loading-spinner loading-sm"
+                                v-show="loading['store'][0]"
+                            ></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
+
+        <dialog id="modalUpdate" ref="modalCreate" class="modal">
+            <div class="modal-box">
+                <h3 class="text-lg font-bold">Form Edit Data</h3>
+                <div class="divider"></div>
+                <form @submit.prevent="updateData">
+                    <label class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Name</span>
+                        </div>
+                        <input
+                            type="text"
+                            v-model.lazy="form.name"
+                            :readonly="loading['update'][0]"
+                            placeholder="Type here"
+                            class="input input-bordered w-full"
+                            :class="form.errors.name ? 'input-error' : ''"
+                        />
+                        <div class="label" v-show="form.errors.name">
+                            <span class="label-text-alt text-error">{{
+                                form.errors.name
+                            }}</span>
+                        </div>
+                    </label>
+                    <div class="divider"></div>
+                    <div class="modal-action flex justify-between">
+                        <form method="dialog">
+                            <!-- if there is a button in form, it will close the modal -->
+                            <button
+                                :disabled="loading['update'][0]"
+                                @click="
+                                    {
+                                        form.reset(), form.clearErrors();
+                                    }
+                                "
+                                class="btn btn-sm"
+                            >
+                                Cancel
+                            </button>
+                        </form>
+                        <button
+                            type="submit"
+                            :disabled="loading['update'][0]"
+                            class="btn btn-sm btn-success"
+                        >
+                            Save&nbsp;<span
+                                class="loading loading-spinner loading-sm"
+                                v-show="loading['update'][0]"
+                            ></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
     </AuthenticatedLayout>
 </template>
