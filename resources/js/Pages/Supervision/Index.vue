@@ -2,7 +2,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
 import SimplePaginateAPI from "@/Components/SimplePaginateAPI.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, usePage } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
 import { toast } from "vue3-toastify";
@@ -29,6 +29,8 @@ const props = defineProps({
     marketplaces: Object,
     comodities: Object,
 });
+
+const auth = usePage();
 
 const supervisions = ref({});
 const total_data = ref(0);
@@ -85,7 +87,11 @@ onMounted(async () => {
 
 const getTotalData = async () => {
     axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision/total`)
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision/total`,{
+            headers: {
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            },
+        })
         .then((response) => {
             total_data.value = response.data;
         })
@@ -101,6 +107,9 @@ const getData = async (page = 1) => {
     loading.value["certificate"][0] = true;
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
+            headers: {
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            },
             params: {
                 page: page,
                 search: search.value,
@@ -159,6 +168,10 @@ const deleteItem = () => {
                 data: {
                     ids: checkedItems.value,
                 },
+            },{
+                headers: {
+                    Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                },
             })
             .then((response) => {
                 toast.success(response.data.message || "Delete Success");
@@ -187,6 +200,10 @@ const solvedItem = () => {
         axios
             .patch(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
                 ids: checkedItems.value,
+            },{
+                headers: {
+                    Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                },
             })
             .then((response) => {
                 toast.success(response.response.data?.message || "Case Solved");

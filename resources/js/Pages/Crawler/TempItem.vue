@@ -3,6 +3,7 @@ import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
 import SimplePaginateAPI from "@/Components/SimplePaginateAPI.vue";
 import PerPage from "@/Components/PerPage.vue";
 import { onMounted, ref, computed } from "vue";
+import { usePage } from "@inertiajs/vue3";
 import moment from "moment";
 import {
     StarIcon,
@@ -32,6 +33,8 @@ const props = defineProps({
     marketplaces: Object,
     comodities: Object,
 });
+
+const auth = usePage();
 
 const temp_item = ref({});
 const total_data = ref(0);
@@ -88,7 +91,11 @@ onMounted(async () => {
 
 const getTotalData = async () => {
     await axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item/total`)
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item/total`,{
+            headers: {
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            },
+        })
         .then((response) => {
             total_data.value = response.data;
         })
@@ -105,6 +112,9 @@ const getData = async (page = 1) => {
 
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item`, {
+            headers: {
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            },
             params: {
                 page: page,
                 search: search.value,
@@ -155,6 +165,10 @@ const supervisionItem = () => {
         axios
             .post(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
                 ids: checkedItems.value,
+            },{
+                headers: {
+                    Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                },
             })
             .then((response) => {
                 toast.success(response.data.message || "Operation successful");

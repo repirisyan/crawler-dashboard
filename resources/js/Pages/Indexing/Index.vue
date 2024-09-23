@@ -2,7 +2,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import HierarchyCategoryProd from "@/Components/HierarchyCategoryProd.vue";
 import SimplePaginateAPI from "@/Components/SimplePaginateAPI.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, usePage } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
 import VueEasyLightbox from "vue-easy-lightbox";
@@ -30,6 +30,8 @@ const props = defineProps({
     marketplaces: Object,
     comodities: Object,
 });
+
+const auth = usePage()
 
 const products = ref({});
 const total_data = ref(0);
@@ -77,7 +79,11 @@ onMounted(async () => {
 
 const getTotalData = async () => {
     await axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product/total`)
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product/total`,{
+            headers: {
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            },
+        })
         .then((response) => {
             total_data.value = response.data;
         })
@@ -93,6 +99,9 @@ const getData = async (page = 1) => {
     loading.value["certificate"][0] = true;
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product`, {
+            headers: {
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            },
             params: {
                 page: page,
                 search: search.value,

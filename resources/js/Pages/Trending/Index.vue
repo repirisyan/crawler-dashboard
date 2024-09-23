@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import PaginateAPI from "@/Components/PaginateAPI.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, usePage } from "@inertiajs/vue3";
 import { onMounted, ref, computed } from "vue";
 import moment from "moment";
 
@@ -17,6 +17,8 @@ const props = defineProps({
 });
 
 const products = ref({});
+
+const auth = usePage()
 
 // Paginate
 const current_page = ref(0);
@@ -52,6 +54,9 @@ const getData = async (page = 1) => {
     loading.value["marketplace"][0] = true;
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/trending-product`, {
+            headers: {
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            },
             params: {
                 page: page,
                 search: search.value,
