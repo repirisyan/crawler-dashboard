@@ -91,9 +91,9 @@ onMounted(async () => {
 
 const getTotalData = async () => {
     await axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item/total`,{
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item/total`, {
             headers: {
-                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
         })
         .then((response) => {
@@ -113,7 +113,7 @@ const getData = async (page = 1) => {
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item`, {
             headers: {
-                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
             params: {
                 page: page,
@@ -163,13 +163,17 @@ const supervisionItem = () => {
                 .map((item) => item.id);
         });
         axios
-            .post(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
-                ids: checkedItems.value,
-            },{
-                headers: {
-                    Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            .post(
+                `${import.meta.env.VITE_APP_CRAWLER_API}/supervision`,
+                {
+                    ids: checkedItems.value,
                 },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
+                    },
+                },
+            )
             .then((response) => {
                 toast.success(response.data.message || "Operation successful");
             })

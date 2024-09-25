@@ -31,7 +31,7 @@ const props = defineProps({
     comodities: Object,
 });
 
-const auth = usePage()
+const auth = usePage();
 
 const products = ref({});
 const total_data = ref(0);
@@ -79,9 +79,9 @@ onMounted(async () => {
 
 const getTotalData = async () => {
     await axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product/total`,{
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product/total`, {
             headers: {
-                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
         })
         .then((response) => {
@@ -100,7 +100,7 @@ const getData = async (page = 1) => {
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/product`, {
             headers: {
-                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
             params: {
                 page: page,

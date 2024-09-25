@@ -87,9 +87,9 @@ onMounted(async () => {
 
 const getTotalData = async () => {
     axios
-        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision/total`,{
+        .get(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision/total`, {
             headers: {
-                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
         })
         .then((response) => {
@@ -108,7 +108,7 @@ const getData = async (page = 1) => {
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
             headers: {
-                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
             params: {
                 page: page,
@@ -164,15 +164,19 @@ const deleteItem = () => {
                 .map((item) => item.id);
         });
         axios
-            .delete(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
-                data: {
-                    ids: checkedItems.value,
+            .delete(
+                `${import.meta.env.VITE_APP_CRAWLER_API}/supervision`,
+                {
+                    data: {
+                        ids: checkedItems.value,
+                    },
                 },
-            },{
-                headers: {
-                    Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
+                    },
                 },
-            })
+            )
             .then((response) => {
                 toast.success(response.data.message || "Delete Success");
             })
@@ -198,13 +202,17 @@ const solvedItem = () => {
                 .map((item) => item.id);
         });
         axios
-            .patch(`${import.meta.env.VITE_APP_CRAWLER_API}/supervision`, {
-                ids: checkedItems.value,
-            },{
-                headers: {
-                    Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+            .patch(
+                `${import.meta.env.VITE_APP_CRAWLER_API}/supervision`,
+                {
+                    ids: checkedItems.value,
                 },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
+                    },
+                },
+            )
             .then((response) => {
                 toast.success(response.response.data?.message || "Case Solved");
             })

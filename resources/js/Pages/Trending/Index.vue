@@ -18,7 +18,7 @@ const props = defineProps({
 
 const products = ref({});
 
-const auth = usePage()
+const auth = usePage();
 
 // Paginate
 const current_page = ref(0);
@@ -55,7 +55,7 @@ const getData = async (page = 1) => {
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/trending-product`, {
             headers: {
-                Authorization: `Bearer ${auth.props.auth.user.remember_token}`
+                Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
             params: {
                 page: page,
