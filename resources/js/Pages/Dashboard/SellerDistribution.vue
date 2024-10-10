@@ -75,7 +75,7 @@ const updateChart = () => {
                 categories: chartCategories.value,
             },
             theme: {
-                mode: "dark", // Dark mode for the chart
+                mode: "", // Dark mode for the chart
             },
         };
         chartSeries.value = [
