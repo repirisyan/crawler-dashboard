@@ -17,19 +17,19 @@ const chartLoad = ref(true);
 const isDataEmpty = ref(false);
 
 onMounted(async () => {
-    await getSellerDistribution();
+    await getBrandLeaderboard();
 });
 
-const getSellerDistribution = async () => {
+const getBrandLeaderboard = async () => {
     // Reset chart values
     chartCategories.value = [];
     chartData.value = [];
     chartLoad.value = true;
 
     try {
-        // Make API call to get seller distribution
+        // Make API call to get brand leaderboard
         const response = await axios.get(
-            `${import.meta.env.VITE_APP_CRAWLER_API}/seller-distribution`,
+            `${import.meta.env.VITE_APP_CRAWLER_API}/brand-leaderboard`,
             {
                 headers: {
                     Authorization: `Bearer ${page.props.auth.user.remember_token}`,
@@ -45,15 +45,15 @@ const getSellerDistribution = async () => {
         const { data } = response;
 
         // Populate chart data and categories
-        data.forEach(({ _id: { comodity }, totalSeller }) => {
-            chartCategories.value.push(comodity);
-            chartData.value.push(totalSeller);
+        data.forEach(({ _id: { brand }, totalProduct }) => {
+            chartCategories.value.push(brand);
+            chartData.value.push(totalProduct);
         });
 
         // Check if data is empty and update chart options
         updateChart();
     } catch (error) {
-        console.error("Error fetching seller distribution:", error);
+        console.error("Error fetching brand leaderboard:", error);
     } finally {
         chartLoad.value = false;
     }
@@ -67,7 +67,7 @@ const updateChart = () => {
     if (!isDataEmpty.value) {
         chartOptions.value = {
             chart: {
-                id: "SellerDistributionChart",
+                id: "BrandLeaderboardChart",
                 width: "100%",
                 background: "#FFFFFF00", // Transparent background
             },
@@ -82,7 +82,7 @@ const updateChart = () => {
         };
         chartSeries.value = [
             {
-                name: "Total Seller",
+                name: "Total Product",
                 data: chartData.value,
             },
         ];
@@ -101,7 +101,7 @@ const updateChart = () => {
         >
             <div class="card-header">
                 <h1 class="text-center text-2xl font-extrabold mt-5">
-                    Seller Distribution Chart
+                    Top 20 Brand Chart
                     {{ moment(month, "M").format("MMMM") }}
                     {{ year }}
                 </h1>
@@ -109,7 +109,7 @@ const updateChart = () => {
                     <select
                         v-model.lazy="month"
                         class="select select-bordered"
-                        @change="getSellerDistribution"
+                        @change="getBrandLeaderboard"
                     >
                         <option value="1">Januari</option>
                         <option value="2">Februari</option>
@@ -127,7 +127,7 @@ const updateChart = () => {
                     <select
                         v-model.lazy="year"
                         class="select select-bordered"
-                        @change="getSellerDistribution"
+                        @change="getBrandLeaderboard"
                     >
                         <option value="2023">2023</option>
                         <option value="2024">2024</option>
