@@ -75,7 +75,7 @@ const updateChart = () => {
                 categories: chartCategories.value,
             },
             theme: {
-                mode: "", // Dark mode for the chart
+                mode: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
             },
         };
         chartSeries.value = [
