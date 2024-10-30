@@ -90,10 +90,15 @@ onMounted(async () => {
     loading.value["data"][0] = false;
 });
 
+const axiosInstance = axios.create({
+        httpsAgent: new https.Agent({
+                rejectUnauthorized: false
+            })
+})
+
 const getTotalData = async () => {
     await axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item/total`, {
-            httpsAgent: {}
             headers: {
                 Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
@@ -112,11 +117,8 @@ const getData = async (page = 1) => {
     loading.value["marketplace"][0] = true;
     loading.value["certificate"][0] = true;
 
-    axios
+    axiosInstance
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item`, {
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false
-            }),
             headers: {
                 Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
