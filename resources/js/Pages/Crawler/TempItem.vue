@@ -5,6 +5,7 @@ import PerPage from "@/Components/PerPage.vue";
 import { onMounted, ref, computed } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import moment from "moment";
+import https from "https";
 import {
     StarIcon,
     MapPinIcon,
@@ -92,6 +93,7 @@ onMounted(async () => {
 const getTotalData = async () => {
     await axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item/total`, {
+            httpsAgent: {}
             headers: {
                 Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
@@ -112,6 +114,9 @@ const getData = async (page = 1) => {
 
     axios
         .get(`${import.meta.env.VITE_APP_CRAWLER_API}/temp-item`, {
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false
+            }),
             headers: {
                 Authorization: `Bearer ${auth.props.auth.user.remember_token}`,
             },
