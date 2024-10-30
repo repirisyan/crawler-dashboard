@@ -5,7 +5,6 @@ import PerPage from "@/Components/PerPage.vue";
 import { onMounted, ref, computed } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import moment from "moment";
-import https from "https";
 import {
     StarIcon,
     MapPinIcon,
