@@ -161,7 +161,7 @@ const showGallery = (images) => {
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="card">
                             <div
-                                class="card-header flex justify-between verflow-x-auto"
+                                class="card-header flex justify-between overflow-x-auto"
                             >
                                 <div
                                     class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5"

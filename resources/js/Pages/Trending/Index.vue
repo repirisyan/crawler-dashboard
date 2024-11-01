@@ -105,7 +105,7 @@ const getData = async (page = 1) => {
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="card">
                             <div
-                                class="card-header flex justify-between verflow-x-auto mb-4"
+                                class="card-header flex justify-between overflow-x-auto mb-4"
                             >
                                 <div
                                     class="grid grid-cols-1 md:flex lg:flex lg:gap-5 mb-5"
