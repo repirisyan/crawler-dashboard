@@ -19,7 +19,12 @@ const menuGroups = ref([
         menuItems: [
             {
                 label: "Dashboard",
-                route: route("dashboard"),
+                route: "#",
+                children: [
+                    { label: "Pengawasan", route: route("supervision.index") },
+                    { label: "Market Intelligence", route: route("dashboard") },
+                    { label: "Trending", route: route("trending.index") },
+                ],
             },
             {
                 label: "Crawler",
@@ -41,16 +46,8 @@ const menuGroups = ref([
                 ],
             },
             {
-                label: "Supervision",
-                route: route("supervision.index"),
-            },
-            {
                 label: "Indexing",
                 route: route("indexing.index"),
-            },
-            {
-                label: "Trending",
-                route: route("trending.index"),
             },
         ],
     },
