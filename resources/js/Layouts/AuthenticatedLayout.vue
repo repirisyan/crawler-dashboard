@@ -6,6 +6,7 @@ import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { Link } from "@inertiajs/vue3";
 import Notification from "@/Components/Notification.vue";
+import SidebarArea from "@/Components/Sidebar/SidebarArea.vue";
 
 const showingNavigationDropdown = ref(false);
 
@@ -18,14 +19,14 @@ const master_navigation = [
 
 <template>
     <div>
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="bg-gray-100 dark:bg-gray-900">
             <nav
-                class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
+                class="sticky top-0 z-50 md:flex lg:flex w-full drop-shadow-1 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700"
             >
                 <!-- Primary Navigation Menu -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="px-4 sm:px-6 lg:px-8" style="width: 100%">
                     <div class="flex justify-between h-16">
-                        <div class="flex">
+                        <div class="flex gap-3">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('dashboard')">
@@ -35,115 +36,15 @@ const master_navigation = [
                                     />
                                 </Link>
                             </div>
-
-                            <!-- Navigation Links -->
-                            <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
+                            <h1
+                                class="hidden sm:flex items-center dark:text-white text-2xl font-extrabold"
                             >
-                                <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
-                                >
-                                    Dashboard
-                                </NavLink>
-                                <NavLink
-                                    :href="route('crawler.index')"
-                                    :active="route().current('crawler.index')"
-                                >
-                                    Crawler
-                                </NavLink>
-                                <Dropdown
-                                    width="48"
-                                    class="my-auto px-1 pt-1 leading-5"
-                                >
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center border border-transparent text-sm rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
-                                                :class="
-                                                    master_navigation.includes(
-                                                        route().current(),
-                                                    )
-                                                        ? 'text-gray-900 dark:text-white'
-                                                        : ''
-                                                "
-                                            >
-                                                Master Data
-
-                                                <svg
-                                                    class="ms-2 -me-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-
-                                    <template #content>
-                                        <DropdownLink
-                                            :href="route('marketplace.index')"
-                                        >
-                                            Engine
-                                        </DropdownLink>
-                                        <DropdownLink
-                                            :href="route('brand.index')"
-                                        >
-                                            Brand
-                                        </DropdownLink>
-                                        <DropdownLink
-                                            :href="route('comodity.index')"
-                                        >
-                                            Category
-                                        </DropdownLink>
-                                        <DropdownLink
-                                            :href="route('keyword.index')"
-                                        >
-                                            Keyword
-                                        </DropdownLink>
-                                        <DropdownLink
-                                            :href="route('search-list.index')"
-                                        >
-                                            Search List
-                                        </DropdownLink>
-                                        <DropdownLink
-                                            :href="
-                                                route('supervision-list.index')
-                                            "
-                                        >
-                                            Supervision List
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                                <NavLink
-                                    :href="route('supervision.index')"
-                                    :active="
-                                        route().current('supervision.index')
-                                    "
-                                >
-                                    Supervision
-                                </NavLink>
-                                <NavLink
-                                    :href="route('indexing.index')"
-                                    :active="route().current('indexing.index')"
-                                >
-                                    Indexing
-                                </NavLink>
-                                <NavLink
-                                    :href="route('trending.index')"
-                                    :active="route().current('trending.index')"
-                                >
-                                    Trending
-                                </NavLink>
-                            </div>
+                                SISTEM MONITORING PERDAGANGAN MELALUI SISTEM
+                                ELEKTRONIK
+                            </h1>
                         </div>
+
+                        <div></div>
 
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <!-- Settings Dropdown -->
@@ -348,20 +249,32 @@ const master_navigation = [
                 </div>
             </nav>
 
-            <!-- Page Heading -->
-            <header
-                class="bg-white dark:bg-gray-800 shadow"
-                v-if="$slots.header"
-            >
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <slot name="header" />
-                </div>
-            </header>
+            <div class="flex h-screen">
+                <!-- ===== Sidebar Start ===== -->
+                <SidebarArea class="overflow-hidden z-auto" />
+                <!-- ===== Sidebar End ===== -->
 
-            <!-- Page Content -->
-            <main>
-                <slot />
-            </main>
+                <div
+                    class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden min-h-screen"
+                >
+                    <!-- Page Heading -->
+                    <!--   <header
+                        class="bg-white dark:bg-gray-800 shadow mx-5"
+                        v-if="$slots.header"
+                    >
+                        <div
+                            class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8"
+                        >
+                            <slot name="header" />
+                        </div>
+                    </header> -->
+
+                    <!-- Page Content -->
+                    <main>
+                        <slot />
+                    </main>
+                </div>
+            </div>
         </div>
     </div>
 </template>
