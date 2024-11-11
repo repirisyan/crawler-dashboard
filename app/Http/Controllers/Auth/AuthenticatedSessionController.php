@@ -36,12 +36,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $token = Http::post(env('APP_CRAWLER_API').'/sign', [
-            'token' => JWTAuth::attempt($request->only('email', 'password')),
-        ]);
+        $token = JWTAuth::attempt($request->only('email', 'password'));
 
         User::find(Auth::user()->id)->update([
             'remember_token' => $token,
+        ]);
+
+        Http::post(env('APP_CRAWLER_API').'/sign', [
+            'token' => $token,
         ]);
 
         return redirect()->intended(route('dashboard', absolute: false));
