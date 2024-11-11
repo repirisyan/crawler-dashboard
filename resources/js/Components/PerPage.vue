@@ -2,7 +2,7 @@
 const props = defineProps({
     per_page: String | Number,
 });
-console.log(props.per_page);
+
 const emit = defineEmits(["update:modelValue", "getData"]);
 
 const handleSelectChange = (event) => {
