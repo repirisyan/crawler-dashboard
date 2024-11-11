@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('supervision_lists', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->enum('category',['SNI','Halal','Ijin Edar','HAKI']);
+            $table->enum('category', ['SNI', 'Halal', 'Ijin Edar', 'HAKI']);
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

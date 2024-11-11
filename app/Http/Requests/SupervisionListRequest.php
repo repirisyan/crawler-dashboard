@@ -23,7 +23,7 @@ class SupervisionListRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:supervision_lists,name,'.$this->id,
-            'category' => 'required'
+            'category' => 'required',
         ];
     }
 }

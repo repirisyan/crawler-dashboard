@@ -44,7 +44,7 @@ class SupervisionList extends Model
     {
         return $this->find($id)->update([
             'name' => $data['name'],
-            'category' => $data['category']
+            'category' => $data['category'],
         ]);
     }
 

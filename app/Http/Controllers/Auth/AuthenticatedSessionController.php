@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -35,10 +36,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $token = Http::get(env('APP_CRAWLER_API').'/sign');
+        $token = Http::post(env('APP_CRAWLER_API').'/sign', [
+            'token' => JWTAuth::attempt($request->only('email', 'password')),
+        ]);
 
         User::find(Auth::user()->id)->update([
-            'remember_token' => $token
+            'remember_token' => $token,
         ]);
 
         return redirect()->intended(route('dashboard', absolute: false));

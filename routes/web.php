@@ -15,15 +15,6 @@ use App\Http\Controllers\SupervisionListController;
 use App\Http\Controllers\TrendingController;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
-
 Route::redirect('/', 'login');
 
 Route::middleware('auth')->group(function () {
@@ -41,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('crawler', [CrawlerController::class, 'index'])->name('crawler.index');
     Route::get('crawler/{id}/status', [CrawlerController::class, 'getStatus'])->name('crawler.status');
 
-    Route::get('brand', [BrandController::class,'index'])->name('brand.index');
+    Route::get('brand', [BrandController::class, 'index'])->name('brand.index');
 
     Route::prefix('supervision')->group(function () {
         Route::get('/', [SupervisionController::class, 'index'])->name('supervision.index');

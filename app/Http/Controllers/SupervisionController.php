@@ -8,7 +8,6 @@ use Inertia\Inertia;
 
 class SupervisionController extends Controller
 {
-
     public $comodity;
 
     public $marketplace;
