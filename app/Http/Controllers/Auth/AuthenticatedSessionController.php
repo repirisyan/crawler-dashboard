@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
             'remember_token' => $token,
         ]);
 
-        Http::post(env('APP_CRAWLER_API').'/sign', [
+        Http::post(env('APP_CRAWLER_API_PRIVATE').'/sign', [
             'token' => $token,
         ]);
 
