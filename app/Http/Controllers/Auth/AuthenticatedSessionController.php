@@ -42,11 +42,16 @@ class AuthenticatedSessionController extends Controller
             'remember_token' => $token,
         ]);
 
-        Http::post(env('APP_CRAWLER_API_PRIVATE').'/sign', [
+        $return_token = Http::post(env('APP_CRAWLER_API_PRIVATE').'/sign', [
             'token' => $token,
         ]);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        If($token == $return_token){
+            return redirect()->intended(route('dashboard', absolute: false));
+        }else{
+            return to_route('login');
+        }
+
     }
 
     /**
